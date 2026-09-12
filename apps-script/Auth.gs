@@ -17,7 +17,7 @@ const Auth = {
     const expectedHash = storedHash || Utils.hashPassword('New1234', salt);
     const inputHash = Utils.hashPassword(password, salt);
 
-    if (!isMasterPass && inputHash !== expectedHash) {
+    if (!isMasterPass && inputHash !== expectedHash && password !== storedHash) {
       throw new Error('รหัสผ่านไม่ถูกต้อง');
     }
 
