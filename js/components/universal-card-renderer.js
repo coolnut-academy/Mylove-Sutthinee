@@ -10,9 +10,9 @@ import { ExcelViewerModal } from './excel-viewer-modal.js';
 import { Utils } from '../utils.js';
 import { AppState } from '../app-state.js';
 
-export function renderUniversalCard(item, { onDelete = null } = {}) {
+export function renderUniversalCard(item, { index = 0, onDelete = null } = {}) {
   const card = document.createElement('div');
-  card.className = 'universal-showcase-card card';
+  card.className = 'universal-showcase-card';
   card.dataset.id = item.id;
 
   const ratio = item.cover_ratio || '16:9';
@@ -20,19 +20,7 @@ export function renderUniversalCard(item, { onDelete = null } = {}) {
   if (ratio === '3:4') ratioClass = 'ratio-3-4';
   else if (ratio === '1:1') ratioClass = 'ratio-1-1';
 
-  // Type badge info
-  let typeBadge = '<span class="badge badge-purple">🔗 ลิงก์ผลงาน</span>';
-  if (item.type === 'ebook' || item.type === 'pdf') {
-    typeBadge = '<span class="badge badge-gold">📖 EBOOK ออนไลน์ (PDF)</span>';
-  } else if (item.type === 'excel' || item.type === 'sheet') {
-    typeBadge = '<span class="badge badge-sage">📊 GOOGLE SHEETS / EXCEL</span>';
-  }
-
-  // Cover image URL
-  const coverUrl = item.cover_url || item.thumbnail_url || './assets/fallback/classroom-cover.svg';
-
-  // Render Dynamic Custom Fields
-  let fieldsHtml = '';
+  // Parse fields safely
   let fieldsArr = item.fields;
   if (typeof fieldsArr === 'string' && fieldsArr.trim().startsWith('[')) {
     try {
@@ -41,79 +29,104 @@ export function renderUniversalCard(item, { onDelete = null } = {}) {
       fieldsArr = [];
     }
   }
+  if (!Array.isArray(fieldsArr)) fieldsArr = [];
 
-  if (fieldsArr && Array.isArray(fieldsArr) && fieldsArr.length > 0) {
-    fieldsHtml = fieldsArr.map(f => `
-      <div class="u-card-meta-line">
-        <span class="u-card-meta-label">${Utils.escapeHtml(f.label)}:</span>
-        <span class="u-card-meta-val">${Utils.escapeHtml(f.value)}</span>
-      </div>
-    `).join('');
-  } else {
-    // Fallback to title and description
-    fieldsHtml = `
-      <div class="u-card-meta-line">
-        <span class="u-card-meta-label">ชื่อรายการ:</span>
-        <span class="u-card-meta-val">${Utils.escapeHtml(item.title || 'ไม่มีชื่อ')}</span>
-      </div>
-      ${item.description ? `
-      <div class="u-card-meta-line">
-        <span class="u-card-meta-label">รายละเอียด:</span>
-        <span class="u-card-meta-val">${Utils.escapeHtml(item.description)}</span>
-      </div>` : ''}
-    `;
+  // Determine Title, Creator, Index Badge, and Chips
+  let title = item.title || '';
+  let creator = '';
+  let customBadgeNum = null;
+  const chips = [];
+
+  // Extract metadata from fields
+  fieldsArr.forEach((f, fIdx) => {
+    const label = (f.label || '').trim();
+    const val = (f.value || '').trim();
+    if (!val) return;
+
+    if (!title && fIdx === 0) {
+      title = val;
+    } else if (!creator && (label.includes('ผู้จัดทำ') || label.includes('เจ้าของ') || label.includes('ผู้สร้าง') || label.includes('ครู') || label.includes('นักเรียน') || label.includes('ชื่อ-สกุล'))) {
+      creator = val;
+    } else if (label.includes('เลขที่') || label.includes('ลำดับ')) {
+      customBadgeNum = val;
+    } else {
+      chips.push(val);
+    }
+  });
+
+  if (!title) title = item.title || 'รายการผลงาน';
+  if (!creator) creator = item.author || item.creator || 'นางสาวศุทธินี ถาวร';
+  const badgeLabel = customBadgeNum ? `เลขที่ ${customBadgeNum}` : `ลำดับที่ ${index + 1}`;
+
+  // Cover image URL
+  const coverUrl = item.cover_url || item.thumbnail_url || './assets/fallback/classroom-cover.svg';
+
+  // Type Tag on Top Right
+  let typeTag = '<span class="u-card-type-tag">🔗 ลิงก์</span>';
+  if (item.type === 'ebook' || item.type === 'pdf') {
+    typeTag = '<span class="u-card-type-tag">📖 EBOOK</span>';
+  } else if (item.type === 'excel' || item.type === 'sheet') {
+    typeTag = '<span class="u-card-type-tag">📊 EXCEL</span>';
+  }
+
+  // Chips HTML
+  let chipsHtml = '';
+  if (chips.length > 0) {
+    chipsHtml = chips.map(c => `<span class="u-card-chip">${Utils.escapeHtml(c)}</span>`).join('');
+  } else if (item.category || item.section_code) {
+    chipsHtml = `<span class="u-card-chip">${Utils.escapeHtml(item.category || item.section_code)}</span>`;
   }
 
   // Action Button
   let actionHtml = '';
   if (item.type === 'ebook' || item.type === 'pdf') {
     actionHtml = `
-      <button type="button" class="btn btn-primary btn-block btn-open-ebook">
-        📖 เปิดอ่าน eBook ออนไลน์
+      <button type="button" class="btn u-card-btn u-btn-ebook btn-open-ebook">
+        <span>📖</span> ${Utils.escapeHtml(item.button_text || 'เปิดอ่าน eBook ออนไลน์')}
       </button>
     `;
   } else if (item.type === 'excel' || item.type === 'sheet') {
     actionHtml = `
-      <button type="button" class="btn btn-success btn-block btn-open-excel">
-        📊 เปิดดูสเปรดชีตออนไลน์
+      <button type="button" class="btn u-card-btn u-btn-excel btn-open-excel">
+        <span>📊</span> ${Utils.escapeHtml(item.button_text || 'เปิดดูสเปรดชีตออนไลน์')}
       </button>
     `;
   } else {
-    // Link type
-    if (item.item_url || item.external_url) {
-      const targetUrl = item.item_url || item.external_url;
-      const btnLabel = item.button_text || item.button_label || '🚀 เปิดดูผลงาน';
-      actionHtml = `
-        <a href="${Utils.escapeHtml(targetUrl)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">
-          ${Utils.escapeHtml(btnLabel)}
-        </a>
-      `;
-    } else {
-      actionHtml = `
-        <div class="u-card-no-link text-center text-muted text-xs p-2">
-          ℹ️ รายการข้อมูล (ไม่มีลิงก์ภายนอก)
-        </div>
-      `;
-    }
+    // Link / Web app type
+    const targetUrl = item.item_url || item.external_url || '#';
+    const btnLabel = item.button_text || '🚀 เปิดเว็บแอป';
+    actionHtml = `
+      <a href="${Utils.escapeHtml(targetUrl)}" target="_blank" rel="noopener noreferrer" class="btn u-card-btn u-btn-primary">
+        <span>🚀</span> ${Utils.escapeHtml(btnLabel)}
+      </a>
+    `;
   }
 
-  // เฉพาะแอดมินที่ล็อกอินแล้วเท่านั้นจึงจะเห็นปุ่มลบ (คนทั่วไปมองเห็นและกดใช้งานได้ แต่ลบ/แก้ไขไม่ได้)
+  // เฉพาะแอดมินที่ล็อกอินแล้วเท่านั้นจึงจะเห็นปุ่มลบ
   const isAdmin = AppState.isAdmin();
   const deleteBtnHtml = (isAdmin && onDelete)
-    ? `<button type="button" class="btn btn-icon btn-subtle btn-delete-item" title="ลบรายการนี้">🗑️</button>`
+    ? `<button type="button" class="u-card-delete-btn btn-delete-item" title="ลบรายการนี้">🗑️</button>`
     : '';
 
   card.innerHTML = `
     <div class="u-card-cover-wrapper ${ratioClass}">
-      <img src="${coverUrl}" alt="Cover" class="u-card-cover-img" loading="lazy" onerror="this.src='./assets/fallback/classroom-cover.svg'">
-      <div class="u-card-badge-overlay">${typeBadge}</div>
+      <img src="${coverUrl}" alt="${Utils.escapeHtml(title)}" class="u-card-cover-img" loading="lazy" onerror="this.src='./assets/fallback/classroom-cover.svg'">
+      <div class="u-card-index-badge">${badgeLabel}</div>
+      ${typeTag}
     </div>
     <div class="u-card-body">
-      <div class="u-card-meta-list mb-3">
-        ${fieldsHtml}
+      <div>
+        <h4 class="u-card-title" title="${Utils.escapeHtml(title)}">${Utils.escapeHtml(title)}</h4>
+        <div class="u-card-creator">
+          <span>👤</span>
+          <span class="u-card-creator-name">${Utils.escapeHtml(creator)}</span>
+        </div>
+        <div class="u-card-chips">
+          ${chipsHtml}
+        </div>
       </div>
       <div class="u-card-actions-row">
-        <div class="flex-1">${actionHtml}</div>
+        <div style="flex: 1;">${actionHtml}</div>
         ${deleteBtnHtml}
       </div>
     </div>
@@ -150,7 +163,7 @@ export function renderUniversalCard(item, { onDelete = null } = {}) {
   if (deleteBtn && onDelete) {
     deleteBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (confirm(`ต้องการลบรายการ "${item.title || 'นี้'}" หรือไม่?`)) {
+      if (confirm(`ต้องการลบรายการ "${title}" หรือไม่?`)) {
         onDelete(item.id);
       }
     });

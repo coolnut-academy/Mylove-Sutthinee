@@ -392,65 +392,45 @@ class PaPageController {
              (this.currentSec.startsWith('challenge') && item.section_code === 'CHALLENGE');
     });
 
-    if (evidenceCountEl) evidenceCountEl.textContent = `${items.length} รายการ`;
+    if (evidenceCountEl) evidenceCountEl.textContent = `🚀 ${items.length} ผลงาน`;
 
-    if (evidenceGrid) {
-      evidenceGrid.innerHTML = '';
-      if (items.length === 0) {
-        evidenceGrid.className = '';
-        evidenceGrid.innerHTML = `
-          <div class="u-empty-state" style="grid-column: 1 / -1;">
-            <div class="u-empty-icon">📁</div>
-            <h3 class="u-empty-title">ยังไม่มีเอกสารหรือหลักฐานในตัวชี้วัดนี้</h3>
-            <p class="u-empty-desc">
-              สามารถบันทึกข้อมูลจัดแสดงได้ 3 รูปแบบ: รูปภาพ+ข้อความ+Link, เอกสาร eBook ออนไลน์ (PDF), หรือสเปรดชีต Excel (Google Sheets)
-            </p>
-            <button type="button" class="btn btn-primary btn-empty-add-pa">
-              ➕ เพิ่มข้อมูลชิ้นแรก
-            </button>
-          </div>
-        `;
-        evidenceGrid.querySelector('.btn-empty-add-pa')?.addEventListener('click', () => {
-          if (!AppState.isAdmin()) {
-            this._openAdminLoginModal(() => {
-              UniversalItemModal.open({
-                module: 'pa',
-                year: this.currentYear,
-                sectionCode: this.currentSec,
-                sectionTitle: meta.title,
-                onSaveSuccess: () => this._loadPaData(this.currentYear)
-              });
-            });
-            return;
-          }
-          UniversalItemModal.open({
-            module: 'pa',
-            year: this.currentYear,
-            sectionCode: this.currentSec,
-            sectionTitle: meta.title,
-            onSaveSuccess: () => this._loadPaData(this.currentYear)
-          });
+    // Render Grid with Search & Sort
+    this._renderPaItemsGrid(items, meta);
+
+    // Setup Search & Sort Event Listeners
+    const searchInput = document.getElementById('pa-showcase-search');
+    const sortSelect = document.getElementById('pa-showcase-sort');
+
+    if (searchInput && !searchInput._bound) {
+      searchInput._bound = true;
+      searchInput.addEventListener('input', (e) => {
+        this._paSearchQuery = e.target.value.trim().toLowerCase();
+        const currentItems = this.paItems.filter(item => {
+          return item.section_code === this.currentSec || 
+                 (this.currentSec.startsWith('challenge') && item.section_code === 'CHALLENGE');
         });
-      } else {
-        evidenceGrid.className = 'universal-showcase-grid';
-        items.forEach(item => {
-          evidenceGrid.appendChild(renderUniversalCard(item, {
-            onDelete: async (id) => {
-              await DataProvider.pa.deleteItem(id);
-              Toast.success('ลบรายการเรียบร้อย');
-              this._loadPaData(this.currentYear);
-            }
-          }));
+        this._renderPaItemsGrid(currentItems, meta);
+      });
+    }
+
+    if (sortSelect && !sortSelect._bound) {
+      sortSelect._bound = true;
+      sortSelect.addEventListener('change', (e) => {
+        this._paSortKey = e.target.value;
+        const currentItems = this.paItems.filter(item => {
+          return item.section_code === this.currentSec || 
+                 (this.currentSec.startsWith('challenge') && item.section_code === 'CHALLENGE');
         });
-      }
+        this._renderPaItemsGrid(currentItems, meta);
+      });
     }
 
     // Always display Add Entry button in the indicator header
     const adminActions = document.getElementById('detail-admin-actions');
     if (adminActions) {
       adminActions.innerHTML = `
-        <button type="button" class="btn btn-primary btn-sm" id="btn-sec-add-universal">
-          <span>➕</span> เพิ่มข้อมูล (${meta.title})
+        <button type="button" class="btn-add-showcase" id="btn-sec-add-universal">
+          <span>➕</span> เพิ่มผลงาน / ร่องรอยหลักฐาน
         </button>
       `;
       document.getElementById('btn-sec-add-universal')?.addEventListener('click', () => {
@@ -495,6 +475,95 @@ class PaPageController {
         btn.style.opacity = (idx >= SECTION_SEQUENCE.length - 1) ? '0.5' : '1';
       }
     });
+  }
+
+  _renderPaItemsGrid(items, meta) {
+    const evidenceGrid = document.getElementById('detail-evidence-grid');
+    if (!evidenceGrid) return;
+
+    // 1. Filter by search query
+    let filtered = [...items];
+    const q = this._paSearchQuery || '';
+    if (q) {
+      filtered = filtered.filter(item => {
+        const titleMatch = (item.title || '').toLowerCase().includes(q);
+        const descMatch = (item.description || '').toLowerCase().includes(q);
+        const btnMatch = (item.button_text || '').toLowerCase().includes(q);
+        const urlMatch = (item.item_url || item.external_url || '').toLowerCase().includes(q);
+        let fieldsMatch = false;
+        if (item.fields) {
+          const str = typeof item.fields === 'string' ? item.fields : JSON.stringify(item.fields);
+          fieldsMatch = str.toLowerCase().includes(q);
+        }
+        return titleMatch || descMatch || btnMatch || urlMatch || fieldsMatch;
+      });
+    }
+
+    // 2. Sort items
+    const sortKey = this._paSortKey || 'order-asc';
+    filtered.sort((a, b) => {
+      if (sortKey === 'order-desc') {
+        return (Number(b.sort_order) || 0) - (Number(a.sort_order) || 0);
+      } else if (sortKey === 'title-asc') {
+        return (a.title || '').localeCompare(b.title || '', 'th');
+      } else if (sortKey === 'latest') {
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      } else {
+        return (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0);
+      }
+    });
+
+    evidenceGrid.innerHTML = '';
+
+    if (filtered.length === 0) {
+      evidenceGrid.className = '';
+      evidenceGrid.innerHTML = `
+        <div class="u-empty-state" style="grid-column: 1 / -1;">
+          <div class="u-empty-icon">📁</div>
+          <h3 class="u-empty-title">${q ? 'ไม่พบผลงานที่ตรงกับการค้นหา' : 'ยังไม่มีเอกสารหรือหลักฐานในหัวข้อนี้'}</h3>
+          <p class="u-empty-desc">
+            ${q ? 'กรุณาลองเปลี่ยนคำค้นหาใหม่อีกครั้ง' : 'สามารถบันทึกข้อมูลจัดแสดงได้ 3 รูปแบบ: รูปภาพ+ข้อความ+Link/เว็บแอป, เอกสาร eBook ออนไลน์ (PDF), หรือสเปรดชีต Excel (Google Sheets)'}
+          </p>
+          ${!q ? `
+          <button type="button" class="btn btn-primary btn-empty-add-pa">
+            ➕ เพิ่มข้อมูลชิ้นแรก
+          </button>` : ''}
+        </div>
+      `;
+      evidenceGrid.querySelector('.btn-empty-add-pa')?.addEventListener('click', () => {
+        if (!AppState.isAdmin()) {
+          this._openAdminLoginModal(() => {
+            UniversalItemModal.open({
+              module: 'pa',
+              year: this.currentYear,
+              sectionCode: this.currentSec,
+              sectionTitle: meta.title,
+              onSaveSuccess: () => this._loadPaData(this.currentYear)
+            });
+          });
+          return;
+        }
+        UniversalItemModal.open({
+          module: 'pa',
+          year: this.currentYear,
+          sectionCode: this.currentSec,
+          sectionTitle: meta.title,
+          onSaveSuccess: () => this._loadPaData(this.currentYear)
+        });
+      });
+    } else {
+      evidenceGrid.className = 'universal-showcase-grid';
+      filtered.forEach((item, idx) => {
+        evidenceGrid.appendChild(renderUniversalCard(item, {
+          index: idx,
+          onDelete: async (id) => {
+            await DataProvider.pa.deleteItem(id);
+            Toast.success('ลบรายการเรียบร้อย');
+            this._loadPaData(this.currentYear);
+          }
+        }));
+      });
+    }
   }
 
   _getSectionMeta(code) {

@@ -288,7 +288,7 @@ export class UniversalItemModal {
       if (rawUrl) {
         itemUrl = rawUrl.startsWith('http') ? rawUrl : `https://${rawUrl}`;
       }
-      btnText = document.getElementById('u-item-btn-text')?.value.trim() || '';
+      btnText = document.getElementById('u-item-btn-text')?.value.trim() || 'เปิดเว็บแอป';
     } else {
       if (!this.state.fileBase64) {
         Toast.error(type === 'ebook' ? 'กรุณาแนบไฟล์ PDF สำหรับ eBook' : 'กรุณาแนบไฟล์ Excel');
@@ -475,7 +475,7 @@ export class UniversalItemModal {
             <label class="form-label text-xs text-secondary mb-1" for="u-item-btn-text">
               ข้อความบนปุ่มกด (ตัวเลือกเสริม เช่น "🎮 เล่นเกม", "🚀 เข้าสู่เว็บไซต์")
             </label>
-            <input type="text" id="u-item-btn-text" class="form-control" placeholder="🚀 เปิดดูผลงาน (ค่าเริ่มต้น)">
+            <input type="text" id="u-item-btn-text" class="form-control" placeholder="🚀 เปิดเว็บแอป (ค่าเริ่มต้น)">
           </div>
 
           <!-- Conditional Input B: Document File Upload (PDF or Excel) -->

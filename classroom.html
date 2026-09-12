@@ -267,29 +267,55 @@
 
       <!-- VIEW 2: SINGLE-JOB VIEW (One Page = One Job) -->
       <section id="classroom-job-view" class="d-none animate-fade-in">
-        <!-- Job Top Bar -->
-        <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
-          <div class="d-flex align-center gap-3">
-            <a href="./classroom.html" class="btn btn-secondary btn-sm" id="btn-back-to-menu">
-              &larr; กลับไปเมนูธุรการ
-            </a>
-            <div>
-              <h2 class="font-bold text-purple" id="job-view-title" style="font-size: var(--font-size-xl); margin-bottom: 2px;">
+        <!-- Job Top Bar with Back Button -->
+        <div class="mb-4">
+          <a href="./classroom.html" class="btn btn-secondary btn-sm" id="btn-back-to-menu">
+            &larr; กลับไปเมนูธุรการทั้งหมด
+          </a>
+        </div>
+
+        <!-- Showcase Header Hero Card (Matching Reference Layout) -->
+        <div class="u-showcase-header-card">
+          <div class="u-showcase-header-top">
+            <div class="u-showcase-title-area">
+              <div class="badge badge-purple mb-2" id="job-view-badge">ธุรการในชั้นเรียน</div>
+              <h1 class="u-showcase-title" id="job-view-title">
                 ชื่องาน
-              </h2>
-              <div class="text-muted" style="font-size: var(--font-size-xs);" id="job-view-subtitle">
-                ปีการศึกษา 2569
+              </h1>
+              <div class="u-showcase-desc" id="job-view-subtitle">
+                คำอธิบายงานธุรการ...
               </div>
             </div>
+            <div class="u-showcase-badges">
+              <span class="u-badge-status-green">🟢 พร้อมนำเสนอผลงาน</span>
+              <span class="u-badge-count-pill" id="job-view-count">🚀 0 ผลงาน</span>
+            </div>
           </div>
+          <hr class="u-showcase-divider">
+          <div class="u-showcase-header-actions" id="job-admin-actions">
+            <!-- Add Item Action Injected -->
+          </div>
+        </div>
 
-          <div class="d-flex align-center gap-2 flex-wrap" id="job-admin-actions">
-            <!-- Contextual admin actions injected if admin logged in -->
+        <!-- Search & Filter Toolbar -->
+        <div class="u-showcase-toolbar">
+          <div class="u-search-box">
+            <span class="u-search-icon">🔍</span>
+            <input type="text" class="u-search-input" id="cls-showcase-search" placeholder="ค้นหาตามชื่อเอกสาร, เว็บแอป, ผู้จัดทำ, หรือคำสำคัญ...">
+          </div>
+          <div class="u-sort-box">
+            <span class="u-sort-label">เรียงตาม:</span>
+            <select class="u-sort-select" id="cls-showcase-sort">
+              <option value="order-asc">ลำดับ (น้อย → มาก) & ชื่อไทย (ก-ฮ)</option>
+              <option value="order-desc">ลำดับ (มาก → น้อย)</option>
+              <option value="title-asc">ชื่อผลงาน (ก-ฮ)</option>
+              <option value="latest">เพิ่มล่าสุด</option>
+            </select>
           </div>
         </div>
 
         <!-- Job Container for Dynamic Content -->
-        <div id="job-view-content" class="card">
+        <div id="job-view-content" class="mb-6">
           <!-- Populated dynamically by classroom.js based on current view -->
         </div>
       </section>

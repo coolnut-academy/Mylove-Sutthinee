@@ -327,8 +327,10 @@ class ClassroomPageController {
 
     const titleEl = document.getElementById('job-view-title');
     const subtitleEl = document.getElementById('job-view-subtitle');
+    const countEl = document.getElementById('job-view-count');
+
     if (titleEl) titleEl.innerHTML = `${jobMeta.icon} ${jobMeta.title}`;
-    if (subtitleEl) subtitleEl.textContent = `ปีการศึกษา ${this.currentYear} · ${jobMeta.desc}`;
+    if (subtitleEl) subtitleEl.textContent = `พื้นที่จัดเก็บและนำเสนอข้อมูลสำหรับ ${jobMeta.title} ประจำปีการศึกษา ${this.currentYear} · ${jobMeta.desc}`;
 
     document.title = `${jobMeta.title} (ปี ${this.currentYear}) — ธุรการในชั้นเรียน`;
 
@@ -340,8 +342,8 @@ class ClassroomPageController {
     const adminActions = document.getElementById('job-admin-actions');
     if (adminActions) {
       adminActions.innerHTML = `
-        <button type="button" class="btn btn-primary btn-sm" id="btn-job-admin-add">
-          <span>➕</span> เพิ่มข้อมูล (${jobMeta.title})
+        <button type="button" class="btn-add-showcase" id="btn-job-admin-add">
+          <span>➕</span> เพิ่มผลงาน / ข้อมูล (${jobMeta.title})
         </button>
       `;
       document.getElementById('btn-job-admin-add')?.addEventListener('click', () => {
@@ -367,6 +369,25 @@ class ClassroomPageController {
       });
     }
 
+    // Setup Search & Sort Event Listeners
+    const searchInput = document.getElementById('cls-showcase-search');
+    const sortSelect = document.getElementById('cls-showcase-sort');
+
+    if (searchInput && !searchInput._bound) {
+      searchInput._bound = true;
+      searchInput.addEventListener('input', (e) => {
+        this._clsSearchQuery = e.target.value.trim().toLowerCase();
+        this._renderJobContent(this.currentView, container);
+      });
+    }
+
+    if (sortSelect && !sortSelect._bound) {
+      sortSelect._bound = true;
+      sortSelect.addEventListener('change', (e) => {
+        this._clsSortKey = e.target.value;
+        this._renderJobContent(this.currentView, container);
+      });
+    }
 
     this._renderJobContent(this.currentView, container);
   }
@@ -404,18 +425,54 @@ class ClassroomPageController {
     // Filter documents for this specific job
     const jobItems = documents.filter(d => d.category === job || d.job === job);
 
-    if (jobItems.length === 0) {
+    const countEl = document.getElementById('job-view-count');
+    if (countEl) countEl.textContent = `🚀 ${jobItems.length} ผลงาน`;
+
+    // Apply search filter
+    let filtered = [...jobItems];
+    const q = this._clsSearchQuery || '';
+    if (q) {
+      filtered = filtered.filter(item => {
+        const titleMatch = (item.title || '').toLowerCase().includes(q);
+        const descMatch = (item.description || '').toLowerCase().includes(q);
+        const btnMatch = (item.button_text || '').toLowerCase().includes(q);
+        const urlMatch = (item.item_url || item.external_url || '').toLowerCase().includes(q);
+        let fieldsMatch = false;
+        if (item.fields) {
+          const str = typeof item.fields === 'string' ? item.fields : JSON.stringify(item.fields);
+          fieldsMatch = str.toLowerCase().includes(q);
+        }
+        return titleMatch || descMatch || btnMatch || urlMatch || fieldsMatch;
+      });
+    }
+
+    // Apply sorting
+    const sortKey = this._clsSortKey || 'order-asc';
+    filtered.sort((a, b) => {
+      if (sortKey === 'order-desc') {
+        return (Number(b.sort_order) || 0) - (Number(a.sort_order) || 0);
+      } else if (sortKey === 'title-asc') {
+        return (a.title || '').localeCompare(b.title || '', 'th');
+      } else if (sortKey === 'latest') {
+        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+      } else {
+        return (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0);
+      }
+    });
+
+    if (filtered.length === 0) {
       // Clean Empty state with Add Entry CTA
       container.innerHTML = `
         <div class="u-empty-state">
           <div class="u-empty-icon">${jobMeta.icon}</div>
-          <h3 class="u-empty-title">ยังไม่มีข้อมูลในหัวข้อ "${jobMeta.title}"</h3>
+          <h3 class="u-empty-title">${q ? 'ไม่พบข้อมูลที่ตรงกับการค้นหา' : `ยังไม่มีข้อมูลในหัวข้อ "${jobMeta.title}"`}</h3>
           <p class="u-empty-desc">
-            สามารถบันทึกข้อมูลจัดแสดงได้ 3 รูปแบบ: รูปภาพ+ข้อความ+Link, เอกสาร eBook ออนไลน์ (PDF), หรือสเปรดชีต Excel (Google Sheets)
+            ${q ? 'กรุณาลองเปลี่ยนคำค้นหาใหม่อีกครั้ง' : 'สามารถบันทึกข้อมูลจัดแสดงได้ 3 รูปแบบ: รูปภาพ+ข้อความ+Link/เว็บแอป, เอกสาร eBook ออนไลน์ (PDF), หรือสเปรดชีต Excel (Google Sheets)'}
           </p>
+          ${!q ? `
           <button type="button" class="btn btn-primary btn-empty-add-first">
             ➕ เพิ่มข้อมูลชิ้นแรก
-          </button>
+          </button>` : ''}
         </div>
       `;
       container.querySelector('.btn-empty-add-first')?.addEventListener('click', () => {
@@ -442,17 +499,15 @@ class ClassroomPageController {
       return;
     }
 
-    // Render items in a responsive grid
+    // Render items in a responsive showcase grid
     container.innerHTML = `
-      <div class="d-flex align-center justify-between mb-4">
-        <span class="badge badge-purple">${jobItems.length} รายการ</span>
-      </div>
       <div class="universal-showcase-grid" id="job-items-grid"></div>
     `;
 
     const grid = container.querySelector('#job-items-grid');
-    jobItems.forEach(item => {
+    filtered.forEach((item, idx) => {
       grid.appendChild(renderUniversalCard(item, {
+        index: idx,
         onDelete: async (id) => {
           await DataProvider.classroom.deleteDocument(id, this.currentYear);
           Toast.success('ลบรายการเรียบร้อย');

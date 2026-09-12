@@ -261,41 +261,49 @@
           </button>
         </div>
 
-        <!-- Indicator Header & Admin Context Bar -->
-        <div class="d-flex align-center justify-between flex-wrap gap-3 mb-4">
-          <div>
-            <div class="badge badge-purple mb-1" id="detail-aspect-badge">ด้านที่ 1 การจัดการเรียนรู้</div>
-            <h1 class="pa-detail-heading" id="detail-title">
-              1.1 การสร้างและหรือพัฒนาหลักสูตร
-            </h1>
+        <!-- Showcase Header Hero Card (Matching Reference Layout) -->
+        <div class="u-showcase-header-card">
+          <div class="u-showcase-header-top">
+            <div class="u-showcase-title-area">
+              <div class="badge badge-purple mb-2" id="detail-aspect-badge">ด้านที่ 1 การจัดการเรียนรู้</div>
+              <h1 class="u-showcase-title" id="detail-title">
+                1.1 การสร้างและหรือพัฒนาหลักสูตร
+              </h1>
+              <div class="u-showcase-desc" id="detail-desc">
+                กำลังโหลดรายละเอียด...
+              </div>
+            </div>
+            <div class="u-showcase-badges">
+              <span class="u-badge-status-green">🟢 พร้อมนำเสนอผลงาน</span>
+              <span class="u-badge-count-pill" id="detail-evidence-count">🚀 0 ผลงาน</span>
+            </div>
           </div>
-          <div class="d-flex align-center gap-2" id="detail-admin-actions">
-            <!-- Injected when Admin is logged in -->
+          <hr class="u-showcase-divider">
+          <div class="u-showcase-header-actions" id="detail-admin-actions">
+            <!-- Add Item Action Injected -->
           </div>
         </div>
 
-        <!-- Detail Content Box -->
-        <div class="card mb-6">
-          <h3 class="text-purple font-semibold mb-3" style="font-size: var(--font-size-md);">
-            รายละเอียดการปฏิบัติงาน
-          </h3>
-          <div class="pa-detail-desc" id="detail-desc">
-            กำลังโหลดรายละเอียด...
+        <!-- Search & Filter Toolbar -->
+        <div class="u-showcase-toolbar">
+          <div class="u-search-box">
+            <span class="u-search-icon">🔍</span>
+            <input type="text" class="u-search-input" id="pa-showcase-search" placeholder="ค้นหาตามชื่อผลงาน, เว็บแอป, ผู้จัดทำ, หรือคำสำคัญ...">
+          </div>
+          <div class="u-sort-box">
+            <span class="u-sort-label">เรียงตาม:</span>
+            <select class="u-sort-select" id="pa-showcase-sort">
+              <option value="order-asc">ลำดับ (น้อย → มาก) & ชื่อไทย (ก-ฮ)</option>
+              <option value="order-desc">ลำดับ (มาก → น้อย)</option>
+              <option value="title-asc">ชื่อผลงาน (ก-ฮ)</option>
+              <option value="latest">เพิ่มล่าสุด</option>
+            </select>
           </div>
         </div>
 
-        <!-- Detail Evidence Files & Photos -->
-        <div class="card mb-6">
-          <div class="d-flex align-center justify-between mb-4">
-            <h3 class="text-purple font-semibold" style="font-size: var(--font-size-md); margin-bottom: 0;">
-              เอกสารและร่องรอยหลักฐาน
-            </h3>
-            <span class="badge badge-sage" id="detail-evidence-count">0 รายการ</span>
-          </div>
-
-          <div id="detail-evidence-grid" class="evidence-grid">
-            <!-- Populated dynamically -->
-          </div>
+        <!-- Detail Evidence Files & Photos Showcase Grid -->
+        <div id="detail-evidence-grid" class="universal-showcase-grid mb-6">
+          <!-- Populated dynamically -->
         </div>
 
         <!-- Bottom Reader Navigation -->
