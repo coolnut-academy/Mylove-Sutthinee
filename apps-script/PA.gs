@@ -4,6 +4,26 @@
  */
 
 const PA = {
+  updateSection: function(payload) {
+    if (!payload.year || !payload.section_code || !String(payload.title || '').trim()) {
+      throw new Error('กรุณาระบุปี รหัสตัวชี้วัด และชื่อหัวข้อ');
+    }
+    let section = Sheets.getTable('PA_SECTIONS').find(row =>
+      String(row.year) === String(payload.year) && String(row.section_code) === String(payload.section_code));
+    if (!section) {
+      const allowed = ['profile', 'agreement', 'workload', 'CHALLENGE', 'challenge_method', 'challenge_innovation', 'challenge_evidence', 'challenge_results'];
+      if (!allowed.includes(String(payload.section_code)) || !/^\d{4}$/.test(String(payload.year))) {
+        throw new Error('ไม่พบหัวข้อ ว.PA ในปีที่เลือก');
+      }
+      section = { id: 'sec_' + payload.year + '_' + payload.section_code, year: String(payload.year), section_code: payload.section_code, published: true, archived: false };
+    }
+    if (!section.id) throw new Error('หัวข้อ ว.PA ไม่มีรหัสรายการ');
+    return Sheets.saveVerified('PA_SECTIONS', {
+      id: section.id, year: section.year, section_code: section.section_code,
+      title: String(payload.title).trim(), description: String(payload.description || ''),
+      published: section.published, archived: section.archived
+    }, 'sec');
+  },
   getSections: function(year) {
     const y = String(year);
     return Sheets.getTable('PA_SECTIONS')

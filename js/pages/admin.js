@@ -24,10 +24,10 @@ class AdminPageController {
   }
 
   async init() {
-    this.authController = new AdminAuthController(() => this.onAuthenticated());
     this.appearanceController = new AdminAppearanceController();
     this.yearsController = new AdminYearsController((newYear) => this.onYearCreated(newYear));
     this.uploadController = new AdminUploadManagerController(() => this.currentYear);
+    this.authController = new AdminAuthController(() => this.onAuthenticated());
 
     this._bindTaskTabs();
     this._bindYearSwitcher();
@@ -38,14 +38,12 @@ class AdminPageController {
     let loadError = null;
     Loading.start();
     try {
-      await this.loadYears();
+      await Promise.all([
+        this.loadYears(), this.loadSettingsProfile(),
+        this.appearanceController.loadSettings(), this.yearsController.loadYears(),
+        this.uploadController.loadOptions(), this._renderPaTocList()
+      ]);
       if (AppState.session !== session) return;
-      await this.loadSettingsProfile();
-      if (AppState.session !== session) return;
-      this.appearanceController.loadSettings();
-      this.yearsController.loadYears();
-      this.uploadController.loadOptions();
-      await this._renderPaTocList();
       this._bindClassroomActions();
     } catch (err) {
       console.error("Admin init error:", err);
@@ -141,6 +139,8 @@ class AdminPageController {
 
   _bindClassroomActions() {
     document.querySelectorAll('.btn-cls-manage').forEach(btn => {
+      if (btn._manageBound) return;
+      btn._manageBound = true;
       btn.addEventListener('click', () => {
         const job = btn.getAttribute('data-job');
         window.open(`./classroom.html?view=${job}&year=${this.currentYear}`, '_blank');
@@ -149,12 +149,15 @@ class AdminPageController {
   }
 
   async _renderPaTocList() {
+    const year = this.currentYear;
+    const requestId = this._paRequestId = (this._paRequestId || 0) + 1;
     const container = document.getElementById('admin-pa-toc-list');
     if (!container) return;
 
     try {
-      const data = await PaApi.getPaData(this.currentYear);
-      const sections = data.sections || [];
+      const sections = await PaApi.getSections(year) || [];
+      if (requestId !== this._paRequestId || String(year) !== String(this.currentYear) || !AppState.isAdmin()) return;
+      this.paSections = sections;
 
       container.innerHTML = sections.map(sec => `
         <div class="card p-3 d-flex align-center justify-between flex-wrap gap-3" style="border-left: 4px solid var(--purple-400);">
@@ -183,7 +186,7 @@ class AdminPageController {
         btn.addEventListener('click', () => {
           const code = btn.getAttribute('data-code');
           const title = btn.getAttribute('data-title');
-          this._openEditPaSectionModal(code, title);
+          this._openEditPaSectionModal(code, title, this.paSections.find(s => String(s.section_code) === code)?.description || '');
         });
       });
 
@@ -193,20 +196,19 @@ class AdminPageController {
           const code = btn.getAttribute('data-code');
           // Switch to upload task tab and pre-select section
           document.querySelector('[data-task="upload"]')?.click();
-          setTimeout(() => {
-            const secSelect = document.getElementById('upload-target-section');
-            if (secSelect) secSelect.value = code;
-          }, 150);
+          this.uploadController.selectSection(code);
         });
       });
 
     } catch (err) {
       console.error("Failed to render PA TOC in admin:", err);
+      if (requestId !== this._paRequestId || String(year) !== String(this.currentYear) || !AppState.isAdmin()) return;
       container.innerHTML = `<div class="text-muted text-center py-4">ไม่สามารถโหลดรายการตัวชี้วัดได้</div>`;
     }
   }
 
-  _openEditPaSectionModal(secCode, currentTitle) {
+  _openEditPaSectionModal(secCode, currentTitle, currentDescription = '') {
+    const year = this.currentYear;
     const body = document.createElement('div');
     body.innerHTML = `
       <div class="mb-3">
@@ -215,11 +217,11 @@ class AdminPageController {
       </div>
       <div class="form-group">
         <label class="form-label" for="edit-pa-title">หัวข้อตัวชี้วัด</label>
-        <input type="text" id="edit-pa-title" class="form-control" value="${currentTitle}" required>
+        <input type="text" id="edit-pa-title" class="form-control" value="${Utils.escapeHtml(currentTitle)}" required>
       </div>
       <div class="form-group">
         <label class="form-label" for="edit-pa-desc">คำอธิบายรายละเอียดการปฏิบัติงาน</label>
-        <textarea id="edit-pa-desc" class="form-control" rows="4" placeholder="ระบุการปฏิบัติงานและผลลัพธ์..."></textarea>
+        <textarea id="edit-pa-desc" class="form-control" rows="4" placeholder="ระบุการปฏิบัติงานและผลลัพธ์...">${Utils.escapeHtml(currentDescription)}</textarea>
       </div>
     `;
 
@@ -240,6 +242,7 @@ class AdminPageController {
 
         try {
           await PaApi.updateSection(secCode, {
+            year,
             title: newTitle,
             description: newDesc
           });

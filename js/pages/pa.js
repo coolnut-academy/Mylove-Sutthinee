@@ -698,11 +698,13 @@ class PaPageController {
   }
 
   _openEditSectionModal(secCode, meta) {
+    const year = this.currentYear;
+    const currentDescription = this.paSections.find(s => String(s.section_code) === String(secCode))?.description || '';
     const body = document.createElement('div');
     body.innerHTML = `
       <div class="mb-3">
         <span class="badge badge-purple">ปีการศึกษา ${this.currentYear}</span>
-        <span class="badge badge-gold">${meta.title}</span>
+        <span class="badge badge-gold">${Utils.escapeHtml(meta.title)}</span>
       </div>
       <div class="form-group">
         <label class="form-label" for="edit-sec-title">หัวข้อตัวชี้วัด</label>
@@ -710,7 +712,7 @@ class PaPageController {
       </div>
       <div class="form-group">
         <label class="form-label" for="edit-sec-desc">คำอธิบายรายละเอียดการปฏิบัติงาน</label>
-        <textarea id="edit-sec-desc" class="form-control" rows="5" placeholder="ระบุการปฏิบัติงานและผลลัพธ์..."></textarea>
+        <textarea id="edit-sec-desc" class="form-control" rows="5" placeholder="ระบุการปฏิบัติงานและผลลัพธ์...">${Utils.escapeHtml(currentDescription)}</textarea>
       </div>
     `;
 
@@ -731,6 +733,7 @@ class PaPageController {
 
         try {
           await PaApi.updateSection(secCode, {
+            year,
             title: newTitle,
             description: newDesc
           });

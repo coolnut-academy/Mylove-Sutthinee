@@ -6,6 +6,7 @@
 import { CONFIG } from './config.js';
 
 export const Cache = {
+  _revision: 0,
   /**
    * Build unified cache key
    */
@@ -53,6 +54,7 @@ export const Cache = {
    * Invalidate specific keys or namespace
    */
   invalidate(pattern = '') {
+    this._revision++;
     if (typeof window === 'undefined' || !window.localStorage) return;
     try {
       const keys = Object.keys(window.localStorage);
@@ -75,6 +77,7 @@ export const Cache = {
    *     ทำให้หน้าเว็บเปิดเร็ว ไม่ค้าง และอัปเดตแคชในพื้นหลังอย่างต่อเนื่อง
    */
   async swr(key, fetcher, onFreshData) {
+    const revision = this._revision;
     const cached = this.get(key);
     if (cached && onFreshData) {
       onFreshData(cached, true /* isFromCache */);
@@ -85,8 +88,8 @@ export const Cache = {
       const networkPromise = (async () => {
         try {
           const fresh = await fetcher();
-          this.set(key, fresh);
-          if (onFreshData && isSettled) {
+          if (revision === this._revision) this.set(key, fresh);
+          if (onFreshData && isSettled && revision === this._revision) {
             onFreshData(fresh, false /* isFromCache */);
           }
           return fresh;
@@ -106,8 +109,8 @@ export const Cache = {
 
     try {
       const fresh = await fetcher();
-      this.set(key, fresh);
-      if (onFreshData) {
+      if (revision === this._revision) this.set(key, fresh);
+      if (onFreshData && revision === this._revision) {
         onFreshData(fresh, false /* isFromCache */);
       }
       return fresh;

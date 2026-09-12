@@ -131,6 +131,10 @@ const Router = {
           result = PA.saveItem(payload);
           break;
 
+        case 'updatePaSection':
+          result = PA.updateSection(payload);
+          break;
+
         case 'setPublished':
           result = PA.setPublished(payload.id, payload.published);
           break;

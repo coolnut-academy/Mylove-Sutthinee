@@ -28,6 +28,20 @@ for (const name of ['Utils', 'Sheets', 'Drive', 'Classroom', 'PA', 'Upload']) {
   vm.runInContext(fs.readFileSync(`apps-script/${name}.gs`, 'utf8') + `\nglobalThis.${name} = ${name};`, context);
 }
 const { Sheets, Classroom, PA, Drive, Upload } = context;
+tabs.set('PA_SECTIONS', new Sheet([
+  ['id', 'year', 'section_code', 'title', 'description', 'parent_code', 'sort_order', 'published', 'archived'],
+  ['sec-a', 2567, '1.1', 'Original', 'Keep description', 'parent', 7, true, false],
+  ['sec-b', 2568, '1.1', 'Other year', 'Other description', 'parent', 8, true, false]
+]));
+const section = PA.updateSection({ year: '2567', section_code: '1.1', title: 'Updated', description: 'Keep description' });
+assert.equal(section._persisted, true);
+assert.equal(section.parent_code, 'parent');
+assert.equal(section.sort_order, 7);
+assert.equal(PA.getSections(2568)[0].title, 'Other year');
+PA.updateSection({ year: '2567', section_code: 'profile', title: 'Profile', description: 'Text' });
+PA.updateSection({ year: '2567', section_code: 'profile', title: 'Revised profile', description: 'Text' });
+assert.equal(PA.getSections(2567).filter(s => s.section_code === 'profile').length, 1);
+assert.throws(() => PA.updateSection({ year: '2567', section_code: 'missing', title: 'Invalid' }));
 tabs.set('CLASSROOM_DOCUMENTS', new Sheet([['id', 'year', 'category', 'archived', 'published', 'title'],
   ['old', 2567, 'students', 'FALSE', 'TRUE', 'Existing member'],
   ['hidden', 2567, 'students', 'TRUE', 'TRUE', 'Archived member']]));

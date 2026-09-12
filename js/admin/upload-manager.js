@@ -32,16 +32,23 @@ export class AdminUploadManagerController {
     this._bindControls();
   }
 
-  async loadOptions() {
+  async loadOptions(targetYear = this.getYear()) {
+    const year = String(targetYear);
+    const requestId = this._optionsRequestId = (this._optionsRequestId || 0) + 1;
+    this._optionsLoading = true;
+    this._optionsError = false;
+    if (this.startBtn) this.startBtn.disabled = true;
     try {
       const [years, sections] = await Promise.all([
         YearsApi.getYears(),
-        PaApi.getSections(this.getYear())
+        PaApi.getSections(year)
       ]);
+      if (requestId !== this._optionsRequestId) return;
+      this._optionsYear = year;
 
       if (this.targetYearSelect && years) {
         this.targetYearSelect.innerHTML = years.map(y => `
-          <option value="${y.year}" ${y.year === this.getYear() ? 'selected' : ''}>ปีการศึกษา ${y.year}</option>
+          <option value="${y.year}" ${String(y.year) === year ? 'selected' : ''}>ปีการศึกษา ${y.year}</option>
         `).join('');
       }
 
@@ -51,8 +58,20 @@ export class AdminUploadManagerController {
         `).join('');
       }
     } catch (err) {
+      if (requestId === this._optionsRequestId) this._optionsError = true;
       console.error("Failed to load upload manager options:", err);
+    } finally {
+      if (requestId === this._optionsRequestId) {
+        this._optionsLoading = false;
+        if (this._selectedSection && this.targetSectionSelect) this.targetSectionSelect.value = this._selectedSection;
+        if (this.startBtn) this.startBtn.disabled = this.isUploading || this._optionsError;
+      }
     }
+  }
+
+  selectSection(code) {
+    this._selectedSection = code;
+    if (this.targetSectionSelect) this.targetSectionSelect.value = code;
   }
 
   _bindDropzone() {
@@ -88,6 +107,13 @@ export class AdminUploadManagerController {
   }
 
   _bindControls() {
+    this.targetYearSelect?.addEventListener('change', event => {
+      this._selectedSection = null;
+      this.loadOptions(event.target.value);
+    });
+    this.targetSectionSelect?.addEventListener('change', event => {
+      this._selectedSection = event.target.value;
+    });
     this.startBtn?.addEventListener('click', () => {
       this.startUpload();
     });
@@ -204,7 +230,11 @@ export class AdminUploadManagerController {
   }
 
   async startUpload() {
-    if (this.isUploading) return;
+    if (this.isUploading || this._optionsLoading || this._optionsError) return;
+    if (!this.targetSectionSelect?.value) {
+      Toast.error('กรุณาเลือกตัวชี้วัดก่อนอัปโหลด');
+      return;
+    }
     this.isUploading = true;
     if (this.startBtn) this.startBtn.disabled = true;
 

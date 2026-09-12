@@ -21,7 +21,20 @@ const CONFIG = {
   },
 
   getSessionSecret: function() {
-    return PropertiesService.getScriptProperties().getProperty('SESSION_SECRET') || 'suttinee_jwt_secret_key';
+    const props = PropertiesService.getScriptProperties();
+    const existing = props.getProperty('SESSION_SECRET');
+    if (existing) return existing;
+    const lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+    try {
+      const current = props.getProperty('SESSION_SECRET');
+      if (current) return current;
+      const secret = Utilities.getUuid() + Utilities.getUuid();
+      props.setProperty('SESSION_SECRET', secret);
+      return secret;
+    } finally {
+      lock.releaseLock();
+    }
   },
 
   getDefaultYear: function() {

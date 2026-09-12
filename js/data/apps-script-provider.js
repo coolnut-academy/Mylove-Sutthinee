@@ -18,6 +18,7 @@ const ACTION_MESSAGES = {
   getPaSections: 'กำลังดึงตัวชี้วัด ว.PA...',
   getPaItems: 'กำลังดึงเอกสารและหลักฐาน ว.PA...',
   getPaData: 'กำลังโหลดหมวดและเอกสาร ว.PA...',
+  updatePaSection: 'กำลังบันทึกหัวข้อ ว.PA...',
   getItem: 'กำลังโหลดรายละเอียดเอกสาร...',
   saveSettings: 'กำลังบันทึกการตั้งค่าลง Google Sheets...',
   createYear: 'กำลังสร้างปีการศึกษาใหม่...',
@@ -91,6 +92,7 @@ export class AppsScriptDataProvider extends BaseDataProvider {
     const abortController = new AbortController();
     const writeActions = [
       'savePaItem',
+      'updatePaSection',
       'saveClassroomDocument',
       'saveSettings',
       'saveStudent',
@@ -229,6 +231,10 @@ export class AppsScriptDataProvider extends BaseDataProvider {
 
   async savePaItem(payload) {
     return this._request('savePaItem', {}, 'POST', payload);
+  }
+
+  async updatePaSection(payload) {
+    return this._request('updatePaSection', {}, 'POST', payload);
   }
 
   async setPublished(payload) {

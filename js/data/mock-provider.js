@@ -128,6 +128,19 @@ export class MockDataProvider extends BaseDataProvider {
     return { sections, items };
   }
 
+  async updatePaSection(payload) {
+    let section = this.db.paSections.find(s => String(s.year) === String(payload.year) && String(s.section_code) === String(payload.section_code));
+    if (!section) {
+      const allowed = ['profile', 'agreement', 'workload', 'CHALLENGE', 'challenge_method', 'challenge_innovation', 'challenge_evidence', 'challenge_results'];
+      if (!allowed.includes(payload.section_code) || !/^\d{4}$/.test(String(payload.year))) throw new Error('ไม่พบหัวข้อ ว.PA ในปีที่เลือก');
+      section = { id: `sec_${payload.year}_${payload.section_code}`, year: String(payload.year), section_code: payload.section_code, published: true, archived: false };
+      this.db.paSections.push(section);
+    }
+    Object.assign(section, { title: payload.title, description: payload.description, updated_at: new Date().toISOString() });
+    this._saveDatabase();
+    return { ...section, _persisted: true };
+  }
+
   async getItem(id) {
     await this._delay(60);
     const allItems = [...this.db.classroomDocuments, ...this.db.paItems];

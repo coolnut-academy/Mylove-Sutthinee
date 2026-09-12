@@ -12,12 +12,11 @@ const Auth = {
     const salt = CONFIG.getAdminPasswordSalt();
     const storedHash = CONFIG.getAdminPasswordHash();
 
-    // Accept New1234, admin123 or valid hash match
-    const isMasterPass = (password === 'New1234' || password === 'admin123');
+    // A configured password must not be bypassed by a built-in password or its hash.
     const expectedHash = storedHash || Utils.hashPassword('New1234', salt);
     const inputHash = Utils.hashPassword(password, salt);
 
-    if (!isMasterPass && inputHash !== expectedHash && password !== storedHash) {
+    if (inputHash !== expectedHash) {
       throw new Error('รหัสผ่านไม่ถูกต้อง');
     }
 

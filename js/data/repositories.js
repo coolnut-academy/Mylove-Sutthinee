@@ -97,8 +97,17 @@ export class PaRepository {
   }
 
   async getSections(year) {
-    const key = Cache.buildKey('pa_sections', year);
-    return Cache.swr(key, () => this.provider.getPaSections(year));
+    return this.provider.getPaSections(year);
+  }
+
+  async updateSection(sectionCode, payload) {
+    const result = await this.provider.updatePaSection({ ...payload, section_code: sectionCode });
+    Cache.invalidate('pa_sections');
+    if (!result?._persisted || String(result.year) !== String(payload.year) ||
+        String(result.section_code) !== String(sectionCode) || result.title !== payload.title || result.description !== payload.description) {
+      throw new Error('ไม่สามารถยืนยันหัวข้อ ว.PA ที่บันทึกได้');
+    }
+    return result;
   }
 
   async getItems(year, sectionCode = '') {

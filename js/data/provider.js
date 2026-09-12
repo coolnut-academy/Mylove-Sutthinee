@@ -41,6 +41,10 @@ export class BaseDataProvider {
     return { sections: sections || [], items: items || [] };
   }
 
+  async updatePaSection(payload) {
+    throw new Error('updatePaSection not implemented');
+  }
+
   async getItem(id) {
     throw new Error("getItem not implemented");
   }

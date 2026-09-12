@@ -861,21 +861,20 @@ export const InlineEditor = {
           return false;
         }
 
-        if (titleEl) titleEl.textContent = newTitle;
-        if (badgeEl && newBadge) badgeEl.textContent = newBadge;
-        if (descEl) descEl.textContent = newDesc;
-
         try {
           await SettingsApi.saveSettings({
             [`game_${index}_title`]: newTitle,
             [`game_${index}_desc`]: newDesc,
             [`game_${index}_badge`]: newBadge
           });
+          if (titleEl) titleEl.textContent = newTitle;
+          if (badgeEl) badgeEl.textContent = newBadge;
+          if (descEl) descEl.textContent = newDesc;
           Toast.success('อัปเดตข้อมูลเกมเรียบร้อยแล้ว');
           return true;
         } catch (e) {
-          Toast.info('อัปเดตการแสดงผลบนหน้าเว็บเรียบร้อยแล้ว');
-          return true;
+          Toast.error(e.message || 'บันทึกไม่สำเร็จ');
+          return false;
         }
       }
     });
@@ -921,17 +920,19 @@ export const InlineEditor = {
           return false;
         }
 
-        if (titleEl) titleEl.textContent = newTitle;
-        if (yearEl && newYear) yearEl.textContent = newYear;
-        if (descEl) descEl.textContent = newDesc;
-
         try {
           await SettingsApi.saveSettings({
             [`book_${index}_title`]: newTitle,
             [`book_${index}_year`]: newYear,
             [`book_${index}_desc`]: newDesc
           });
-        } catch (e) {}
+        } catch (e) {
+          Toast.error(e.message || 'บันทึกไม่สำเร็จ');
+          return false;
+        }
+        if (titleEl) titleEl.textContent = newTitle;
+        if (yearEl) yearEl.textContent = newYear;
+        if (descEl) descEl.textContent = newDesc;
 
         Toast.success('อัปเดตแฟ้มวิชาการเรียบร้อยแล้ว');
         return true;
@@ -993,15 +994,17 @@ export const InlineEditor = {
           return false;
         }
 
-        if (titleEl) titleEl.textContent = newTitle;
-        if (descEl) descEl.textContent = newDesc;
-
         try {
           await SettingsApi.saveSettings({
             challenge_title: newTitle,
             challenge_desc: newDesc
           });
-        } catch (e) {}
+        } catch (e) {
+          Toast.error(e.message || 'บันทึกไม่สำเร็จ');
+          return false;
+        }
+        if (titleEl) titleEl.textContent = newTitle;
+        if (descEl) descEl.textContent = newDesc;
 
         Toast.success('บันทึกประเด็นท้าทายเรียบร้อยแล้ว');
         return true;
