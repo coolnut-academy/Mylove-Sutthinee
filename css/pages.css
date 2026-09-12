@@ -858,7 +858,7 @@
 /* Routine Check Cards */
 .routine-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
   gap: var(--space-4);
 }
 
@@ -954,7 +954,7 @@
 /* Evidence Cards Grid */
 .evidence-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
   gap: var(--space-3);
   margin-top: var(--space-2);
 }
@@ -1480,7 +1480,7 @@
 /* Classroom Action Cards Grid (Site 1 inspiration) */
 .classroom-actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 160px), 1fr));
   gap: var(--space-4);
 }
 
@@ -1766,7 +1766,7 @@
 /* Card Showcase Grid */
 .universal-showcase-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr));
   gap: 20px;
 }
 
@@ -2094,7 +2094,7 @@ body.modal-open #admin-floating-status-bar { display: none; }
 
 .u-type-selector-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
   gap: var(--space-3);
 }
 

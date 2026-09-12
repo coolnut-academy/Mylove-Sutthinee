@@ -519,7 +519,7 @@ export const InlineEditor = {
       <div class="mb-3 text-secondary" style="font-size: var(--font-size-sm);">
         ปรับแต่งรูปภาพประจำตัว ตราสัญลักษณ์โรงเรียน ข้อมูลวิทยฐานะ และคติพจน์ประจำตัว
       </div>
-      <div class="d-grid gap-3 mb-3" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+      <div class="d-grid gap-3 mb-3" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));">
         ${this._createImageUploadField({
           id: 'edit-hero-avatar',
           label: 'ภาพถ่ายประจำตัวคุณครู (Profile Avatar)',
@@ -540,7 +540,7 @@ export const InlineEditor = {
         })}
       </div>
 
-      <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+      <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));">
         <div class="form-group mb-3">
           <label class="form-label font-semibold" for="edit-teacher-name">ชื่อ - สกุล คุณครู</label>
           <input type="text" id="edit-teacher-name" class="form-control" value="${this._escapeHtml(currentName)}" required>
@@ -556,7 +556,7 @@ export const InlineEditor = {
         <input type="text" id="edit-teacher-role" class="form-control" value="${this._escapeHtml(currentRole)}" required>
       </div>
 
-      <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+      <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));">
         <div class="form-group mb-3">
           <label class="form-label font-semibold" for="edit-school-name">ชื่อโรงเรียน</label>
           <input type="text" id="edit-school-name" class="form-control" value="${this._escapeHtml(currentSchool)}" required>

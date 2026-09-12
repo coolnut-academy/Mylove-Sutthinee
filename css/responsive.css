@@ -1,0 +1,121 @@
+/* Shared responsive rules, loaded after page styles and utilities. */
+body { overflow-wrap: anywhere; }
+:where(main, section, aside, form, .container, .card, .d-flex > *, .d-grid > *,
+  .header-inner > *, .header-brand > *, .gateway-grid > *, .hero-text-box,
+  .gateway-card-header > *, .u-card-body, .u-card-creator > *,
+  .u-showcase-header-top > *, .u-showcase-toolbar > *, .u-field-row > *,
+  .viewer-layout > *, .admin-layout > *, .footer-inner > *) {
+  min-width: 0;
+}
+input, select, textarea { min-width: 0; max-width: 100%; }
+.btn, .badge, .u-card-chip { max-width: 100%; white-space: normal; }
+.btn-icon, .mobile-nav-toggle, .gateway-card-icon { flex-shrink: 0; }
+.site-header { height: auto; min-height: var(--header-height); }
+.header-inner { min-height: var(--header-height); padding-block: 10px; }
+.header-brand-wrap, .header-brand { min-width: 0; }
+.brand-title { line-height: 1.45; }
+.header-actions { flex-shrink: 0; }
+.header-nav { flex-shrink: 0; }
+.nav-link { white-space: nowrap; }
+.mobile-drawer { height: 100dvh; overflow-y: auto; overscroll-behavior: contain; visibility: hidden; }
+.mobile-drawer.open { visibility: visible; }
+.u-showcase-title-area { min-width: 0; flex-basis: 240px; }
+.u-search-box { min-width: 0; flex-basis: 240px; }
+.u-sort-box { max-width: 100%; }
+.u-sort-select { flex: 1; min-width: 0; }
+.u-showcase-header-actions, .modal-footer, .admin-topbar, .queue-item-meta { flex-wrap: wrap; }
+.universal-showcase-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+.u-type-selector-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); }
+.viewer-layout { grid-template-columns: minmax(0, 1fr); }
+.table-responsive { max-width: 100%; overflow-x: auto; }
+.modal-header, .u-modal-header { gap: 12px; }
+.modal-header > :first-child, .u-modal-header > :first-child,
+.ebook-modal-header > :first-child, .excel-header-brand, .excel-header-brand > * { min-width: 0; }
+.u-modal-dialog { max-height: calc(100dvh - 32px); }
+.u-modal-body, .ebook-modal-body, .excel-modal-body { min-height: 0; overscroll-behavior: contain; }
+.ebook-modal-container { width: 100%; height: 100dvh; }
+.excel-modal-container { height: 92dvh; }
+.ebook-controls-pill { max-width: 100%; flex-wrap: wrap; justify-content: center; }
+.ebook-canvas-wrapper { min-width: 0; max-width: 100%; margin: auto; flex-shrink: 0; }
+#ebook-pdf-canvas { height: auto; }
+.ebook-modal-body { align-items: flex-start; }
+.ebook-modal-header, .excel-modal-header, .excel-modal-footer { flex-shrink: 0; }
+.ebook-header-right { display: flex; flex-shrink: 0; }
+.ebook-title, .excel-title { max-height: 4.5em; overflow-y: auto; }
+.admin-status-bar { max-width: calc(100% - 32px); flex-wrap: wrap; }
+.loading-indicator-pill { min-width: 0; max-width: calc(100vw - 32px); }
+
+@media (min-width: 900px) {
+  .viewer-layout { grid-template-columns: minmax(0, 1fr) 340px; }
+  .admin-layout { grid-template-columns: 260px minmax(0, 1fr); }
+}
+
+/* Keep navigation in the drawer until all header controls fit comfortably. */
+@media (min-width: 840px) and (max-width: 1199px) {
+  .header-inner:has(.mobile-nav-toggle) .header-nav { display: none; }
+  .mobile-nav-toggle { display: inline-flex; }
+}
+
+@media (max-width: 767px) {
+  .header-inner { flex-wrap: wrap; gap: 8px 12px; }
+  .header-inner > .header-brand-wrap, .header-inner > .header-brand { flex: 1 1 100%; }
+  .header-actions { width: 100%; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+  .year-pill-wrapper { margin-right: auto; max-width: 100%; }
+  .year-pill-select, .mobile-nav-toggle, .btn { min-height: 44px; }
+  .year-pill-wrapper { padding-block: 0; }
+  .header-actions .btn { padding-inline: 10px; }
+  .header-brand-wrap { flex-wrap: wrap; gap: 8px; }
+  .header-brand-wrap .btn-inline-edit { margin-left: 0; flex-shrink: 0; }
+  .brand-avatar { width: 40px; height: 40px; }
+  .brand-title { font-size: 0.95rem; }
+  .container { padding: 20px 16px; }
+  .gateway-hero, .u-showcase-header-card { padding: 24px 16px; }
+  .gateway-body { padding: 20px 16px; }
+  .gateway-title, .hero-title-main { font-size: clamp(1.4rem, 5vw, 1.875rem); line-height: 1.5; }
+  .gateway-card-title, .u-showcase-title { font-size: 1.3rem; line-height: 1.5; }
+  .u-showcase-toolbar { gap: 12px; }
+  .u-search-box { max-width: none; }
+  .u-sort-box { flex: 1 1 100%; }
+  .u-modal-header .d-flex { flex-wrap: wrap; }
+  .u-modal-header, .u-modal-body, .u-modal-footer,
+  .modal-header, .modal-body, .modal-footer { padding: 16px; }
+  .u-modal-footer > .btn, .modal-footer > .btn { flex: 1 1 120px; }
+  .excel-modal-header { flex-wrap: wrap; padding: 12px; gap: 8px; }
+  .excel-header-brand { flex: 1 1 55%; }
+  .excel-header-actions { margin-left: auto; }
+  .excel-header-search { order: 3; flex: 1 1 100%; }
+  .ebook-modal-header { padding: 12px; gap: 12px; }
+  .ebook-modal-body { padding: 12px; }
+  .ebook-modal-footer { padding: 8px; }
+  .ebook-controls-pill { gap: 6px; padding: 6px 8px; }
+  .ebook-ctrl-btn, .ebook-ctrl-icon-btn, .btn-icon-light { min-height: 44px; }
+  .viewer-main { min-height: 0; }
+  .viewer-frame-container { height: 65dvh; min-height: 240px; }
+  .admin-content, .admin-sidebar, .admin-login-card { padding: 20px 16px; }
+  .admin-login-card { width: 100%; margin-block: 24px; }
+  .admin-task-tab-btn { flex: 1 1 140px; padding: 12px; }
+  .admin-topbar { gap: 12px; }
+  .admin-status-bar { right: 16px; bottom: 12px; border-radius: 16px; }
+  .form-control, .u-search-input, .u-sort-select { font-size: 16px; }
+}
+
+@media (max-width: 479px) {
+  .header-actions #admin-btn-text { max-width: 95px; }
+  .year-pill-label { display: none; }
+  .u-showcase-header-actions > .btn, .btn-add-showcase { width: 100%; }
+  .u-field-row { flex-wrap: wrap; }
+  .u-field-col-label { flex: 1 1 100%; }
+  .u-field-col-val { flex: 1 1 0; }
+}
+
+/* Short landscape screens need room to scroll past the header and dialogs. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .site-header { position: relative; }
+  .modal-backdrop, .u-modal-overlay { padding: 8px; }
+  .modal-container, .u-modal-dialog { max-height: calc(100dvh - 16px); overflow-y: auto; }
+  .u-modal-header, .u-modal-footer { flex-shrink: 0; }
+  .u-modal-body { flex-shrink: 0; overflow: visible; }
+  .ebook-modal-header, .ebook-modal-footer { padding-block: 4px; }
+  .ebook-title, .excel-title { max-height: 3em; }
+  .excel-modal-container { height: calc(100dvh - 16px); }
+}

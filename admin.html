@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="./css/pages.css">
   <link rel="stylesheet" href="./css/admin.css">
   <link rel="stylesheet" href="./css/utilities.css">
+  <link rel="stylesheet" href="./css/responsive.css">
 </head>
 <body>
 
@@ -171,7 +172,7 @@
 
             <h4 class="text-purple font-semibold mb-4">รูปภาพและภาพปกหน้าแรก</h4>
 
-            <div class="d-grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+            <div class="d-grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));">
               <div>
                 <label class="form-label">รูปภาพโปรไฟล์ครู</label>
                 <div class="image-preview-box mb-2">
@@ -394,14 +395,14 @@
           </p>
 
           <div class="d-flex flex-wrap gap-4 mb-4">
-            <div class="form-group flex-1" style="min-width: 200px; margin-bottom: 0;">
+            <div class="form-group flex-1" style="min-width: min(100%, 200px); margin-bottom: 0;">
               <label class="form-label">ปีการศึกษาเป้าหมาย</label>
               <select id="upload-target-year" class="form-control">
                 <!-- Populated by JS -->
               </select>
             </div>
 
-            <div class="form-group flex-1" style="min-width: 280px; margin-bottom: 0;">
+            <div class="form-group flex-1" style="min-width: min(100%, 280px); margin-bottom: 0;">
               <label class="form-label">ผูกเข้ากับตัวชี้วัด / หัวข้อ</label>
               <select id="upload-target-section" class="form-control">
                 <!-- Populated by JS -->
