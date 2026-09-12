@@ -255,12 +255,16 @@ export class UniversalItemModal {
 
   static async _handleDocFileSelected(file) {
     if (!file) return;
+    if (file.size > 25 * 1024 * 1024) {
+      Toast.error('ไฟล์มีขนาดใหญ่เกิน 25MB (ขีดจำกัด Google Apps Script)');
+      return;
+    }
     this.state.fileName = file.name;
     this.state.fileSize = file.size;
 
     const b64 = await readFileAsBase64(file);
     this.state.fileBase64 = b64;
-    Toast.success(`โหลดไฟล์ ${file.name} เรียบร้อย`);
+    Toast.success(`โหลดไฟล์ ${file.name} เรียบร้อย (${Math.round(file.size / 1024)} KB)`);
   }
 
   static async _handleSave() {
@@ -298,7 +302,7 @@ export class UniversalItemModal {
     const saveBtn = document.getElementById('u-modal-save-btn');
     if (saveBtn) {
       saveBtn.disabled = true;
-      saveBtn.innerHTML = '⏳ กำลังบันทึก...';
+      saveBtn.innerHTML = '⏳ กำลังบันทึกข้อมูลและนำส่ง Google Cloud...';
     }
 
     try {

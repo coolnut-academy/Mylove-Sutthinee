@@ -6,10 +6,14 @@
 const Drive = {
   getRootFolder: function() {
     const folderId = CONFIG.getRootDriveFolderId();
-    if (!folderId) {
-      throw new Error('ROOT_DRIVE_FOLDER_ID is not configured in Script Properties');
+    if (folderId) {
+      try {
+        return DriveApp.getFolderById(folderId);
+      } catch (e) {
+        console.warn('Could not open folder by ID, falling back to root folder:', e);
+      }
     }
-    return DriveApp.getFolderById(folderId);
+    return DriveApp.getRootFolder();
   },
 
   getOrCreateFolder: function(parentFolder, folderName) {

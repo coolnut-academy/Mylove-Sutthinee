@@ -45,5 +45,14 @@ const Admin = {
     if (item) return item;
 
     return null;
+  },
+
+  deleteItem: function(id) {
+    if (!id) return { success: false, error: 'Item ID is required' };
+    let deleted = Sheets.deleteRow('PA_ITEMS', 'id', id);
+    if (!deleted) {
+      deleted = Sheets.deleteRow('CLASSROOM_DOCUMENTS', 'id', id);
+    }
+    return { success: deleted, id: id };
   }
 };

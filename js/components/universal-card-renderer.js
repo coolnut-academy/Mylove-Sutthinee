@@ -33,8 +33,17 @@ export function renderUniversalCard(item, { onDelete = null } = {}) {
 
   // Render Dynamic Custom Fields
   let fieldsHtml = '';
-  if (item.fields && Array.isArray(item.fields) && item.fields.length > 0) {
-    fieldsHtml = item.fields.map(f => `
+  let fieldsArr = item.fields;
+  if (typeof fieldsArr === 'string' && fieldsArr.trim().startsWith('[')) {
+    try {
+      fieldsArr = JSON.parse(fieldsArr);
+    } catch (e) {
+      fieldsArr = [];
+    }
+  }
+
+  if (fieldsArr && Array.isArray(fieldsArr) && fieldsArr.length > 0) {
+    fieldsHtml = fieldsArr.map(f => `
       <div class="u-card-meta-line">
         <span class="u-card-meta-label">${Utils.escapeHtml(f.label)}:</span>
         <span class="u-card-meta-val">${Utils.escapeHtml(f.value)}</span>

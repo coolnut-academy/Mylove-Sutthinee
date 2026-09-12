@@ -70,7 +70,19 @@ export class AppsScriptDataProvider extends BaseDataProvider {
     const headers = { 'Accept': 'application/json' };
 
     const abortController = new AbortController();
-    const timeoutMs = customTimeout || ((action === 'uploadFile') ? 60000 : 15000);
+    const writeActions = [
+      'savePaItem',
+      'saveClassroomDocument',
+      'saveSettings',
+      'saveStudent',
+      'uploadFile',
+      'createYear',
+      'deleteItem',
+      'archiveItem',
+      'setPublished'
+    ];
+    // 💡 คำขอประเภทเขียนข้อมูลหรืออัปโหลดไฟล์ให้เวลา 75 วินาที (ป้องกัน Timeout บน Google Apps Script)
+    const timeoutMs = customTimeout || (writeActions.includes(action) ? 75000 : 25000);
     const timerId = setTimeout(() => abortController.abort(), timeoutMs);
 
     const options = {

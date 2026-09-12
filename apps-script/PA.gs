@@ -19,24 +19,91 @@ const PA = {
     if (sectionCode) {
       items = items.filter(i => String(i.section_code) === String(sectionCode));
     }
-    return items.sort((a, b) => (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0));
+    return items.map(function(item) {
+      if (typeof item.fields === 'string' && item.fields.indexOf('[') === 0) {
+        try { item.fields = JSON.parse(item.fields); } catch(e) {}
+      }
+      return item;
+    }).sort((a, b) => (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0));
   },
 
   saveItem: function(item) {
-    const itemId = item.id;
-    if (itemId) {
-      item.updated_at = new Date().toISOString();
-      Sheets.updateRow('PA_ITEMS', 'id', itemId, item);
-      return item;
-    } else {
-      item.id = Utils.generateId('pa_item');
-      item.created_at = new Date().toISOString();
-      item.updated_at = new Date().toISOString();
-      item.published = true;
-      item.archived = false;
-      Sheets.appendRow('PA_ITEMS', item);
-      return item;
+    // 💡 จัดการอัปโหลด Cover สู่ Google Drive หากส่งมาเป็น base64
+    if (item.cover_url && item.cover_url.indexOf('data:image/') === 0) {
+      try {
+        const parts = item.cover_url.split(',');
+        const mimeMatch = parts[0].match(/:(.*?);/);
+        const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const base64Data = parts[1];
+        const driveRes = Drive.saveFile({
+          name: ((item.title || 'pa_cover') + '_cover_' + Date.now()).replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_') + (mimeType.indexOf('png') !== -1 ? '.png' : '.jpg'),
+          mimeType: mimeType,
+          base64Data: base64Data,
+          year: item.year || '2567',
+          subfolder: 'COVERS'
+        });
+        item.cover_url = driveRes.thumbnailUrl || driveRes.url;
+      } catch (e) {
+        console.warn('Drive save cover failed, fallback to default:', e);
+        item.cover_url = './assets/fallback/classroom-cover.svg';
+      }
     }
+
+    // 💡 จัดการอัปโหลดไฟล์เอกสาร (PDF/Excel) สู่ Google Drive หากมี file_data base64
+    if (item.file_data) {
+      try {
+        let rawB64 = item.file_data;
+        let mime = item.type === 'ebook' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        if (rawB64.indexOf('data:') === 0) {
+          const parts = rawB64.split(',');
+          const mimeMatch = parts[0].match(/:(.*?);/);
+          if (mimeMatch) mime = mimeMatch[1];
+          rawB64 = parts[1];
+        }
+        const driveRes = Drive.saveFile({
+          name: item.file_name || (((item.title || 'pa_doc') + (item.type === 'ebook' ? '.pdf' : '.xlsx')).replace(/[^a-zA-Z0-9_\u0E00-\u0E7F.]/g, '_')),
+          mimeType: mime,
+          base64Data: rawB64,
+          year: item.year || '2567',
+          subfolder: 'PA_DOCUMENTS'
+        });
+        item.drive_file_id = driveRes.fileId;
+        item.external_url = driveRes.previewUrl || driveRes.url;
+        item.item_url = driveRes.previewUrl || driveRes.url;
+        item.thumbnail_url = driveRes.thumbnailUrl;
+      } catch (e) {
+        console.warn('Drive save file failed:', e);
+      }
+      // 💡 ลบ base64 ขนาดใหญ่ทิ้ง ป้องกันไม่ให้เกินโควตา 50,000 ตัวอักษรต่อเซลล์ใน Google Sheets
+      delete item.file_data;
+    }
+
+    // 💡 แปลง fields เป็น JSON string เพื่อจัดเก็บลง Google Sheets ได้อย่างปลอดภัย
+    if (item.fields && typeof item.fields !== 'string') {
+      try {
+        item.fields = JSON.stringify(item.fields);
+      } catch (e) {
+        item.fields = '[]';
+      }
+    }
+
+    // 💡 ระบบ Upsert: ตรวจสอบว่ามีแถวเดิมอยู่หรือไม่ ถ้ามีให้อัปเดต ถ้ายังไม่มีให้เพิ่มใหม่
+    let updated = false;
+    if (item.id) {
+      item.updated_at = new Date().toISOString();
+      updated = Sheets.updateRow('PA_ITEMS', 'id', item.id, item);
+    }
+
+    if (!updated) {
+      if (!item.id) item.id = Utils.generateId('pa_item');
+      if (!item.created_at) item.created_at = new Date().toISOString();
+      item.updated_at = new Date().toISOString();
+      if (item.published === undefined) item.published = true;
+      if (item.archived === undefined) item.archived = false;
+      Sheets.appendRow('PA_ITEMS', item);
+    }
+
+    return item;
   },
 
   setPublished: function(id, published) {

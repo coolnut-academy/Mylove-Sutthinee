@@ -128,6 +128,10 @@ const Router = {
           result = Upload.handleUpload(payload);
           break;
 
+        case 'deleteItem':
+          result = Admin.deleteItem(payload.id);
+          break;
+
         default:
           return Utils.jsonError('Unknown POST action: ' + action, 400);
       }
