@@ -11,6 +11,7 @@ const Upload = {
     const sectionCode = payload.sectionCode || '1.1';
     const mimeType = payload.mimeType || payload.type || 'application/octet-stream';
     const base64Data = payload.base64Data;
+    const skipSheetInsert = payload.skipSheetInsert === true || payload.onlyFile === true;
 
     if (!name) throw new Error('File name is required');
     if (!base64Data) throw new Error('Base64 file data is required');
@@ -57,22 +58,26 @@ const Upload = {
       };
 
       // -------------------------------------------------------------
-      // ขั้นที่ 2: ล็อกเฉพาะช่วงเขียนข้อมูลลงชีต (ใช้เวลาเพียง 0.1-0.2 วินาที)
       // -------------------------------------------------------------
-      const lock = LockService.getScriptLock();
-      const hasLock = lock.tryLock(30000);
+      // ขั้นที่ 2: บันทึกข้อมูลลงชีต (เฉพาะเมื่อไม่ได้ระบุ skipSheetInsert)
+      // -------------------------------------------------------------
+      if (!skipSheetInsert) {
+        const lock = LockService.getScriptLock();
+        const hasLock = lock.tryLock(30000);
 
-      if (!hasLock) {
-        throw new Error('ระบบกำลังบันทึกข้อมูลของผู้ใช้อื่นอยู่ กรุณารอสักครู่แล้วลองใหม่');
-      }
+        if (!hasLock) {
+          throw new Error('ระบบกำลังบันทึกข้อมูลของผู้ใช้อื่นอยู่ กรุณารอสักครู่แล้วลองใหม่');
+        }
 
-      try {
-        Sheets.appendRow('PA_ITEMS', newItem);
+        try {
+          const targetTable = payload.targetTable || 'PA_ITEMS';
+          Sheets.appendRow(targetTable, newItem);
 
-        // 💡 บังคับให้ Google Sheets บันทึกข้อมูลลงดิสก์ทันทีก่อนปลดล็อก (ป้องกัน Race Condition)
-        SpreadsheetApp.flush();
-      } finally {
-        lock.releaseLock();
+          // 💡 บังคับให้ Google Sheets บันทึกข้อมูลลงดิสก์ทันทีก่อนปลดล็อก (ป้องกัน Race Condition)
+          SpreadsheetApp.flush();
+        } finally {
+          lock.releaseLock();
+        }
       }
 
       return {

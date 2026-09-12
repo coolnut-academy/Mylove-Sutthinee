@@ -12,6 +12,7 @@
 import { compressImage, readFileAsBase64 } from '../image-utils.js';
 import { Toast } from '../toast.js';
 import { AppState } from '../app-state.js';
+import { Cache } from '../cache.js';
 
 export class UniversalItemModal {
   static modalEl = null;
@@ -294,6 +295,7 @@ export class UniversalItemModal {
         Toast.error(type === 'ebook' ? 'กรุณาแนบไฟล์ PDF สำหรับ eBook' : 'กรุณาแนบไฟล์ Excel');
         return;
       }
+      btnText = document.getElementById('u-item-btn-text')?.value.trim() || (type === 'ebook' ? '📖 เปิดอ่าน eBook ออนไลน์' : '📊 เปิดดูสเปรดชีตออนไลน์');
     }
 
     // Determine primary title from the first field value
@@ -302,25 +304,88 @@ export class UniversalItemModal {
     const saveBtn = document.getElementById('u-modal-save-btn');
     if (saveBtn) {
       saveBtn.disabled = true;
-      saveBtn.innerHTML = '⏳ กำลังบันทึกข้อมูลและนำส่ง Google Cloud...';
+      saveBtn.innerHTML = '⏳ กำลังเตรียมนำส่งข้อมูล...';
     }
 
     try {
+      const { DataProvider } = await import('../data-provider.js');
+
+      // 1. อัปโหลดภาพหน้าปกขึ้น Google Drive หากผู้ใช้อัปโหลดภาพเข้ามาเอง
+      let coverUrl = this.state.coverBase64;
+      if (coverUrl && coverUrl.startsWith('data:image/')) {
+        try {
+          if (saveBtn) saveBtn.innerHTML = '⏳ กำลังนำส่งภาพหน้าปกขึ้น Google Drive...';
+          const commaIdx = coverUrl.indexOf(',');
+          const mimeMatch = coverUrl.substring(0, commaIdx).match(/:(.*?);/);
+          const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+          const rawBase64 = coverUrl.substring(commaIdx + 1);
+
+          const coverRes = await DataProvider.file.uploadFile({
+            name: `${primaryTitle.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_')}_cover_${Date.now()}.jpg`,
+            year: String(this.currentContext.year || '2567'),
+            sectionCode: this.currentContext.sectionCode || this.currentContext.category || '1.1',
+            type: mimeType,
+            base64Data: rawBase64,
+            skipSheetInsert: true
+          });
+
+          const coverItem = coverRes?.item || coverRes;
+          if (coverItem) {
+            coverUrl = coverItem.thumbnail_url || coverItem.external_url || coverItem.drive_url || coverUrl;
+          }
+        } catch (coverErr) {
+          console.warn('Cover upload to Drive failed, fallback to default:', coverErr);
+          coverUrl = './assets/fallback/classroom-cover.svg';
+        }
+      } else if (!coverUrl) {
+        coverUrl = './assets/fallback/classroom-cover.svg';
+      }
+
+      // 2. อัปโหลดไฟล์เอกสาร (PDF หรือ Excel) ขึ้น Google Drive
+      let driveFileId = '';
+      if (this.state.fileBase64) {
+        if (saveBtn) saveBtn.innerHTML = '⏳ กำลังนำส่งไฟล์เอกสารขึ้น Google Drive...';
+        let rawDocB64 = this.state.fileBase64;
+        let docMime = type === 'ebook' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        if (rawDocB64.startsWith('data:')) {
+          const commaIdx = rawDocB64.indexOf(',');
+          const m = rawDocB64.substring(0, commaIdx).match(/:(.*?);/);
+          if (m) docMime = m[1];
+          rawDocB64 = rawDocB64.substring(commaIdx + 1);
+        }
+
+        const docRes = await DataProvider.file.uploadFile({
+          name: this.state.fileName || `${primaryTitle.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_')}.${type === 'ebook' ? 'pdf' : 'xlsx'}`,
+          year: String(this.currentContext.year || '2567'),
+          sectionCode: this.currentContext.sectionCode || this.currentContext.category || '1.1',
+          type: docMime,
+          base64Data: rawDocB64,
+          skipSheetInsert: true
+        });
+
+        const docItem = docRes?.item || docRes;
+        if (docItem) {
+          driveFileId = docItem.drive_file_id || '';
+          itemUrl = docItem.external_url || docItem.drive_url || docItem.preview_url || itemUrl;
+        }
+      }
+
+      // 3. บันทึกข้อมูลกำกับลง Google Sheets
+      if (saveBtn) saveBtn.innerHTML = '⏳ กำลังบันทึกข้อมูลลง Google Sheets...';
       const newItem = {
-        id: `u-item-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-        year: String(this.currentContext.year),
-        category: this.currentContext.category,
-        section_code: this.currentContext.sectionCode,
+        year: String(this.currentContext.year || '2567'),
+        category: this.currentContext.category || '',
+        section_code: this.currentContext.sectionCode || '',
         title: primaryTitle,
         description: fields[1]?.value || '',
-        type: type, // 'link' | 'ebook' | 'excel'
-        cover_url: this.state.coverBase64 || './assets/fallback/classroom-cover.svg',
-        cover_ratio: this.state.selectedRatio, // '16:9' | '3:4' | '1:1'
+        type: type,
+        cover_url: coverUrl,
+        cover_ratio: this.state.selectedRatio || '16:9',
         item_url: itemUrl,
         button_text: btnText,
-        file_data: this.state.fileBase64,
-        file_name: this.state.fileName,
-        file_size: this.state.fileSize,
+        drive_file_id: driveFileId,
+        file_name: this.state.fileName || '',
+        file_size: this.state.fileSize || 0,
         fields: fields,
         sort_order: 1,
         published: true,
@@ -329,19 +394,27 @@ export class UniversalItemModal {
         updated_at: new Date().toISOString()
       };
 
-      // Import active data provider directly to persist
-      const { DataProvider } = await import('../data-provider.js');
-      if (this.currentContext.module === 'pa') {
-        await DataProvider.pa.saveItem(newItem);
-      } else {
-        await DataProvider.classroom.saveDocument(newItem);
+      // 💡 ส่ง id เฉพาะเมื่อเป็นการแก้ไขรายการเดิม (สำหรับรายการใหม่ ให้ Google Sheets ทำการ appendRow ลงแถวใหม่)
+      if (this.currentContext.editingItem && this.currentContext.editingItem.id) {
+        newItem.id = this.currentContext.editingItem.id;
       }
 
-      Toast.success('บันทึกข้อมูลเรียบร้อยแล้ว');
+      let savedResult = null;
+      if (this.currentContext.module === 'pa') {
+        savedResult = await DataProvider.pa.saveItem(newItem);
+      } else {
+        savedResult = await DataProvider.classroom.saveDocument(newItem);
+      }
+
+      // Force-clear localStorage cache for fresh data
+      Cache.invalidate('classroom');
+      Cache.invalidate('pa');
+
+      Toast.success('บันทึกข้อมูลและนำส่ง Google Cloud เรียบร้อยแล้ว');
       this.close();
 
       if (typeof this.currentContext.onSaveSuccess === 'function') {
-        this.currentContext.onSaveSuccess(newItem);
+        this.currentContext.onSaveSuccess(savedResult || newItem);
       }
     } catch (err) {
       console.error('Error saving universal item:', err);

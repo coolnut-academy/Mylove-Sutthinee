@@ -298,9 +298,9 @@ export class MockDataProvider extends BaseDataProvider {
     throw new Error('Item not found');
   }
 
-  async uploadFile({ name, size, type, sectionCode, year }) {
+  async uploadFile({ name, size, type, sectionCode, year, skipSheetInsert = false }) {
     await this._delay(350);
-    const isImage = type.startsWith('image/');
+    const isImage = (type || '').startsWith('image/');
     const isPdf = type === 'application/pdf';
 
     const newItem = {
@@ -312,6 +312,7 @@ export class MockDataProvider extends BaseDataProvider {
       type: isImage ? 'image' : (isPdf ? 'pdf' : 'file'),
       drive_file_id: `mock_drive_id_${Date.now()}`,
       external_url: isImage ? "./assets/fallback/classroom-cover.svg" : "https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/view",
+      thumbnail_url: isImage ? "./assets/fallback/classroom-cover.svg" : "",
       mime_type: type,
       file_size: size,
       sort_order: 1,
@@ -320,8 +321,10 @@ export class MockDataProvider extends BaseDataProvider {
       created_at: new Date().toISOString()
     };
 
-    this.db.paItems.push(newItem);
-    this._saveDatabase();
+    if (!skipSheetInsert) {
+      this.db.paItems.push(newItem);
+      this._saveDatabase();
+    }
     return { success: true, item: newItem };
   }
 }
