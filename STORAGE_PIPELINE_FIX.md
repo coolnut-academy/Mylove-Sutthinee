@@ -45,9 +45,9 @@
 | ปุ่ม | ชีต | โฟลเดอร์ใหม่ใต้ root/ปี พ.ศ. |
 | --- | --- | --- |
 | สมาชิกในห้องเรียน (การ์ดภาพ/ข้อมูล) | CLASSROOM_DOCUMENTS, category=students | CLASSROOM/students |
-| หมวดห้องเรียนอื่น ๆ | CLASSROOM_DOCUMENTS, category ตรงกับปุ่ม | CLASSROOM/<category> |
+| หมวดห้องเรียนอื่น ๆ | CLASSROOM_DOCUMENTS, category ตรงกับปุ่ม | `CLASSROOM/<category>` |
 | เพิ่มนักเรียนในหน้าจัดการทะเบียน | STUDENTS | ไม่มีไฟล์แนบในแบบฟอร์มนี้ |
-| ว.PA / อัปโหลดหลักฐาน | PA_ITEMS, section_code | PA/<section_code> |
+| ว.PA / อัปโหลดหลักฐาน | PA_ITEMS, section_code | `PA/<section_code>` |
 
 หมวดห้องเรียนครบ 15 หมวด: students, attendance, teeth, milk, growth, health, sdq, pp, media, plc, research, plan, awards, sar, other
 
@@ -67,7 +67,7 @@
 
 ## การทดสอบในเครื่อง
 
-```
+```powershell
 node tests/storage-pipeline.mjs
 node tests/verify-all.js
 ```
@@ -84,6 +84,6 @@ node tests/verify-all.js
 - ทดสอบหมวดสื่อผ่านแบบฟอร์มจริง พบ Google readback เกิน 25 วินาทีหนึ่งครั้ง จึงเพิ่มเวลาเฉพาะการตรวจหลังบันทึกเป็น 75 วินาทีและเผยแพร่แล้ว ทดสอบซ้ำผ่านครบจน modal ปิดและการ์ดแสดงหลัง reload โดยไม่มี JavaScript page errors
 - ทดสอบ upload/save/readback ของ PA กับฐานข้อมูลจริงผ่าน
 - ลบรายการและไฟล์ชั่วคราวที่สร้างทดสอบครั้งนี้เท่านั้น ตรวจอ่านกลับเหลือรายการห้องเรียนเดิม 1 รายการ และ PA เดิม 2 รายการ
-- GitHub Pages: https://coolnut-academy.github.io/Mylove-Sutthinee/classroom.html?year=2567&view=students
+- GitHub Pages: [เปิดหน้าสมาชิก](https://coolnut-academy.github.io/Mylove-Sutthinee/classroom.html?year=2567&view=students)
 
 ไม่ต้องรัน migration หรือ deploy ด้วยตนเองสำหรับแพตช์นี้อีก รายการสมาชิกเดิมที่ไม่ได้ถูกบันทึกต้องเพิ่มใหม่
