@@ -10,6 +10,7 @@ import { SettingsApi, YearsApi, ClassroomApi, PaApi, AuthApi } from '../api.js';
 import { Utils } from '../utils.js';
 import { Modal } from '../modal.js';
 import { Toast } from '../toast.js';
+import { InlineEditor } from '../admin/inline-editor.js';
 
 class HomePageController {
   constructor() {
@@ -24,6 +25,7 @@ class HomePageController {
     this._bindAdminTopRight();
     this._bindPortfolioTabs();
     this._bindGameLaunchers();
+    InlineEditor.init();
 
     try {
       Loading.set(25);
@@ -36,6 +38,7 @@ class HomePageController {
       this._updateDynamicLinks(this.currentYear);
       this._updateAdminButton();
       Loading.done();
+      InlineEditor.init();
     } catch (err) {
       console.error("Failed to initialize home page:", err);
       Loading.fail();
@@ -100,6 +103,7 @@ class HomePageController {
 
     AppState.on('authChanged', () => {
       this._updateAdminButton();
+      InlineEditor.init();
     });
   }
 
@@ -112,13 +116,15 @@ class HomePageController {
       if (btn) {
         btn.className = 'btn btn-primary btn-sm';
         btn.href = './admin.html';
+        btn.title = 'ไปที่หน้าแดชบอร์ดระบบหลัก (Admin Console)';
       }
       if (icon) icon.textContent = '⚙️';
-      if (text) text.textContent = 'จัดการระบบ';
+      if (text) text.textContent = 'Admin Console';
     } else {
       if (btn) {
         btn.className = 'btn btn-subtle btn-sm';
-        btn.href = './admin.html';
+        btn.href = '#';
+        btn.title = 'เข้าสู่ระบบจัดการ';
       }
       if (icon) icon.textContent = '🔒';
       if (text) text.textContent = 'Admin';
@@ -161,10 +167,9 @@ class HomePageController {
           const res = await AuthApi.login(password);
           if (res.success && res.session) {
             AppState.setSession(res.session);
-            Toast.success('เข้าสู่ระบบสำเร็จ กำลังเปิดหน้าจัดการ...');
-            setTimeout(() => {
-              window.location.href = './admin.html';
-            }, 500);
+            Toast.success('เข้าสู่ระบบสำเร็จ เข้าสู่โหมดแก้ไขผลงาน (ปุ่มดินสอ ✏️ พร้อมใช้งาน)');
+            this._updateAdminButton();
+            InlineEditor.init();
             return true;
           }
         } catch (err) {

@@ -482,3 +482,139 @@
   max-width: 400px;
   margin-bottom: var(--space-4);
 }
+
+/* --- Inline Visual Editor & Admin Mode Styles --- */
+.editable-section {
+  position: relative;
+  transition: all var(--transition-normal);
+}
+
+body.admin-mode .editable-section:hover {
+  outline: 2px dashed rgba(169, 134, 222, 0.45);
+  outline-offset: 4px;
+  border-radius: var(--radius-md);
+}
+
+.btn-inline-edit {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  font-family: var(--font-heading);
+  color: var(--purple-900);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--purple-300);
+  border-radius: var(--radius-full);
+  box-shadow: 0 4px 14px rgba(112, 84, 164, 0.18);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  opacity: 0.9;
+}
+
+.btn-inline-edit:hover {
+  opacity: 1;
+  transform: translateY(-2px) scale(1.04);
+  background: #FFF;
+  border-color: #FFB300;
+  color: var(--purple-900);
+  box-shadow: 0 6px 18px rgba(255, 179, 0, 0.35);
+}
+
+.btn-inline-edit .pencil-icon {
+  font-size: 0.9rem;
+  color: #D97706;
+}
+
+/* Floating Admin Status Bar */
+.admin-status-bar {
+  position: fixed;
+  bottom: 20px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(43, 16, 85, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid #FFE082;
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 24px rgba(43, 16, 85, 0.35);
+  color: #FFF;
+  animation: slideUpFade 0.3s ease-out;
+}
+
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.admin-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #FFE082;
+  letter-spacing: 0.5px;
+}
+
+.admin-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+  animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.85); }
+}
+
+.admin-status-btn {
+  font-size: 0.75rem;
+  font-family: var(--font-heading);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: none;
+}
+
+.admin-status-btn-console {
+  background: linear-gradient(135deg, #FFB300 0%, #F59E0B 100%);
+  color: #2B1055;
+  font-weight: 700;
+}
+
+.admin-status-btn-console:hover {
+  background: linear-gradient(135deg, #FCD34D 0%, #FFB300 100%);
+  box-shadow: 0 2px 8px rgba(255, 179, 0, 0.5);
+  color: #2B1055;
+}
+
+.admin-status-btn-logout {
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFF;
+}
+
+.admin-status-btn-logout:hover {
+  background: rgba(239, 68, 68, 0.8);
+  color: #FFF;
+}
+

@@ -90,7 +90,8 @@ export class AppsScriptDataProvider extends BaseDataProvider {
   }
 
   async login(password) {
-    return this._request('login', {}, 'POST', { password });
+    const data = await this._request('login', {}, 'POST', { password });
+    return { success: true, session: (data && data.token) ? data : (data?.session || data) };
   }
 
   async logout() {

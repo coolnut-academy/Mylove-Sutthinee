@@ -8,6 +8,7 @@ import { RouterUtils } from '../router-utils.js';
 import { AppState } from '../app-state.js';
 import { SettingsApi, YearsApi, ClassroomApi } from '../api.js';
 import { Utils } from '../utils.js';
+import { InlineEditor } from '../admin/inline-editor.js';
 
 class ClassroomPageController {
   constructor() {
@@ -25,6 +26,11 @@ class ClassroomPageController {
     this._bindTabs();
     this._bindSearch();
     this._bindDocumentFilters();
+    InlineEditor.init();
+
+    AppState.on('authChanged', () => {
+      InlineEditor.init();
+    });
 
     try {
       Loading.set(30);
@@ -34,6 +40,7 @@ class ClassroomPageController {
       Loading.set(70);
       await this._loadClassroomData(this.currentYear);
       Loading.done();
+      InlineEditor.init();
     } catch (err) {
       console.error("Failed to load classroom module:", err);
       Loading.fail();

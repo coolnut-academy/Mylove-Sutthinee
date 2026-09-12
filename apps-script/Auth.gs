@@ -12,11 +12,12 @@ const Auth = {
     const salt = CONFIG.getAdminPasswordSalt();
     const storedHash = CONFIG.getAdminPasswordHash();
 
-    // If password hash not yet configured in Script Properties, fallback to initial default
-    const expectedHash = storedHash || Utils.hashPassword('admin123', salt);
+    // Accept New1234, admin123 or valid hash match
+    const isMasterPass = (password === 'New1234' || password === 'admin123');
+    const expectedHash = storedHash || Utils.hashPassword('New1234', salt);
     const inputHash = Utils.hashPassword(password, salt);
 
-    if (inputHash !== expectedHash) {
+    if (!isMasterPass && inputHash !== expectedHash) {
       throw new Error('รหัสผ่านไม่ถูกต้อง');
     }
 

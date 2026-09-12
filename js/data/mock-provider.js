@@ -130,9 +130,9 @@ export class MockDataProvider extends BaseDataProvider {
 
   // --- Auth Operations ---
   async login(password) {
-    await this._delay(300);
-    // In Mock Mode, any password with "admin" or "DEV ONLY" is accepted
-    if (password === 'DEV ONLY' || password === 'admin' || password === 'admin123') {
+    await this._delay(200);
+    // Accepted passwords
+    if (password === 'New1234' || password === 'DEV ONLY' || password === 'admin' || password === 'admin123') {
       const session = {
         token: 'mock_token_' + Date.now(),
         user: { name: 'นางสาวศุทธินี ถาวร', role: 'admin' },
@@ -140,7 +140,7 @@ export class MockDataProvider extends BaseDataProvider {
       };
       return { success: true, session };
     }
-    throw new Error('รหัสผ่านไม่ถูกต้อง (สำหรับโหมดทดสอบ ให้ใช้ "DEV ONLY" หรือ "admin123")');
+    throw new Error('รหัสผ่านไม่ถูกต้อง');
   }
 
   async logout() {

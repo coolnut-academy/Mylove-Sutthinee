@@ -8,6 +8,7 @@ import { RouterUtils } from '../router-utils.js';
 import { AppState } from '../app-state.js';
 import { SettingsApi, YearsApi, PaApi } from '../api.js';
 import { Utils } from '../utils.js';
+import { InlineEditor } from '../admin/inline-editor.js';
 
 class PaPageController {
   constructor() {
@@ -25,6 +26,11 @@ class PaPageController {
     this._bindYearChange();
     this._bindFilters();
     this._bindSearch();
+    InlineEditor.init();
+
+    AppState.on('authChanged', () => {
+      InlineEditor.init();
+    });
 
     try {
       Loading.set(30);
@@ -34,6 +40,7 @@ class PaPageController {
       Loading.set(70);
       await this._loadPaData(this.currentYear);
       Loading.done();
+      InlineEditor.init();
     } catch (err) {
       console.error("Failed to load PA module:", err);
       Loading.fail();
