@@ -17,7 +17,8 @@ const Router = {
             settings: Admin.getSettings(),
             years: Years.getAll(),
             defaultYear: CONFIG.getDefaultYear(),
-            storageVersion: '2026-09-12-confirmed-save-v2'
+            storageVersion: '2026-09-12-confirmed-save-v2',
+            performanceVersion: '2026-09-12-targeted-reads-v1'
           };
           break;
 
@@ -30,11 +31,16 @@ const Router = {
           break;
 
         case 'getStudents':
-          data = Classroom.getData(params.year || CONFIG.getDefaultYear()).students;
+          data = Classroom.getStudents(params.year || CONFIG.getDefaultYear());
           break;
 
         case 'getClassroomData':
-          data = Classroom.getData(params.year || CONFIG.getDefaultYear());
+          data = Classroom.getData(params.year || CONFIG.getDefaultYear(), params.documentsOnly === 'true');
+          break;
+
+        case 'getPaData':
+          const paYear = params.year || CONFIG.getDefaultYear();
+          data = { sections: PA.getSections(paYear), items: PA.getItems(paYear) };
           break;
 
         case 'getPaSections':

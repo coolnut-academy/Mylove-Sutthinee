@@ -17,6 +17,7 @@ const ACTION_MESSAGES = {
   getClassroomData: 'กำลังดึงข้อมูลงานประจำชั้นและสุขภาพ...',
   getPaSections: 'กำลังดึงตัวชี้วัด ว.PA...',
   getPaItems: 'กำลังดึงเอกสารและหลักฐาน ว.PA...',
+  getPaData: 'กำลังโหลดหมวดและเอกสาร ว.PA...',
   getItem: 'กำลังโหลดรายละเอียดเอกสาร...',
   saveSettings: 'กำลังบันทึกการตั้งค่าลง Google Sheets...',
   createYear: 'กำลังสร้างปีการศึกษาใหม่...',
@@ -30,9 +31,27 @@ export class AppsScriptDataProvider extends BaseDataProvider {
   constructor(apiUrl = CONFIG.API_URL) {
     super();
     this.apiUrl = apiUrl;
+    this._pendingReads = new Map();
+    this._readRevision = 0;
   }
 
   async _request(action, params = {}, methodOrOptions = 'GET', bodyParam = null) {
+    const method = typeof methodOrOptions === 'string' ? methodOrOptions : (methodOrOptions?.method || 'GET');
+    if (method.toUpperCase() !== 'GET') {
+      this._readRevision++;
+      try { return await this._sendRequest(action, params, methodOrOptions, bodyParam); }
+      finally { this._readRevision++; }
+    }
+    // Share only concurrent reads. Settled responses are never retained here.
+    const key = JSON.stringify([this.apiUrl, action, params, methodOrOptions, AppState.session?.token, this._readRevision]);
+    if (this._pendingReads.has(key)) return this._pendingReads.get(key);
+    const request = this._sendRequest(action, params, methodOrOptions, bodyParam);
+    this._pendingReads.set(key, request);
+    try { return await request; }
+    finally { if (this._pendingReads.get(key) === request) this._pendingReads.delete(key); }
+  }
+
+  async _sendRequest(action, params = {}, methodOrOptions = 'GET', bodyParam = null) {
     if (!this.apiUrl) {
       throw new Error("Apps Script API URL is not configured. Please set CONFIG.API_URL in js/config.js.");
     }
@@ -148,19 +167,19 @@ export class AppsScriptDataProvider extends BaseDataProvider {
   }
 
   async getYears() {
-    return this._request('getYears');
+    return (await this.getBootstrap({})).years;
   }
 
   async getSettings() {
-    return this._request('getSettings');
+    return (await this.getBootstrap({})).settings;
   }
 
   async getStudents(year) {
     return this._request('getStudents', { year });
   }
 
-  async getClassroomData(year) {
-    return this._request('getClassroomData', { year }, { timeoutMs: 75000 });
+  async getClassroomData(year, options = {}) {
+    return this._request('getClassroomData', { year, documentsOnly: options.documentsOnly || undefined }, { timeoutMs: 75000 });
   }
 
   async getPaSections(year) {
@@ -172,11 +191,7 @@ export class AppsScriptDataProvider extends BaseDataProvider {
   }
 
   async getPaData(year) {
-    const [sections, items] = await Promise.all([
-      this.getPaSections(year),
-      this.getPaItems({ year })
-    ]);
-    return { sections: sections || [], items: items || [] };
+    return this._request('getPaData', { year }, { timeoutMs: 75000 });
   }
 
   async getItem(id, options = {}) {

@@ -4,13 +4,17 @@
  */
 
 const Classroom = {
-  getData: function(year) {
+  getStudents: function(year) {
+    return Sheets.getTable('STUDENTS').filter(s => String(s.year) === String(year));
+  },
+
+  getData: function(year, documentsOnly) {
     const y = String(year);
-    const students = Sheets.getTable('STUDENTS').filter(s => String(s.year) === y);
-    const attendance = Sheets.getTable('ATTENDANCE').filter(a => String(a.year) === y);
-    const routines = Sheets.getTable('DAILY_ROUTINES').filter(r => String(r.year) === y);
-    const health = Sheets.getTable('HEALTH').filter(h => String(h.year) === y);
-    const sdq = Sheets.getTable('SDQ').filter(q => String(q.year) === y);
+    const students = documentsOnly ? [] : this.getStudents(year);
+    const attendance = documentsOnly ? [] : Sheets.getTable('ATTENDANCE').filter(a => String(a.year) === y);
+    const routines = documentsOnly ? [] : Sheets.getTable('DAILY_ROUTINES').filter(r => String(r.year) === y);
+    const health = documentsOnly ? [] : Sheets.getTable('HEALTH').filter(h => String(h.year) === y);
+    const sdq = documentsOnly ? [] : Sheets.getTable('SDQ').filter(q => String(q.year) === y);
     const documents = Sheets.getTable('CLASSROOM_DOCUMENTS')
       .filter(d => String(d.year) === y && !d.archived)
       .map(function(doc) {

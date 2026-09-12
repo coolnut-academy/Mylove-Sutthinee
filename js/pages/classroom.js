@@ -302,7 +302,7 @@ class ClassroomPageController {
     const revision = this._dataRevision || 0;
     this._loadError = null;
     try {
-      const data = await ClassroomApi.getClassroomData(year);
+      const data = await ClassroomApi.getClassroomData(year, { documentsOnly: true });
       if (revision !== (this._dataRevision || 0) || String(year) !== String(this.currentYear)) return;
       this.classroomData = data;
       this._renderCurrentView();

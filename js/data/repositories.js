@@ -64,8 +64,12 @@ export class ClassroomRepository {
     this.provider = provider;
   }
 
-  async getClassroomData(year) {
-    return this.provider.getClassroomData(year);
+  async getStudents(year) {
+    return this.provider.getStudents(year);
+  }
+
+  async getClassroomData(year, options = {}) {
+    return this.provider.getClassroomData(year, options);
   }
 
   async saveStudent(payload) {
@@ -102,6 +106,7 @@ export class PaRepository {
   }
 
   async getPaData(year) {
+    if (typeof this.provider.getPaData === 'function') return this.provider.getPaData(year);
     const [sections, items] = await Promise.all([
       this.getSections(year),
       this.getItems(year)

@@ -23,8 +23,7 @@ export class AdminStudentsController {
 
   async loadStudents(year) {
     try {
-      const data = await ClassroomApi.getClassroomData(year || this.getYear());
-      this.students = data?.students || [];
+      this.students = await ClassroomApi.getStudents(year || this.getYear()) || [];
       this.renderTable();
     } catch (err) {
       console.error("Failed to load students in admin:", err);
