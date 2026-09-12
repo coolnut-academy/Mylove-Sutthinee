@@ -42,13 +42,33 @@ const Drive = {
       console.warn('Set sharing notice:', e);
     }
 
+    const fileId = file.getId();
+
     return {
-      fileId: file.getId(),
+      fileId: fileId,
       url: file.getUrl(),
       downloadUrl: file.getDownloadUrl(),
+      // 💡 Google CDN Thumbnail URLs สำหรับโหลดเร็วพิเศษ ไม่ติดบล็อก Broken Image
+      thumbnailUrl: 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1600',
+      cardThumbnailUrl: 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w600',
+      previewUrl: 'https://drive.google.com/file/d/' + fileId + '/preview',
       name: file.getName(),
       size: file.getSize(),
       mimeType: file.getMimeType()
     };
+  },
+
+  /**
+   * ลบไฟล์ลงถังขยะ (ใช้สำหรับ Orphan Rollback เมื่อบันทึกฐานข้อมูลล้มเหลว)
+   */
+  deleteFile: function(fileId) {
+    if (!fileId) return false;
+    try {
+      DriveApp.getFileById(fileId).setTrashed(true);
+      return true;
+    } catch (e) {
+      console.warn('Drive.deleteFile error for ' + fileId + ':', e);
+      return false;
+    }
   }
 };

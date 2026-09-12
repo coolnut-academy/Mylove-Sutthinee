@@ -54,6 +54,7 @@ const Router = {
 
       return Utils.jsonSuccess(data);
     } catch (err) {
+      recordAuditLog('GET_ERROR', err.message, { action: action });
       return Utils.jsonError(err.message || 'Server error occurred');
     }
   },
@@ -133,6 +134,7 @@ const Router = {
 
       return Utils.jsonSuccess(result);
     } catch (err) {
+      recordAuditLog('POST_ERROR', err.message, { action: action });
       return Utils.jsonError(err.message || 'Server mutation error');
     }
   }

@@ -67,5 +67,39 @@ function setupDatabase() {
     PA.seedDefaultSections('2567');
   }
 
+  // Setup AUDIT_LOG tab headers if empty
+  const auditSheet = ss.getSheetByName('AUDIT_LOG');
+  if (auditSheet && auditSheet.getLastRow() === 0) {
+    auditSheet.appendRow(['id', 'timestamp', 'event_type', 'message', 'details']);
+    auditSheet.setFrozenRows(1);
+  }
+
   Logger.log('Setup completed successfully!');
+}
+
+/**
+ * บันทึกประวัติและข้อผิดพลาดลงแท็บ AUDIT_LOG ใน Google Sheets
+ * @param {string} eventType - ประเภทเหตุการณ์ เช่น 'POST_ERROR', 'UPLOAD_FAIL'
+ * @param {string} message - ข้อความอธิบาย
+ * @param {*} details - ข้อมูลเพิ่มเติม (Object หรือ String)
+ */
+function recordAuditLog(eventType, message, details) {
+  try {
+    var ss = Sheets.getSpreadsheet();
+    var sheet = ss.getSheetByName('AUDIT_LOG');
+    if (!sheet) {
+      sheet = ss.insertSheet('AUDIT_LOG');
+      sheet.appendRow(['id', 'timestamp', 'event_type', 'message', 'details']);
+      sheet.setFrozenRows(1);
+    }
+    sheet.appendRow([
+      Utils.generateId('log'),
+      new Date().toISOString(),
+      eventType,
+      message,
+      typeof details === 'object' ? JSON.stringify(details) : String(details || '')
+    ]);
+  } catch (e) {
+    console.error('Audit log failed:', e);
+  }
 }

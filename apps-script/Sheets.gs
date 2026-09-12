@@ -55,7 +55,10 @@ const Sheets = {
       sheet.appendRow(headers);
     }
 
-    const row = headers.map(h => obj[h] !== undefined ? obj[h] : '');
+    const row = headers.map(h => {
+      const val = obj[h] !== undefined ? obj[h] : '';
+      return Utils.sanitizeForSheet(val);
+    });
     sheet.appendRow(row);
     return obj;
   },
@@ -71,12 +74,16 @@ const Sheets = {
 
     for (let r = 1; r < data.length; r++) {
       if (String(data[r][idColIndex]) === String(idValue)) {
+        // 💡 Batch update แถวในครั้งเดียว แทนการเรียก setValue ทีละเซลล์
+        const rowValues = [...data[r]];
         Object.entries(updates).forEach(([k, v]) => {
           const colIndex = headers.indexOf(k);
           if (colIndex !== -1) {
-            sheet.getRange(r + 1, colIndex + 1).setValue(v);
+            rowValues[colIndex] = Utils.sanitizeForSheet(v);
           }
         });
+        sheet.getRange(r + 1, 1, 1, headers.length).setValues([rowValues]);
+        SpreadsheetApp.flush();
         return true;
       }
     }

@@ -22,36 +22,66 @@ export class AppsScriptDataProvider extends BaseDataProvider {
     const url = new URL(this.apiUrl);
     url.searchParams.set('action', action);
 
+    const session = AppState.session;
+
     if (method === 'GET') {
       Object.entries(params).forEach(([k, v]) => {
         if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
       });
+      // 💡 Cache-Busting: ป้องกัน Edge CDN และ Browser แคชข้อมูลเก่า
+      url.searchParams.set('_t', String(Date.now()));
+      if (session && session.token) {
+        url.searchParams.set('token', session.token);
+      }
     }
 
+    // 💡 กฎเหล็ก CORS Simple Request: ไม่ส่ง Authorization Header เพื่อไม่ให้เกิด Preflight OPTIONS
     const headers = { 'Accept': 'application/json' };
-    const session = AppState.session;
-    if (session && session.token) {
-      headers['Authorization'] = `Bearer ${session.token}`;
-    }
+
+    const abortController = new AbortController();
+    // อนุญาตให้อัปโหลดไฟล์มีเวลา timeout 60 วิ ส่วนคำขอทั่วไป 45 วิ
+    const timeoutMs = (action === 'uploadFile') ? 60000 : 45000;
+    const timerId = setTimeout(() => abortController.abort(), timeoutMs);
 
     const options = {
       method,
-      headers
+      headers,
+      redirect: 'follow', // 💡 บังคับตาม Google 302 Redirect
+      signal: abortController.signal
     };
 
     if (method === 'POST') {
-      options.body = JSON.stringify({ action, ...params, ...(body || {}) });
-      headers['Content-Type'] = 'text/plain;charset=utf-8'; // Prevent CORS preflight issues with GAS Web App
+      // ส่ง Session Token ใน JSON Body ปลอดภัยและไม่ติด CORS
+      const postPayload = {
+        action,
+        ...params,
+        ...(body || {})
+      };
+      if (session && session.token && !postPayload.token) {
+        postPayload.token = session.token;
+      }
+
+      options.body = JSON.stringify(postPayload);
+      // 💡 Simple Request Header
+      headers['Content-Type'] = 'text/plain;charset=utf-8';
     }
 
     try {
       const resp = await fetch(url.toString(), options);
+      clearTimeout(timerId);
+
       const data = await resp.json();
       if (!data.success) {
         throw new Error(data.error || 'Server request failed');
       }
       return data.data;
     } catch (err) {
+      clearTimeout(timerId);
+      if (err.name === 'AbortError') {
+        const timeoutMsg = `การเชื่อมต่อไปยัง Google Apps Script หมดเวลา (${timeoutMs / 1000} วินาที) กรุณาลองใหม่อีกครั้ง`;
+        console.error(`[${action}] Timeout:`, timeoutMsg);
+        throw new Error(timeoutMsg);
+      }
       console.error(`AppsScript Provider error [${action}]:`, err);
       throw err;
     }

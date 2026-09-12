@@ -8,6 +8,7 @@ import { FileApi, YearsApi, PaApi } from '../api.js';
 import { CONFIG } from '../config.js';
 import { Toast } from '../toast.js';
 import { Utils } from '../utils.js';
+import { prepareUploadPayload } from '../image-utils.js';
 
 export class AdminUploadManagerController {
   constructor(getYear) {
@@ -218,17 +219,31 @@ export class AdminUploadManagerController {
       this.renderQueue();
 
       try {
-        // Step progress simulation
-        item.progress = 60;
+        // ขั้นตอนที่ 1: บีบอัดภาพด้วย Canvas / เตรียม Base64
+        item.progress = 40;
         this.renderQueue();
 
-        await FileApi.uploadFile({
-          name: item.name,
-          size: item.size,
-          type: item.type,
-          sectionCode: targetSection,
-          year: targetYear
-        });
+        let uploadPayload;
+        if (item.file) {
+          uploadPayload = await prepareUploadPayload(item.file, {
+            sectionCode: targetSection,
+            year: targetYear
+          });
+        } else {
+          uploadPayload = {
+            name: item.name,
+            size: item.size,
+            type: item.type,
+            sectionCode: targetSection,
+            year: targetYear
+          };
+        }
+
+        // ขั้นตอนที่ 2: นำส่งขึ้น Cloud และบันทึกฐานข้อมูล
+        item.progress = 75;
+        this.renderQueue();
+
+        await FileApi.uploadFile(uploadPayload);
 
         item.status = 'success';
         item.progress = 100;
@@ -236,7 +251,7 @@ export class AdminUploadManagerController {
       } catch (err) {
         console.error(`Upload error for ${item.name}:`, err);
         item.status = 'failed';
-        item.error = err.message;
+        item.error = err.message || 'เกิดข้อผิดพลาดในการอัปโหลด';
         this.renderQueue();
       }
     }

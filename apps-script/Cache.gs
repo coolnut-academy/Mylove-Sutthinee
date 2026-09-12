@@ -17,9 +17,17 @@ const ServerCache = {
   put: function(key, data, ttlSeconds) {
     try {
       const cache = CacheService.getScriptCache();
-      cache.put(key, JSON.stringify(data), ttlSeconds || 300); // 5 mins default
+      const jsonString = JSON.stringify(data);
+      // 💡 ป้องกัน Error "Argument too large: value must be less than 100KB"
+      if (jsonString.length > 90000) {
+        console.warn('Cache entry too large for key: ' + key + ' (' + jsonString.length + ' bytes). Skipping cache.');
+        return false;
+      }
+      cache.put(key, jsonString, ttlSeconds || 300); // 5 mins default
+      return true;
     } catch (e) {
       console.warn('Cache put failed:', e);
+      return false;
     }
   },
 

@@ -1,12 +1,13 @@
 /**
- * File Upload Handler
+ * File Upload Handler (Production-Ready Architecture)
  * Suttinee Teacher Workspace — Apps Script Backend
+ * Features: Parallel Drive Upload, Atomic Sheet Lock with SpreadsheetApp.flush(), Orphan Rollback
  */
 
 const Upload = {
   handleUpload: function(payload) {
     const name = payload.name;
-    const year = payload.year || '2569';
+    const year = payload.year || '2567';
     const sectionCode = payload.sectionCode || '1.1';
     const mimeType = payload.mimeType || payload.type || 'application/octet-stream';
     const base64Data = payload.base64Data;
@@ -14,42 +15,77 @@ const Upload = {
     if (!name) throw new Error('File name is required');
     if (!base64Data) throw new Error('Base64 file data is required');
 
-    // Save file into Drive
-    const driveRes = Drive.saveFile({
-      name: name,
-      mimeType: mimeType,
-      base64Data: base64Data,
-      year: year,
-      subfolder: 'PA'
-    });
+    let uploadedFileId = null;
 
-    const isImage = mimeType.indexOf('image') !== -1;
-    const isPdf = mimeType.indexOf('pdf') !== -1;
+    try {
+      // -------------------------------------------------------------
+      // ขั้นที่ 1: อัปโหลดภาพ/ไฟล์ขึ้น Google Drive (ทำนอก ScriptLock ขนานได้หลายคนพร้อมกัน)
+      // -------------------------------------------------------------
+      const driveRes = Drive.saveFile({
+        name: name,
+        mimeType: mimeType,
+        base64Data: base64Data,
+        year: year,
+        subfolder: 'PA'
+      });
+      uploadedFileId = driveRes.fileId;
 
-    // Insert record in PA_ITEMS sheet
-    const newItem = {
-      id: Utils.generateId('pa_item'),
-      year: year,
-      section_code: sectionCode,
-      title: name.replace(/\.[^/.]+$/, ""),
-      description: 'อัปโหลดผ่านระบบ Suttinee Workspace',
-      type: isImage ? 'image' : (isPdf ? 'pdf' : 'file'),
-      drive_file_id: driveRes.fileId,
-      external_url: driveRes.url,
-      mime_type: driveRes.mimeType,
-      file_size: driveRes.size,
-      sort_order: 1,
-      published: true,
-      archived: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    };
+      const isImage = mimeType.indexOf('image') !== -1;
+      const isPdf = mimeType.indexOf('pdf') !== -1;
 
-    Sheets.appendRow('PA_ITEMS', newItem);
+      // 💡 เลือกลิงก์ที่เหมาะสม: หากเป็นภาพ ใช้ Google CDN Thumbnail เพื่อไม่ให้ Broken Image
+      const displayUrl = isImage ? driveRes.thumbnailUrl : (isPdf ? driveRes.previewUrl : driveRes.url);
 
-    return {
-      success: true,
-      item: newItem
-    };
+      const newItem = {
+        id: Utils.generateId('pa_item'),
+        year: year,
+        section_code: sectionCode,
+        title: name.replace(/\.[^/.]+$/, ""),
+        description: 'อัปโหลดผ่านระบบ Suttinee Workspace',
+        type: isImage ? 'image' : (isPdf ? 'pdf' : 'file'),
+        drive_file_id: driveRes.fileId,
+        external_url: displayUrl,
+        thumbnail_url: driveRes.thumbnailUrl,
+        drive_url: driveRes.url,
+        mime_type: driveRes.mimeType,
+        file_size: driveRes.size,
+        sort_order: 1,
+        published: true,
+        archived: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      // -------------------------------------------------------------
+      // ขั้นที่ 2: ล็อกเฉพาะช่วงเขียนข้อมูลลงชีต (ใช้เวลาเพียง 0.1-0.2 วินาที)
+      // -------------------------------------------------------------
+      const lock = LockService.getScriptLock();
+      const hasLock = lock.tryLock(30000);
+
+      if (!hasLock) {
+        throw new Error('ระบบกำลังบันทึกข้อมูลของผู้ใช้อื่นอยู่ กรุณารอสักครู่แล้วลองใหม่');
+      }
+
+      try {
+        Sheets.appendRow('PA_ITEMS', newItem);
+
+        // 💡 บังคับให้ Google Sheets บันทึกข้อมูลลงดิสก์ทันทีก่อนปลดล็อก (ป้องกัน Race Condition)
+        SpreadsheetApp.flush();
+      } finally {
+        lock.releaseLock();
+      }
+
+      return {
+        success: true,
+        item: newItem
+      };
+
+    } catch (err) {
+      // 💡 Orphan Rollback: หากการบันทึกล้มเหลว ให้ลบไฟล์ขยะใน Google Drive ทิ้งทันที
+      if (uploadedFileId) {
+        Drive.deleteFile(uploadedFileId);
+      }
+      throw err;
+    }
   }
 };

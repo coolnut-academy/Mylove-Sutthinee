@@ -401,6 +401,68 @@
     </div>
   </div>
 
+  <!-- Submission Progress Overlay Component -->
+  <div id="submissionProgressOverlay" class="sub-progress-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="subProgressTitle">
+    <div class="sub-progress-card">
+      <div class="sub-progress-icon-wrap">
+        <span class="sub-progress-icon">🚀</span>
+        <div class="sub-progress-ring"></div>
+      </div>
+      <h3 id="subProgressTitle" class="sub-progress-title">กำลังนำส่งข้อมูลเข้าสู่ระบบ</h3>
+      <p id="subProgressSubtitle" class="sub-progress-subtitle">ระบบกำลังเตรียมนำส่งข้อมูลขึ้น Google Cloud...</p>
+
+      <div class="sub-progress-percent-box">
+        <span id="subProgressNumber" class="sub-progress-number">0</span>
+        <span class="sub-progress-unit">%</span>
+      </div>
+
+      <div class="sub-progress-track">
+        <div id="subProgressBarFill" class="sub-progress-fill" style="width: 0%;"></div>
+      </div>
+
+      <div class="sub-progress-steps">
+        <div class="sub-step-item" id="subStep1">
+          <span class="sub-step-icon">📋</span>
+          <span class="sub-step-text">1. ตรวจสอบข้อมูลในแบบฟอร์ม</span>
+          <span class="sub-step-badge">⏳</span>
+        </div>
+        <div class="sub-step-item" id="subStep2">
+          <span class="sub-step-icon">🖼️</span>
+          <span class="sub-step-text">2. ประมวลผลและลดขนาดรูปภาพ (WebP)</span>
+          <span class="sub-step-badge">⏳</span>
+        </div>
+        <div class="sub-step-item" id="subStep3">
+          <span class="sub-step-icon">☁️</span>
+          <span class="sub-step-text">3. อัปโหลดไฟล์ขึ้น Google Drive</span>
+          <span class="sub-step-badge">⏳</span>
+        </div>
+        <div class="sub-step-item" id="subStep4">
+          <span class="sub-step-icon">📊</span>
+          <span class="sub-step-text">4. บันทึกข้อมูลลง Google Sheets</span>
+          <span class="sub-step-badge">⏳</span>
+        </div>
+        <div class="sub-step-item" id="subStep5">
+          <span class="sub-step-icon">✨</span>
+          <span class="sub-step-text">5. ตรวจสอบความสมบูรณ์และเสร็จสิ้น</span>
+          <span class="sub-step-badge">⏳</span>
+        </div>
+      </div>
+
+      <div class="sub-progress-warning">
+        <span class="sub-warning-icon">⚠️</span>
+        <div class="sub-warning-desc">
+          <strong>กรุณารอสักครู่ ห้ามปิดหน้าต่างหรือกดรีเฟรช (F5)</strong><br>
+          ระบบกำลังเชื่อมต่อ Google Drive และ Sheets เพื่อความสมบูรณ์ของข้อมูล
+        </div>
+      </div>
+
+      <div id="subProgressError" class="sub-progress-error hidden">
+        <p id="subProgressErrorMsg" class="sub-error-text"></p>
+        <button type="button" id="subProgressRetryBtn" class="btn-sub-retry">ลองใหม่อีกครั้ง</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Container -->
   <div id="toast-container" aria-live="polite"></div>
 
