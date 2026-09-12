@@ -832,4 +832,158 @@ body.admin-mode .editable-section:hover {
   background: var(--danger-deep, #B91C1C);
 }
 
+/* ==========================================================================
+   Global Loading Floating Pill Indicator (Real-Time % Display)
+   Theme: Lavender Cozy Academic
+   ========================================================================== */
+.global-loading-indicator {
+  position: fixed;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  z-index: 1250;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.global-loading-indicator.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.global-loading-indicator.hidden {
+  display: none !important;
+}
+
+.loading-indicator-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1.5px solid var(--purple-300, #D6C3F8);
+  border-radius: var(--radius-full, 9999px);
+  padding: 8px 18px 8px 12px;
+  box-shadow: 0 10px 30px -4px rgba(64, 48, 95, 0.25), 0 0 16px rgba(169, 134, 222, 0.2);
+  min-width: 290px;
+  max-width: 90vw;
+}
+
+.loading-indicator-icon-wrap {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--purple-100, #F2ECFF);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.loading-indicator-icon {
+  font-size: 1.1rem;
+  z-index: 2;
+}
+
+.loading-spinner-ring {
+  position: absolute;
+  inset: -3px;
+  border: 2px solid transparent;
+  border-top-color: var(--purple-500, #A986DE);
+  border-right-color: var(--purple-300, #D6C3F8);
+  border-radius: 50%;
+  animation: loadingSpin 0.9s linear infinite;
+}
+
+@keyframes loadingSpin {
+  100% { transform: rotate(360deg); }
+}
+
+.loading-indicator-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.loading-indicator-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.loading-indicator-text {
+  font-size: 0.825rem;
+  font-weight: 500;
+  color: var(--purple-900, #40305F);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.loading-indicator-percent {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--purple-700, #7054A4);
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.loading-indicator-percent small {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--purple-500, #A986DE);
+  margin-left: 1px;
+}
+
+.loading-indicator-track {
+  width: 100%;
+  height: 4px;
+  background: var(--purple-100, #F2ECFF);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.loading-indicator-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple-500, #A986DE), var(--rose-mid, #EAB8CC), var(--sage-mid, #9BC7AA));
+  border-radius: 9999px;
+  transition: width 0.2s ease;
+}
+
+/* Success State */
+.global-loading-indicator.success .loading-indicator-pill {
+  border-color: var(--sage-mid, #9BC7AA);
+}
+.global-loading-indicator.success .loading-spinner-ring {
+  display: none;
+}
+.global-loading-indicator.success .loading-indicator-percent {
+  color: var(--sage-deep, #5C9470);
+}
+
+/* Failed State */
+.global-loading-indicator.failed .loading-indicator-pill {
+  border-color: var(--danger-mid, #EF4444);
+  background: var(--danger-soft, #FEE2E2);
+}
+.global-loading-indicator.failed .loading-spinner-ring {
+  border-top-color: var(--danger-mid, #EF4444);
+}
+.global-loading-indicator.failed .loading-indicator-text {
+  color: var(--danger-deep, #B91C1C);
+}
+.global-loading-indicator.failed .loading-indicator-percent {
+  color: var(--danger-deep, #B91C1C);
+}
+
+
 

@@ -7,6 +7,24 @@
 import { BaseDataProvider } from './provider.js';
 import { CONFIG } from '../config.js';
 import { AppState } from '../app-state.js';
+import { Loading } from '../loading.js';
+
+const ACTION_MESSAGES = {
+  getBootstrap: 'กำลังโหลดข้อมูลระบบและปีการศึกษา...',
+  getYears: 'กำลังดึงข้อมูลปีการศึกษา...',
+  getSettings: 'กำลังดึงข้อมูลการตั้งค่า...',
+  getStudents: 'กำลังดึงรายชื่อนักเรียน...',
+  getClassroomData: 'กำลังดึงข้อมูลงานประจำชั้นและสุขภาพ...',
+  getPaSections: 'กำลังดึงตัวชี้วัด ว.PA...',
+  getPaItems: 'กำลังดึงเอกสารและหลักฐาน ว.PA...',
+  getItem: 'กำลังโหลดรายละเอียดเอกสาร...',
+  saveSettings: 'กำลังบันทึกการตั้งค่าลง Google Sheets...',
+  createYear: 'กำลังสร้างปีการศึกษาใหม่...',
+  saveStudent: 'กำลังบันทึกข้อมูลนักเรียน...',
+  saveClassroomDocument: 'กำลังบันทึกเอกสารธุรการชั้นเรียน...',
+  savePaItem: 'กำลังบันทึกข้อมูล ว.PA...',
+  uploadFile: 'กำลังนำส่งไฟล์ขึ้น Google Cloud...'
+};
 
 export class AppsScriptDataProvider extends BaseDataProvider {
   constructor(apiUrl = CONFIG.API_URL) {
@@ -66,23 +84,36 @@ export class AppsScriptDataProvider extends BaseDataProvider {
       headers['Content-Type'] = 'text/plain;charset=utf-8';
     }
 
+    const friendlyMsg = ACTION_MESSAGES[action] || `กำลังเชื่อมต่อ Google Apps Script (${action})...`;
+    if (!Loading.isShowing) {
+      Loading.start(friendlyMsg);
+    } else {
+      Loading.set(25, friendlyMsg);
+    }
+
     try {
+      Loading.set(45);
       const resp = await fetch(url.toString(), options);
       clearTimeout(timerId);
 
+      Loading.set(80, 'ประมวลผลข้อมูลที่ได้รับ...');
       const data = await resp.json();
       if (!data.success) {
         throw new Error(data.error || 'Server request failed');
       }
+
+      Loading.done('ดึงข้อมูลสำเร็จ');
       return data.data;
     } catch (err) {
       clearTimeout(timerId);
       if (err.name === 'AbortError') {
         const timeoutMsg = `การเชื่อมต่อไปยัง Google Apps Script หมดเวลา (${timeoutMs / 1000} วินาที) กรุณาลองใหม่อีกครั้ง`;
         console.error(`[${action}] Timeout:`, timeoutMsg);
+        Loading.fail(timeoutMsg);
         throw new Error(timeoutMsg);
       }
       console.error(`AppsScript Provider error [${action}]:`, err);
+      Loading.fail(err.message || 'การเชื่อมต่อคลาวด์ขัดข้อง');
       throw err;
     }
   }

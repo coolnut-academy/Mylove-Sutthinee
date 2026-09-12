@@ -88,6 +88,12 @@ assert(typeof compressImage === 'function', 'compressImage is exported');
 assert(typeof readFileAsBase64 === 'function', 'readFileAsBase64 is exported');
 assert(typeof prepareUploadPayload === 'function', 'prepareUploadPayload is exported');
 
+import { Loading } from '../js/loading.js';
+assert(typeof Loading.start === 'function', 'Loading.start is a function');
+assert(typeof Loading.set === 'function', 'Loading.set is a function');
+assert(typeof Loading.done === 'function', 'Loading.done is a function');
+assert(typeof Loading.fail === 'function', 'Loading.fail is a function');
+
 console.log('\n--- Summary ---');
 console.log(`Passed: ${passed}, Failed: ${failed}`);
 
