@@ -158,13 +158,8 @@ export const InlineEditor = {
       </button>
     `;
 
-    bar.querySelector('#btn-floating-logout')?.addEventListener('click', async () => {
-      try {
-        await AuthApi.logout();
-      } catch (e) {
-        // ignore error on logout
-      }
-      AppState.clearSession();
+    bar.querySelector('#btn-floating-logout')?.addEventListener('click', () => {
+      AuthApi.logout();
       Toast.info('ออกจากระบบเรียบร้อยแล้ว');
       this.init();
     });

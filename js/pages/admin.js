@@ -34,19 +34,25 @@ class AdminPageController {
   }
 
   async onAuthenticated() {
+    const session = AppState.session;
+    let loadError = null;
     Loading.start();
     try {
       await this.loadYears();
+      if (AppState.session !== session) return;
       await this.loadSettingsProfile();
+      if (AppState.session !== session) return;
       this.appearanceController.loadSettings();
       this.yearsController.loadYears();
       this.uploadController.loadOptions();
       await this._renderPaTocList();
       this._bindClassroomActions();
-      Loading.done();
     } catch (err) {
       console.error("Admin init error:", err);
-      Loading.fail();
+      loadError = err;
+    } finally {
+      if (loadError) Loading.fail();
+      else Loading.done();
     }
   }
 

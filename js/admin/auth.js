@@ -19,6 +19,9 @@ export class AdminAuthController {
 
   init() {
     this._bindEvents();
+    AppState.on('authChanged', session => {
+      if (!session) this._showLogin();
+    });
     this.checkSession();
   }
 
@@ -43,13 +46,8 @@ export class AdminAuthController {
       }
     });
 
-    this.logoutBtn?.addEventListener('click', async () => {
-      try {
-        await AuthApi.logout();
-      } catch (e) {
-        console.warn(e);
-      }
-      AppState.setSession(null);
+    this.logoutBtn?.addEventListener('click', () => {
+      AuthApi.logout();
       Toast.info('ออกจากระบบเรียบร้อยแล้ว');
       this._showLogin();
     });

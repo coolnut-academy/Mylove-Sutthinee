@@ -13,6 +13,15 @@ class AppStateManager {
     this.settings = null;
     this.session = null;
     this._loadSession();
+    if (typeof window !== 'undefined' && window.addEventListener) {
+      window.addEventListener('storage', event => {
+        if (event.key === 'stw:admin_session' || event.key === null) {
+          this.session = null;
+          this._loadSession();
+          this.emit('authChanged', this.session);
+        }
+      });
+    }
   }
 
   /**
@@ -76,14 +85,22 @@ class AppStateManager {
 
   setSession(session) {
     this.session = session;
-    if (typeof window !== 'undefined' && window.localStorage) {
-      if (session) {
-        window.localStorage.setItem('stw:admin_session', JSON.stringify(session));
-      } else {
-        window.localStorage.removeItem('stw:admin_session');
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        if (session) {
+          window.localStorage.setItem('stw:admin_session', JSON.stringify(session));
+        } else {
+          window.localStorage.removeItem('stw:admin_session');
+        }
       }
+    } catch (error) {
+      console.warn('Unable to persist session state:', error);
     }
     this.emit('authChanged', this.session);
+  }
+
+  clearSession() {
+    this.setSession(null);
   }
 
   isAdmin() {

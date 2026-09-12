@@ -4,6 +4,7 @@
  */
 
 import { CONFIG } from './config.js';
+import { AppState } from './app-state.js';
 import { MockDataProvider } from './data/mock-provider.js';
 import { AppsScriptDataProvider } from './data/apps-script-provider.js';
 import {
@@ -26,7 +27,12 @@ export const PaApi = new PaRepository(provider);
 
 export const AuthApi = {
   login: (pwd) => provider.login(pwd),
-  logout: () => provider.logout(),
+  // The backend uses stateless tokens; its logout endpoint performs no mutation.
+  // Clear local credentials synchronously without a network/loading round trip.
+  logout: () => {
+    AppState.clearSession();
+    return { loggedOut: true };
+  },
   validateSession: (token) => provider.validateSession(token)
 };
 
