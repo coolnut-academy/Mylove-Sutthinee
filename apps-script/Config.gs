@@ -25,6 +25,6 @@ const CONFIG = {
   },
 
   getDefaultYear: function() {
-    return '2569';
+    return '2567';
   }
 };

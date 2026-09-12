@@ -54,17 +54,17 @@ function setupDatabase() {
     settingsSheet.appendRow(['site_title', 'Suttinee Teacher Workspace', new Date().toISOString()]);
     settingsSheet.appendRow(['site_subtitle', 'พัฒนาวิชาชีพและธุรการชั้นเรียน', new Date().toISOString()]);
     settingsSheet.appendRow(['teacher_name', 'นางสาวศุทธินี ถาวร', new Date().toISOString()]);
-    settingsSheet.appendRow(['teacher_role', 'ครู วิทยฐานะครูชำนาญการ', new Date().toISOString()]);
-    settingsSheet.appendRow(['school_name', 'โรงเรียนบ้านหนองบัวใหญ่', new Date().toISOString()]);
-    settingsSheet.appendRow(['default_year', '2569', new Date().toISOString()]);
+    settingsSheet.appendRow(['teacher_role', 'ครู วิทยฐานะ ชำนาญการพิเศษ', new Date().toISOString()]);
+    settingsSheet.appendRow(['school_name', 'โรงเรียนชุมชนแม่ลาศึกษา', new Date().toISOString()]);
+    settingsSheet.appendRow(['default_year', '2567', new Date().toISOString()]);
   }
 
   // Seed default year
   const yearsSheet = ss.getSheetByName('YEARS');
   if (yearsSheet.getLastRow() === 0) {
     yearsSheet.appendRow(['id', 'year', 'label', 'status', 'root_folder_id', 'pa_period_start', 'pa_period_end', 'is_default', 'created_at', 'updated_at']);
-    yearsSheet.appendRow(['year-2569', '2569', 'ปีการศึกษา 2569 (ปัจจุบัน)', 'active', '', '2025-10-01', '2026-09-30', true, new Date().toISOString(), new Date().toISOString()]);
-    PA.seedDefaultSections('2569');
+    yearsSheet.appendRow(['year-2567', '2567', 'ปีการศึกษา 2567 (ปีประเมิน ว.PA)', 'active', '', '2023-10-01', '2024-09-30', true, new Date().toISOString(), new Date().toISOString()]);
+    PA.seedDefaultSections('2567');
   }
 
   Logger.log('Setup completed successfully!');
