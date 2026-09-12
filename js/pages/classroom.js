@@ -300,6 +300,7 @@ class ClassroomPageController {
 
   async _loadClassroomData(year) {
     const revision = this._dataRevision || 0;
+    this._loadError = null;
     try {
       const data = await ClassroomApi.getClassroomData(year);
       if (revision !== (this._dataRevision || 0) || String(year) !== String(this.currentYear)) return;
@@ -307,6 +308,9 @@ class ClassroomPageController {
       this._renderCurrentView();
     } catch (err) {
       console.error("Error fetching classroom data:", err);
+      if (revision !== (this._dataRevision || 0) || String(year) !== String(this.currentYear)) return;
+      this._loadError = err;
+      this._renderCurrentView();
       Toast.error("ไม่สามารถโหลดข้อมูลธุรการในชั้นเรียนได้");
     }
   }
@@ -425,6 +429,15 @@ class ClassroomPageController {
   }
 
   _renderJobContent(job, container) {
+    if (this._loadError && !this.classroomData) {
+      container.innerHTML = `<div class="u-empty-state"><p>ยังโหลดข้อมูลจาก Google ไม่สำเร็จ ข้อมูลที่บันทึกไว้ไม่ได้ถูกลบ</p><button class="btn btn-primary" type="button" id="retry-classroom-load">ลองโหลดอีกครั้ง</button></div>`;
+      container.querySelector('#retry-classroom-load').addEventListener('click', () => {
+        this._loadError = null;
+        this._renderCurrentView();
+        this._loadClassroomData(this.currentYear);
+      });
+      return;
+    }
     if (!this.classroomData) {
       container.innerHTML = `<div class="text-center py-6 text-muted">กำลังโหลดข้อมูล...</div>`;
       return;

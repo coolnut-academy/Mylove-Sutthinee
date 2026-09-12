@@ -29,11 +29,13 @@ const Sheets = {
     }
   },
   getSpreadsheet: function() {
+    if (this._spreadsheet) return this._spreadsheet;
     const id = CONFIG.getSpreadsheetId();
     if (!id) {
       throw new Error('SPREADSHEET_ID is not configured in Script Properties');
     }
-    return SpreadsheetApp.openById(id);
+    this._spreadsheet = SpreadsheetApp.openById(id);
+    return this._spreadsheet;
   },
 
   getSheet: function(sheetName) {

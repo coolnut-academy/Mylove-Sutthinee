@@ -168,7 +168,7 @@ export class AppsScriptDataProvider extends BaseDataProvider {
   }
 
   async getClassroomData(year) {
-    return this._request('getClassroomData', { year });
+    return this._request('getClassroomData', { year }, { timeoutMs: 75000 });
   }
 
   async getPaSections(year) {
