@@ -5,6 +5,8 @@
  * Suttinee Teacher Workspace
  */
 
+import { Loading } from '../loading.js';
+
 export class EbookViewerModal {
   static currentPdfDoc = null;
   static currentPageNum = 1;
@@ -58,6 +60,7 @@ export class EbookViewerModal {
     this.currentScale = window.innerWidth < 768 ? 0.8 : 1.2;
 
     // Load PDF using PDF.js
+    Loading.start('กำลังโหลดเอกสาร PDF...');
     try {
       if (typeof window.pdfjsLib === 'undefined') {
         // Fallback if PDF.js is not loaded yet
@@ -89,6 +92,9 @@ export class EbookViewerModal {
       }
 
       const loadingTask = window.pdfjsLib.getDocument(docInit);
+      loadingTask.onProgress = ({ loaded, total }) => {
+        if (total > 0) Loading.set(Math.min(90, 10 + loaded / total * 80), 'กำลังรับและเปิดเอกสาร PDF...');
+      };
       this.currentPdfDoc = await loadingTask.promise;
       this.totalPages = this.currentPdfDoc.numPages;
 
@@ -96,9 +102,11 @@ export class EbookViewerModal {
       if (loadingEl) loadingEl.style.display = 'none';
       if (canvas) canvas.style.display = 'block';
 
-      this._renderPage(this.currentPageNum);
+      await this._renderPage(this.currentPageNum);
+      Loading.done('เปิดเอกสารเรียบร้อย');
     } catch (err) {
       console.error('Error loading PDF in eBook Viewer:', err);
+      Loading.fail('เปิดเอกสารไม่สำเร็จ');
       if (loadingEl) loadingEl.style.display = 'none';
       if (errorEl) {
         errorEl.style.display = 'block';
@@ -123,6 +131,7 @@ export class EbookViewerModal {
 
   static async _renderPage(num) {
     if (!this.currentPdfDoc) return;
+    Loading.start(`กำลังแสดงหน้า ${num}...`);
     this.isRendering = true;
 
     try {
@@ -156,8 +165,10 @@ export class EbookViewerModal {
       const nextBtn = document.getElementById('ebook-next-page');
       if (prevBtn) prevBtn.disabled = num <= 1;
       if (nextBtn) nextBtn.disabled = num >= this.totalPages;
+      Loading.done('แสดงหน้าเอกสารเรียบร้อย');
     } catch (e) {
       console.error('Error rendering page:', e);
+      Loading.fail('แสดงหน้าเอกสารไม่สำเร็จ');
       this.isRendering = false;
     }
   }

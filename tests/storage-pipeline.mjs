@@ -85,6 +85,8 @@ const { UniversalItemModal: Modal } = await import('../js/components/universal-i
 const { AppState } = await import('../js/app-state.js');
 const { DataProvider } = await import('../js/data-provider.js');
 const { Toast } = await import('../js/toast.js');
+const { Loading } = await import('../js/loading.js');
+for (const name of ['start', 'set', 'done', 'fail']) Loading[name] = () => {};
 globalThis.document = { getElementById: () => null };
 AppState.session = { token: 'test-session' };
 let successes = 0, errors = 0, writes = 0, refreshes = 0;

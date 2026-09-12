@@ -2076,6 +2076,7 @@
 }
 
 .u-modal-footer {
+  flex-wrap: wrap;
   padding: var(--space-4) var(--space-6);
   background: #FAFAFD;
   border-top: 1px solid var(--border-light);
@@ -2085,6 +2086,12 @@
 }
 
 /* Type Selector Grid */
+.save-progress { flex: 0 0 100%; min-width: 0; color: var(--purple-900); }
+body.modal-open #admin-floating-status-bar { display: none; }
+.save-progress-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; font-size: 0.875rem; }
+.save-progress-heading strong { flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.loading-detail { display: block; margin-top: 5px; color: var(--text-secondary, #706580); font-size: 0.75rem; }
+
 .u-type-selector-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -2566,5 +2573,3 @@
   font-weight: 700;
   border-bottom: 2px solid #0F9D58;
 }
-
-

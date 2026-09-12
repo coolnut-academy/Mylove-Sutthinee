@@ -5,6 +5,8 @@
  * Suttinee Teacher Workspace
  */
 
+import { Loading } from '../loading.js';
+
 export class ExcelViewerModal {
   static currentWorkbook = null;
   static activeSheetName = null;
@@ -46,6 +48,7 @@ export class ExcelViewerModal {
     if (loadingEl) loadingEl.style.display = 'flex';
     if (errorEl) errorEl.style.display = 'none';
 
+    Loading.start('กำลังเปิดไฟล์ตาราง...');
     try {
       if (typeof window.XLSX === 'undefined') {
         await this._loadSheetJsLibrary();
@@ -66,6 +69,7 @@ export class ExcelViewerModal {
       }
 
       this.currentWorkbook = workbook;
+      Loading.set(85, 'กำลังจัดแสดงตาราง...');
       if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
         throw new Error('ไม่พบแผ่นงาน (Sheet) ในไฟล์ Excel นี้');
       }
@@ -77,8 +81,10 @@ export class ExcelViewerModal {
 
       // Render the first sheet
       this.switchSheet(workbook.SheetNames[0]);
+      Loading.done('เปิดตารางเรียบร้อย');
     } catch (err) {
       console.error('Error loading Excel in Viewer:', err);
+      Loading.fail('เปิดตารางไม่สำเร็จ');
       if (loadingEl) loadingEl.style.display = 'none';
       if (errorEl) {
         errorEl.style.display = 'block';

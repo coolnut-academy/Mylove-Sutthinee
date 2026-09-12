@@ -153,7 +153,7 @@ export class AdminUploadManagerController {
       const statusLabels = {
         waiting: '<span class="badge badge-muted">รออัปโหลด</span>',
         reading: '<span class="badge badge-purple">กำลังอ่านไฟล์...</span>',
-        uploading: `<span class="badge badge-purple">กำลังส่งขึ้นคลาวด์ ${item.progress}%</span>`,
+        uploading: `<span class="badge badge-purple">กำลังส่งขึ้นคลาวด์ ประมาณ ${item.progress}%</span>`,
         success: '<span class="badge badge-sage">✓ อัปโหลดสำเร็จ</span>',
         failed: '<span class="badge badge-rose">✕ ไม่สำเร็จ</span>'
       };

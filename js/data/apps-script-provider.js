@@ -109,13 +109,7 @@ export class AppsScriptDataProvider extends BaseDataProvider {
     }
 
     const friendlyMsg = ACTION_MESSAGES[action] || `กำลังเชื่อมต่อ Google Apps Script (${action})...`;
-    const wasAlreadyShowing = Loading.isShowing;
-
-    if (!wasAlreadyShowing) {
-      Loading.start(friendlyMsg);
-    } else {
-      Loading.setMessage(friendlyMsg);
-    }
+    Loading.start(friendlyMsg);
 
     try {
       const resp = await fetch(url.toString(), options);
@@ -133,20 +127,18 @@ export class AppsScriptDataProvider extends BaseDataProvider {
       }
 
       // หากหน้านั้นจัดการ Loading เองอยู่แล้ว จะไม่แย่งปิด Loading
-      if (!wasAlreadyShowing) {
-        Loading.done('ดึงข้อมูลสำเร็จ');
-      }
+      Loading.done('ดำเนินการสำเร็จ');
       return data.data;
     } catch (err) {
       clearTimeout(timerId);
       if (err.name === 'AbortError') {
         const timeoutMsg = `การเชื่อมต่อไปยัง Google Apps Script หมดเวลา (${timeoutMs / 1000} วินาที) กรุณาลองใหม่อีกครั้ง`;
         console.error(`[${action}] Timeout:`, timeoutMsg);
-        if (!wasAlreadyShowing) Loading.fail(timeoutMsg);
+        Loading.fail(timeoutMsg);
         throw new Error(timeoutMsg);
       }
       console.error(`AppsScript Provider error [${action}]:`, err);
-      if (!wasAlreadyShowing) Loading.fail(err.message || 'การเชื่อมต่อคลาวด์ขัดข้อง');
+      Loading.fail(err.message || 'การเชื่อมต่อคลาวด์ขัดข้อง');
       throw err;
     }
   }

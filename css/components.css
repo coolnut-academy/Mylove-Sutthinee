@@ -882,7 +882,7 @@ body.admin-mode .btn-inline-edit {
   top: 14px;
   left: 50%;
   transform: translateX(-50%) translateY(-20px);
-  z-index: 1250;
+  z-index: 15000;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -1025,6 +1025,5 @@ body.admin-mode .btn-inline-edit {
 .global-loading-indicator.failed .loading-indicator-percent {
   color: var(--danger-deep, #B91C1C);
 }
-
 
 

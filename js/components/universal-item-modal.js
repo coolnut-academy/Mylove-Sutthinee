@@ -13,6 +13,7 @@ import { compressImage, readFileAsBase64 } from '../image-utils.js';
 import { Toast } from '../toast.js';
 import { AppState } from '../app-state.js';
 import { Cache } from '../cache.js';
+import { Loading } from '../loading.js';
 
 export class UniversalItemModal {
   static saving = false;
@@ -75,6 +76,7 @@ export class UniversalItemModal {
   }
 
   static _resetState() {
+    document.getElementById('u-save-progress')?.classList.add('d-none');
     this.state = {
       selectedType: 'link',
       selectedRatio: '16:9',
@@ -319,6 +321,8 @@ export class UniversalItemModal {
     this.saving = true;
     this.state.submissionId ||= this.currentContext.editingItem?.id ||
       `${this.currentContext.module === 'pa' ? 'pa_item' : 'cls_doc'}_${crypto.randomUUID()}`;
+    document.getElementById('u-save-progress')?.classList.remove('d-none');
+    Loading.start('กำลังเตรียมข้อมูลสำหรับบันทึก...');
     if (saveBtn) {
       saveBtn.disabled = true;
       saveBtn.innerHTML = '⏳ กำลังเตรียมนำส่งข้อมูล...';
@@ -332,6 +336,7 @@ export class UniversalItemModal {
       if (coverUrl && coverUrl.startsWith('data:image/')) {
         try {
           if (saveBtn) saveBtn.innerHTML = '⏳ กำลังนำส่งภาพหน้าปกขึ้น Google Drive...';
+          Loading.set(15, 'กำลังอัปโหลดภาพหน้าปก...');
           const commaIdx = coverUrl.indexOf(',');
           const mimeMatch = coverUrl.substring(0, commaIdx).match(/:(.*?);/);
           const mimeType = mimeMatch ? mimeMatch[1] : 'image/jpeg';
@@ -367,6 +372,7 @@ export class UniversalItemModal {
       let driveFileId = '';
       if (this.state.fileBase64) {
         if (saveBtn) saveBtn.innerHTML = '⏳ กำลังนำส่งไฟล์เอกสารขึ้น Google Drive...';
+        Loading.set(45, 'กำลังอัปโหลดไฟล์เอกสาร...');
         let rawDocB64 = this.state.fileBase64;
         let docMime = type === 'ebook' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
         if (rawDocB64.startsWith('data:')) {
@@ -399,6 +405,7 @@ export class UniversalItemModal {
 
       // 3. บันทึกข้อมูลกำกับลง Google Sheets
       if (saveBtn) saveBtn.innerHTML = '⏳ กำลังบันทึกข้อมูลลง Google Sheets...';
+      Loading.set(70, 'กำลังบันทึกและยืนยันข้อมูลใน Google Sheets...');
       const newItem = {
         id: this.state.submissionId,
         year: String(this.currentContext.year || '2567'),
@@ -439,14 +446,17 @@ export class UniversalItemModal {
       Cache.invalidate('pa');
 
       this.currentContext.editingItem = savedResult;
+      Loading.set(95, 'กำลังแสดงรายการที่บันทึกแล้ว...');
       if (typeof this.currentContext.onSaveSuccess === 'function') {
         await this.currentContext.onSaveSuccess(savedResult || newItem);
       }
       Toast.success('บันทึกข้อมูลและนำส่ง Google Cloud เรียบร้อยแล้ว');
+      Loading.done('บันทึกและแสดงรายการเรียบร้อย');
       this.saving = false;
       this.close();
     } catch (err) {
       console.error('Error saving universal item:', err);
+      Loading.fail(err.message || 'บันทึกไม่สำเร็จ กรุณาลองอีกครั้ง');
       if (err.savedItem) this.currentContext.editingItem = err.savedItem;
       Toast.error('เกิดข้อผิดพลาดในการบันทึก: ' + err.message);
     } finally {
@@ -607,6 +617,11 @@ export class UniversalItemModal {
 
         <!-- Footer -->
         <div class="u-modal-footer">
+          <div id="u-save-progress" class="save-progress d-none">
+            <div class="save-progress-heading"><span data-loading-message role="status">กำลังเตรียมข้อมูล...</span><strong data-loading-percent>0%</strong></div>
+            <div class="loading-indicator-track" role="progressbar" aria-label="ความคืบหน้าการบันทึกโดยประมาณ" aria-valuemin="0" aria-valuemax="100" data-loading-bar><div class="loading-indicator-fill" data-loading-fill></div></div>
+            <small class="loading-detail" data-loading-detail></small>
+          </div>
           <button type="button" class="btn btn-subtle" id="u-modal-cancel-btn">ยกเลิก</button>
           <button type="button" class="btn btn-primary" id="u-modal-save-btn">💾 บันทึกข้อมูล</button>
         </div>

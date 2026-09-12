@@ -1,279 +1,106 @@
-/**
- * Global Loading System with Real-Time Percentage & Floating Pill Badge
- * Theme: Lavender Cozy Academic
- * Features: Top Screen Glow Bar + Floating Glassmorphism Indicator with % Numbers
- */
-
-class LoadingManager {
+/** Shared progress for real pending work. Network percentages are estimates. */
+export class LoadingManager {
   constructor() {
     this.progress = 0;
-    this.targetProgress = 0;
-    this.timer = null;
-    this.tweenTimer = null;
-    this.barEl = null;
-    this.indicatorEl = null;
-    this.msgEl = null;
-    this.percentEl = null;
-    this.pillFillEl = null;
-    this.iconEl = null;
-    this.isShowing = false;
     this.activeCount = 0;
-    this.watchdogTimer = null;
-    this._ensureDOM();
+    this.isShowing = false;
+    this.timer = null;
+    this.hideTimer = null;
+    this.message = '';
+    this.failure = null;
   }
 
   _ensureDOM() {
     if (typeof document === 'undefined') return;
-
-    // 1. Top Edge Bar
-    this.barEl = document.getElementById('top-progress-bar');
-    if (!this.barEl) {
-      this.barEl = document.createElement('div');
-      this.barEl.id = 'top-progress-bar';
-      this.barEl.setAttribute('role', 'progressbar');
-      this.barEl.setAttribute('aria-valuemin', '0');
-      this.barEl.setAttribute('aria-valuemax', '100');
-      document.body.prepend(this.barEl);
+    if (!document.getElementById('global-loading-indicator')) {
+      const indicator = document.createElement('aside');
+      indicator.id = 'global-loading-indicator';
+      indicator.className = 'global-loading-indicator hidden';
+      indicator.innerHTML = `<div class="loading-indicator-pill">
+        <div class="loading-indicator-icon-wrap"><span id="global-loading-icon">☁️</span><span class="loading-spinner-ring"></span></div>
+        <div class="loading-indicator-info">
+          <div class="loading-indicator-header"><span id="global-loading-msg" class="loading-indicator-text" role="status"></span>
+            <span class="loading-indicator-percent"><strong id="global-loading-percent-number">0</strong><small>%</small></span></div>
+          <div class="loading-indicator-track" role="progressbar" aria-label="ความคืบหน้าโดยประมาณ" aria-valuemin="0" aria-valuemax="100" data-loading-bar>
+            <div id="global-loading-pill-fill" class="loading-indicator-fill" data-loading-fill></div></div>
+          <small class="loading-detail" data-loading-detail></small>
+        </div></div>`;
+      document.body.appendChild(indicator);
     }
-
-    // 2. Floating Percentage Pill Indicator
     this.indicatorEl = document.getElementById('global-loading-indicator');
-    if (!this.indicatorEl) {
-      this.indicatorEl = document.createElement('aside');
-      this.indicatorEl.id = 'global-loading-indicator';
-      this.indicatorEl.className = 'global-loading-indicator hidden';
-      this.indicatorEl.setAttribute('aria-live', 'polite');
-      this.indicatorEl.innerHTML = `
-        <div class="loading-indicator-pill">
-          <div class="loading-indicator-icon-wrap">
-            <span id="global-loading-icon" class="loading-indicator-icon">☁️</span>
-            <span class="loading-spinner-ring"></span>
-          </div>
-          <div class="loading-indicator-info">
-            <div class="loading-indicator-header">
-              <span id="global-loading-msg" class="loading-indicator-text">กำลังดึงข้อมูลจาก Google Sheets...</span>
-              <span class="loading-indicator-percent">
-                <strong id="global-loading-percent-number">0</strong><small>%</small>
-              </span>
-            </div>
-            <div class="loading-indicator-track">
-              <div id="global-loading-pill-fill" class="loading-indicator-fill" style="width: 0%;"></div>
-            </div>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(this.indicatorEl);
-    }
-
     this.msgEl = document.getElementById('global-loading-msg');
     this.percentEl = document.getElementById('global-loading-percent-number');
-    this.pillFillEl = document.getElementById('global-loading-pill-fill');
     this.iconEl = document.getElementById('global-loading-icon');
   }
 
-  /**
-   * เริ่มต้นแสดง Progress Bar พร้อมตัวเลข %
-   * @param {string} [message] - ข้อความที่ต้องการแสดง
-   */
-  start(message = 'กำลังดึงข้อมูลจาก Google Sheets...') {
+  start(message = 'กำลังโหลดข้อมูล...') {
     this._ensureDOM();
+    clearTimeout(this.hideTimer);
+    if (this.activeCount === 0) {
+      this.startedAt = Date.now();
+      this.progress = 5;
+      this.failure = null;
+      clearInterval(this.timer);
+      this.timer = setInterval(() => {
+        this.progress = Math.max(this.progress, Math.min(95, this.progress + Math.max(0.05, (95 - this.progress) * 0.035)));
+        this._update();
+      }, 500);
+    }
     this.activeCount++;
-
-    if (this.isShowing) {
-      if (message && this.msgEl) this.msgEl.textContent = message;
-      return;
-    }
-
-    if (this.timer) clearInterval(this.timer);
-    if (this.tweenTimer) clearInterval(this.tweenTimer);
-    if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
-
-    this.progress = 15;
-    this.targetProgress = 15;
     this.isShowing = true;
-
-    if (this.msgEl) this.msgEl.textContent = message;
+    this.message = message;
+    this.indicatorEl?.classList.remove('hidden', 'success', 'failed');
+    this.indicatorEl?.classList.add('show');
     if (this.iconEl) this.iconEl.textContent = '☁️';
-    if (this.indicatorEl) {
-      this.indicatorEl.classList.remove('hidden', 'success', 'failed');
-      this.indicatorEl.classList.add('show');
-    }
-    if (this.barEl) {
-      this.barEl.classList.remove('failed', 'success');
-      this.barEl.style.opacity = '1';
-    }
-
-    this._update(this.progress);
-
-    // จำลองเปอร์เซ็นต์ไหลนุ่มนวล (Non-Freezing Progressive Trickle)
-    // ไม่มีการหยุดค้างที่ 85% — ค่อยๆ เคลื่อนที่อย่างต่อเนื่อง
-    this.timer = setInterval(() => {
-      if (this.progress < 75) {
-        const step = Math.floor(Math.random() * 4) + 3; // +3-6%
-        this.progress = Math.min(75, this.progress + step);
-      } else if (this.progress < 90) {
-        this.progress = Math.min(90, this.progress + 1.2); // +1.2%
-      } else if (this.progress < 96) {
-        this.progress = Math.min(96, this.progress + 0.3); // +0.3%
-      }
-      this._update(this.progress);
-    }, 200);
-
-    // Watchdog Safety Timeout: ป้องกันการค้างบนหน้าจอเกิน 5.5 วินาที
-    // หากเกิดปัญหาเน็ตหรือ Cloud ดีเลย์ ตัวแถบจะปิดอย่างนุ่มนวล ไม่บล็อกสายตาผู้ใช้
-    this.watchdogTimer = setTimeout(() => {
-      if (this.isShowing && this.progress < 100) {
-        this.done('พร้อมใช้งาน');
-      }
-    }, 5500);
+    this._update();
   }
 
-  /**
-   * กำหนดค่าเปอร์เซ็นต์เป้าหมาย
-   * @param {number} percent - ค่าเปอร์เซ็นต์ 0-100
-   * @param {string} [message] - ข้อความเสริม
-   */
   set(percent, message) {
-    this._ensureDOM();
-    if (!this.isShowing) {
-      this.start(message);
-    }
-
-    if (message && this.msgEl) {
-      this.msgEl.textContent = message;
-    }
-
-    const target = Math.min(100, Math.max(0, percent));
-    if (target > this.progress) {
-      this._animateTo(target);
-    }
-
-    if (target >= 100) {
-      this.done();
-    }
+    if (!this.activeCount) this.start(message);
+    this.progress = Math.max(this.progress, Math.min(99, Number(percent) || 0));
+    this.setMessage(message);
   }
-
   setMessage(message) {
-    if (this.msgEl && message) {
-      this.msgEl.textContent = message;
-    }
+    if (message) this.message = message;
+    this._update();
   }
+  inc(amount = 10) { this.set(this.progress + amount); }
+  done(message = 'ดำเนินการสำเร็จ') { this._finish(null, message); }
+  fail(message = 'ดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง') { this._finish(message); }
 
-  inc(amount = 10) {
-    this.set(this.progress + amount);
-  }
-
-  /**
-   * เสร็จสิ้นการโหลด (100%)
-   * @param {string} [message]
-   */
-  done(message = 'โหลดข้อมูลสำเร็จเรียบร้อย') {
-    this._ensureDOM();
-    this.activeCount = Math.max(0, this.activeCount - 1);
-
-    // หากยังมีงานอื่นที่รอโหลดอยู่ ให้รอจนกว่าทุกคำขอจะเสร็จ
-    if (this.activeCount > 0) {
-      return;
-    }
-
-    if (this.timer) clearInterval(this.timer);
-    if (this.tweenTimer) clearInterval(this.tweenTimer);
-    if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
-
-    this.progress = 100;
-    this._update(100);
-
-    if (this.iconEl) this.iconEl.textContent = '✅';
-    if (this.msgEl) this.msgEl.textContent = message;
-    if (this.indicatorEl) this.indicatorEl.classList.add('success');
-
-    // หน่วงเวลาเล็กน้อยเพื่อให้ผู้ใช้เห็นว่าครบ 100% แล้วค่อยสไลด์ปิดอย่างนุ่มนวล
-    setTimeout(() => {
-      if (this.indicatorEl) {
-        this.indicatorEl.classList.remove('show');
-        setTimeout(() => {
-          if (this.indicatorEl) this.indicatorEl.classList.add('hidden');
-        }, 300);
-      }
-
-      if (this.barEl) {
-        this.barEl.style.opacity = '0';
-        setTimeout(() => {
-          if (this.barEl) {
-            this.barEl.style.width = '0%';
-            this.barEl.style.opacity = '1';
-            this.barEl.classList.remove('failed', 'success');
-          }
-        }, 300);
-      }
-
+  _finish(error, message) {
+    if (!this.activeCount) return;
+    if (error) this.failure = error;
+    this.activeCount--;
+    if (this.activeCount > 0) { this._update(); return; }
+    clearInterval(this.timer);
+    this.timer = null;
+    this.message = this.failure || message;
+    if (!this.failure) this.progress = 100;
+    if (this.iconEl) this.iconEl.textContent = this.failure ? '⚠️' : '✅';
+    this.indicatorEl?.classList.add(this.failure ? 'failed' : 'success');
+    this._update();
+    this.hideTimer = setTimeout(() => {
+      this.indicatorEl?.classList.remove('show');
+      this.indicatorEl?.classList.add('hidden');
       this.isShowing = false;
-      this.activeCount = 0;
-    }, 450);
+    }, this.failure ? 7000 : 1100);
   }
 
-  /**
-   * แจ้งเตือนกรณีเกิดข้อผิดพลาดในการโหลด
-   * @param {string} [message]
-   */
-  fail(message = 'การเชื่อมต่อคลาวด์ขัดข้อง') {
-    this._ensureDOM();
-    this.activeCount = 0;
-    if (this.timer) clearInterval(this.timer);
-    if (this.tweenTimer) clearInterval(this.tweenTimer);
-    if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
-
-    if (this.iconEl) this.iconEl.textContent = '⚠️';
-    if (this.msgEl) this.msgEl.textContent = message;
-    if (this.indicatorEl) {
-      this.indicatorEl.classList.add('failed');
-      this.indicatorEl.classList.add('show');
-    }
-    if (this.barEl) {
-      this.barEl.classList.add('failed');
-      this.barEl.style.background = 'var(--danger-mid)';
-    }
-
-    this._update(100);
-
-    setTimeout(() => {
-      if (this.indicatorEl) {
-        this.indicatorEl.classList.remove('show');
-        setTimeout(() => {
-          if (this.indicatorEl) this.indicatorEl.classList.add('hidden');
-        }, 300);
-      }
-      this.isShowing = false;
-      this.activeCount = 0;
-    }, 1200);
-  }
-
-  _animateTo(target) {
-    if (this.tweenTimer) clearInterval(this.tweenTimer);
-    target = Math.min(100, Math.max(0, target));
-
-    this.tweenTimer = setInterval(() => {
-      if (this.progress < target) {
-        this.progress = Math.min(target, this.progress + 2);
-        this._update(this.progress);
-      } else {
-        clearInterval(this.tweenTimer);
-      }
-    }, 20);
-  }
-
-  _update(percent) {
-    const rounded = Math.round(percent);
-    if (this.barEl) {
-      this.barEl.style.width = `${percent}%`;
-      this.barEl.setAttribute('aria-valuenow', String(rounded));
-    }
-    if (this.pillFillEl) {
-      this.pillFillEl.style.width = `${percent}%`;
-    }
-    if (this.percentEl) {
-      this.percentEl.textContent = String(rounded);
-    }
+  _update() {
+    if (typeof document === 'undefined') return;
+    const percent = Math.floor(this.progress);
+    const seconds = Math.floor((Date.now() - (this.startedAt || Date.now())) / 1000);
+    const detail = this.activeCount > 0
+      ? `ประมาณการ · รอ ${seconds} วินาที${seconds >= 15 ? ' · ยังทำงานอยู่ กรุณารอสักครู่' : ''}`
+      : (this.failure ? 'ยังไม่สำเร็จ · ลองทำรายการอีกครั้ง' : 'เสร็จสมบูรณ์');
+    if (this.percentEl) this.percentEl.textContent = String(percent);
+    if (this.msgEl) this.msgEl.textContent = this.message;
+    document.querySelectorAll('[data-loading-percent]').forEach(el => { el.textContent = `${percent}%`; });
+    document.querySelectorAll('[data-loading-message]').forEach(el => { el.textContent = this.message; });
+    document.querySelectorAll('[data-loading-detail]').forEach(el => { el.textContent = detail; });
+    document.querySelectorAll('[data-loading-fill]').forEach(el => { el.style.width = `${percent}%`; });
+    document.querySelectorAll('[data-loading-bar]').forEach(el => { el.setAttribute('aria-valuenow', String(percent)); });
   }
 }
 

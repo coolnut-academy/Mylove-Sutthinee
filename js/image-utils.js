@@ -9,6 +9,8 @@
  * Portrait: 1240 x 1754 px
  * Landscape: 1754 x 1240 px
  */
+import { Loading } from './loading.js';
+
 export const A4_DIMENSIONS = {
   MAX_LONG: 1754,
   MAX_SHORT: 1240
@@ -25,6 +27,18 @@ export const A4_DIMENSIONS = {
  * @returns {Promise<{dataUrl: string, base64: string, mimeType: string, name: string, width: number, height: number, size: number, originalSize: number, savedPercent: number}>}
  */
 export async function compressImage(file, options = {}) {
+  Loading.start('กำลังเตรียมและบีบอัดรูปภาพ...');
+  try {
+    const result = await compressImageData(file, options);
+    Loading.done('เตรียมภาพเรียบร้อย');
+    return result;
+  } catch (error) {
+    Loading.fail('เตรียมภาพไม่สำเร็จ');
+    throw error;
+  }
+}
+
+async function compressImageData(file, options = {}) {
   const quality = options.quality !== undefined ? options.quality : 0.82;
   const onProgress = options.onProgress;
 
@@ -158,19 +172,24 @@ export async function compressImage(file, options = {}) {
  * @returns {Promise<string>}
  */
 export function readFileAsBase64(file) {
+  Loading.start('กำลังอ่านไฟล์ที่เลือก...');
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result;
       if (typeof dataUrl === 'string') {
         const base64 = dataUrl.split(',')[1] || '';
+        Loading.done('อ่านไฟล์เรียบร้อย');
         resolve(base64);
       } else {
+        Loading.fail('อ่านไฟล์ไม่สำเร็จ');
         reject(new Error('ไม่สามารถอ่านข้อมูลไฟล์ได้'));
       }
     };
-    reader.onerror = () => reject(new Error('เกิดข้อผิดพลาดในการอ่านไฟล์'));
-    reader.readAsDataURL(file);
+    reader.onerror = () => { Loading.fail('อ่านไฟล์ไม่สำเร็จ'); reject(new Error('เกิดข้อผิดพลาดในการอ่านไฟล์')); };
+    reader.onabort = () => { Loading.fail('ยกเลิกการอ่านไฟล์'); reject(new Error('ยกเลิกการอ่านไฟล์')); };
+    try { reader.readAsDataURL(file); }
+    catch (error) { Loading.fail('อ่านไฟล์ไม่สำเร็จ'); reject(error); }
   });
 }
 
