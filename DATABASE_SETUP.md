@@ -22,15 +22,15 @@ Verification: NOT RUN / PASS / FAIL
 กรอกเฉพาะค่าที่ไม่เป็น Secret ลงเอกสาร local copy หากต้องการ
 
 ```text
-GITHUB_REPOSITORY =
-GITHUB_PAGES_URL =
+GITHUB_REPOSITORY = https://github.com/coolnut-academy/Mylove-Sutthinee
+GITHUB_PAGES_URL = https://coolnut-academy.github.io/Mylove-Sutthinee/
 
-SPREADSHEET_ID =
-ROOT_DRIVE_FOLDER_ID =
-APPS_SCRIPT_EXEC_URL =
+SPREADSHEET_ID = 1lqtlQBbPGoA-9IZeT0tBQvoUcBQZ8uOyjQdXcVai4G0
+ROOT_DRIVE_FOLDER_ID = 12b1KhLGFFuJNyqd0qJBQJaZQ5DHOH4Og
+APPS_SCRIPT_EXEC_URL = https://script.google.com/macros/s/AKfycbx_7t9vWyhwr7wwpUa39568vJMHU7Oq9wV89KYEDbnAeVzbqkJ3ghKdJLl14aw5WvtC/exec
 
-DEFAULT_YEAR = 2569
-PUBLIC_FILE_MODE = public | domain | private
+DEFAULT_YEAR = 2567
+PUBLIC_FILE_MODE = public
 ```
 
 Secret ต่อไปนี้ **ห้าม commit ลง GitHub**
