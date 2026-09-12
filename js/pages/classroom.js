@@ -39,18 +39,18 @@ class ClassroomPageController {
     });
 
     try {
-      Loading.set(30);
-      await this._loadSettings();
-      Loading.set(60);
-      await this._loadYears();
-      Loading.set(80);
-      await this._loadClassroomData(this.currentYear);
+      Loading.set(30, 'กำลังโหลดข้อมูลธุรการในชั้นเรียน...');
+      await Promise.all([
+        this._loadSettings(),
+        this._loadYears(),
+        this._loadClassroomData(this.currentYear)
+      ]);
       this._updateAdminButton();
-      Loading.done();
+      Loading.done('โหลดข้อมูลห้องเรียนเรียบร้อย');
       InlineEditor.init();
     } catch (err) {
       console.error("Failed to load classroom module:", err);
-      Loading.fail();
+      Loading.done('พร้อมใช้งาน');
     }
   }
 

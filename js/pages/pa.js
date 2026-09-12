@@ -56,18 +56,18 @@ class PaPageController {
     });
 
     try {
-      Loading.set(30);
-      await this._loadSettings();
-      Loading.set(60);
-      await this._loadYears();
-      Loading.set(80);
-      await this._loadPaData(this.currentYear);
+      Loading.set(30, 'กำลังโหลดข้อมูลรายงาน ว.PA...');
+      await Promise.all([
+        this._loadSettings(),
+        this._loadYears(),
+        this._loadPaData(this.currentYear)
+      ]);
       this._updateAdminButton();
-      Loading.done();
+      Loading.done('โหลดข้อมูล ว.PA เรียบร้อย');
       InlineEditor.init();
     } catch (err) {
       console.error("Failed to load PA module:", err);
-      Loading.fail();
+      Loading.done('พร้อมใช้งาน');
     }
   }
 

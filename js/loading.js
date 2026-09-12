@@ -17,6 +17,8 @@ class LoadingManager {
     this.pillFillEl = null;
     this.iconEl = null;
     this.isShowing = false;
+    this.activeCount = 0;
+    this.watchdogTimer = null;
     this._ensureDOM();
   }
 
@@ -75,11 +77,19 @@ class LoadingManager {
    */
   start(message = 'กำลังดึงข้อมูลจาก Google Sheets...') {
     this._ensureDOM();
+    this.activeCount++;
+
+    if (this.isShowing) {
+      if (message && this.msgEl) this.msgEl.textContent = message;
+      return;
+    }
+
     if (this.timer) clearInterval(this.timer);
     if (this.tweenTimer) clearInterval(this.tweenTimer);
+    if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
 
-    this.progress = 12;
-    this.targetProgress = 12;
+    this.progress = 15;
+    this.targetProgress = 15;
     this.isShowing = true;
 
     if (this.msgEl) this.msgEl.textContent = message;
@@ -95,14 +105,27 @@ class LoadingManager {
 
     this._update(this.progress);
 
-    // จำลองเปอร์เซ็นต์ไหลนุ่มนวล (Trickle) ระหว่างรอ Network
+    // จำลองเปอร์เซ็นต์ไหลนุ่มนวล (Non-Freezing Progressive Trickle)
+    // ไม่มีการหยุดค้างที่ 85% — ค่อยๆ เคลื่อนที่อย่างต่อเนื่อง
     this.timer = setInterval(() => {
-      if (this.progress < 85) {
-        const step = Math.floor(Math.random() * 5) + 2; // เพิ่มทีละ 2-6%
-        this.progress = Math.min(85, this.progress + step);
-        this._update(this.progress);
+      if (this.progress < 75) {
+        const step = Math.floor(Math.random() * 4) + 3; // +3-6%
+        this.progress = Math.min(75, this.progress + step);
+      } else if (this.progress < 90) {
+        this.progress = Math.min(90, this.progress + 1.2); // +1.2%
+      } else if (this.progress < 96) {
+        this.progress = Math.min(96, this.progress + 0.3); // +0.3%
       }
-    }, 280);
+      this._update(this.progress);
+    }, 200);
+
+    // Watchdog Safety Timeout: ป้องกันการค้างบนหน้าจอเกิน 5.5 วินาที
+    // หากเกิดปัญหาเน็ตหรือ Cloud ดีเลย์ ตัวแถบจะปิดอย่างนุ่มนวล ไม่บล็อกสายตาผู้ใช้
+    this.watchdogTimer = setTimeout(() => {
+      if (this.isShowing && this.progress < 100) {
+        this.done('พร้อมใช้งาน');
+      }
+    }, 5500);
   }
 
   /**
@@ -121,10 +144,18 @@ class LoadingManager {
     }
 
     const target = Math.min(100, Math.max(0, percent));
-    this._animateTo(target);
+    if (target > this.progress) {
+      this._animateTo(target);
+    }
 
     if (target >= 100) {
       this.done();
+    }
+  }
+
+  setMessage(message) {
+    if (this.msgEl && message) {
+      this.msgEl.textContent = message;
     }
   }
 
@@ -138,8 +169,16 @@ class LoadingManager {
    */
   done(message = 'โหลดข้อมูลสำเร็จเรียบร้อย') {
     this._ensureDOM();
+    this.activeCount = Math.max(0, this.activeCount - 1);
+
+    // หากยังมีงานอื่นที่รอโหลดอยู่ ให้รอจนกว่าทุกคำขอจะเสร็จ
+    if (this.activeCount > 0) {
+      return;
+    }
+
     if (this.timer) clearInterval(this.timer);
     if (this.tweenTimer) clearInterval(this.tweenTimer);
+    if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
 
     this.progress = 100;
     this._update(100);
@@ -148,7 +187,7 @@ class LoadingManager {
     if (this.msgEl) this.msgEl.textContent = message;
     if (this.indicatorEl) this.indicatorEl.classList.add('success');
 
-    // หน่วงเวลาเล็กน้อยเพื่อให้ผู้ใช้เห็นว่าครบ 100% แล้วค่อยสไลด์ปิด
+    // หน่วงเวลาเล็กน้อยเพื่อให้ผู้ใช้เห็นว่าครบ 100% แล้วค่อยสไลด์ปิดอย่างนุ่มนวล
     setTimeout(() => {
       if (this.indicatorEl) {
         this.indicatorEl.classList.remove('show');
@@ -169,7 +208,8 @@ class LoadingManager {
       }
 
       this.isShowing = false;
-    }, 500);
+      this.activeCount = 0;
+    }, 450);
   }
 
   /**
@@ -178,8 +218,10 @@ class LoadingManager {
    */
   fail(message = 'การเชื่อมต่อคลาวด์ขัดข้อง') {
     this._ensureDOM();
+    this.activeCount = 0;
     if (this.timer) clearInterval(this.timer);
     if (this.tweenTimer) clearInterval(this.tweenTimer);
+    if (this.watchdogTimer) clearTimeout(this.watchdogTimer);
 
     if (this.iconEl) this.iconEl.textContent = '⚠️';
     if (this.msgEl) this.msgEl.textContent = message;
@@ -202,6 +244,7 @@ class LoadingManager {
         }, 300);
       }
       this.isShowing = false;
+      this.activeCount = 0;
     }, 1200);
   }
 

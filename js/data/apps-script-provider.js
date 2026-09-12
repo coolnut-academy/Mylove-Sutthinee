@@ -32,9 +32,22 @@ export class AppsScriptDataProvider extends BaseDataProvider {
     this.apiUrl = apiUrl;
   }
 
-  async _request(action, params = {}, method = 'GET', body = null) {
+  async _request(action, params = {}, methodOrOptions = 'GET', bodyParam = null) {
     if (!this.apiUrl) {
       throw new Error("Apps Script API URL is not configured. Please set CONFIG.API_URL in js/config.js.");
+    }
+
+    let method = 'GET';
+    let body = null;
+    let customTimeout = null;
+
+    if (typeof methodOrOptions === 'object' && methodOrOptions !== null) {
+      method = (methodOrOptions.method || 'GET').toUpperCase();
+      body = methodOrOptions.body || null;
+      customTimeout = methodOrOptions.timeoutMs;
+    } else if (typeof methodOrOptions === 'string') {
+      method = methodOrOptions.toUpperCase();
+      body = bodyParam;
     }
 
     const url = new URL(this.apiUrl);
@@ -57,8 +70,7 @@ export class AppsScriptDataProvider extends BaseDataProvider {
     const headers = { 'Accept': 'application/json' };
 
     const abortController = new AbortController();
-    // อนุญาตให้อัปโหลดไฟล์มีเวลา timeout 60 วิ ส่วนคำขอทั่วไป 45 วิ
-    const timeoutMs = (action === 'uploadFile') ? 60000 : 45000;
+    const timeoutMs = customTimeout || ((action === 'uploadFile') ? 60000 : 15000);
     const timerId = setTimeout(() => abortController.abort(), timeoutMs);
 
     const options = {
@@ -85,18 +97,18 @@ export class AppsScriptDataProvider extends BaseDataProvider {
     }
 
     const friendlyMsg = ACTION_MESSAGES[action] || `กำลังเชื่อมต่อ Google Apps Script (${action})...`;
-    if (!Loading.isShowing) {
+    const wasAlreadyShowing = Loading.isShowing;
+
+    if (!wasAlreadyShowing) {
       Loading.start(friendlyMsg);
     } else {
-      Loading.set(25, friendlyMsg);
+      Loading.setMessage(friendlyMsg);
     }
 
     try {
-      Loading.set(45);
       const resp = await fetch(url.toString(), options);
       clearTimeout(timerId);
 
-      Loading.set(80, 'ประมวลผลข้อมูลที่ได้รับ...');
       const text = await resp.text();
       let data;
       try {
@@ -108,18 +120,21 @@ export class AppsScriptDataProvider extends BaseDataProvider {
         throw new Error(data.error || 'Server request failed');
       }
 
-      Loading.done('ดึงข้อมูลสำเร็จ');
+      // หากหน้านั้นจัดการ Loading เองอยู่แล้ว จะไม่แย่งปิด Loading
+      if (!wasAlreadyShowing) {
+        Loading.done('ดึงข้อมูลสำเร็จ');
+      }
       return data.data;
     } catch (err) {
       clearTimeout(timerId);
       if (err.name === 'AbortError') {
         const timeoutMsg = `การเชื่อมต่อไปยัง Google Apps Script หมดเวลา (${timeoutMs / 1000} วินาที) กรุณาลองใหม่อีกครั้ง`;
         console.error(`[${action}] Timeout:`, timeoutMsg);
-        Loading.fail(timeoutMsg);
+        if (!wasAlreadyShowing) Loading.fail(timeoutMsg);
         throw new Error(timeoutMsg);
       }
       console.error(`AppsScript Provider error [${action}]:`, err);
-      Loading.fail(err.message || 'การเชื่อมต่อคลาวด์ขัดข้อง');
+      if (!wasAlreadyShowing) Loading.fail(err.message || 'การเชื่อมต่อคลาวด์ขัดข้อง');
       throw err;
     }
   }

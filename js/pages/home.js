@@ -25,18 +25,18 @@ class HomePageController {
     InlineEditor.init();
 
     try {
-      Loading.set(30);
-      await this._loadSettings();
-      Loading.set(60);
-      await this._loadYears();
-      Loading.set(90);
+      Loading.set(30, 'กำลังโหลดข้อมูลหน้าแรก...');
+      await Promise.all([
+        this._loadSettings(),
+        this._loadYears()
+      ]);
       this._updateDynamicLinks(this.currentYear);
       this._updateAdminButton();
-      Loading.done();
+      Loading.done('พร้อมใช้งาน');
       InlineEditor.init();
     } catch (err) {
       console.error("Failed to initialize home page:", err);
-      Loading.fail();
+      Loading.done('พร้อมใช้งาน');
     }
   }
 

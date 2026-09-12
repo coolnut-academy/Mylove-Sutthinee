@@ -68,13 +68,40 @@ export const Cache = {
 
   /**
    * Stale-While-Revalidate pattern:
-   * Returns cached data immediately if available, then executes fresh fetcher.
-   * Calls onFreshData callback if fresh data differs or is first loaded.
+   * หากมีข้อมูลแคชอยู่แล้ว:
+   *   - แข่งขันเน็ตเวิร์กด้วยเพดาน 1.5 วินาที
+   *   - หาก Cloud เร็วกว่า 1.5 วิ จะได้ข้อมูลสดใหม่ล่าสุดเสมอ
+   *   - หาก Cloud ช้ากว่า 1.5 วิ (เช่น โหลดครั้งแรกหลังตื่น) จะนำข้อมูลแคชมาแสดงผลทันที
+   *     ทำให้หน้าเว็บเปิดเร็ว ไม่ค้าง และอัปเดตแคชในพื้นหลังอย่างต่อเนื่อง
    */
   async swr(key, fetcher, onFreshData) {
     const cached = this.get(key);
     if (cached && onFreshData) {
       onFreshData(cached, true /* isFromCache */);
+    }
+
+    if (cached) {
+      let isSettled = false;
+      const networkPromise = (async () => {
+        try {
+          const fresh = await fetcher();
+          this.set(key, fresh);
+          if (onFreshData && isSettled) {
+            onFreshData(fresh, false /* isFromCache */);
+          }
+          return fresh;
+        } catch (err) {
+          console.warn('Background revalidation failed, continuing with stale cache:', err);
+          return cached;
+        }
+      })();
+
+      const timeoutPromise = new Promise(resolve => setTimeout(() => {
+        isSettled = true;
+        resolve(cached);
+      }, 1500));
+
+      return Promise.race([networkPromise, timeoutPromise]);
     }
 
     try {
@@ -85,11 +112,7 @@ export const Cache = {
       }
       return fresh;
     } catch (err) {
-      if (!cached) {
-        throw err;
-      }
-      console.warn('SWR background revalidation failed, continuing with stale cache:', err);
-      return cached;
+      throw err;
     }
   }
 };
