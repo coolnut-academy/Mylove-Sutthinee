@@ -5,6 +5,7 @@
  */
 
 import { Cache } from '../cache.js';
+import { AppState } from '../app-state.js';
 
 async function verifySavedItem(provider, result, payload) {
   if (!result?.id) throw new Error('เซิร์ฟเวอร์ไม่ส่งรหัสรายการที่บันทึก กรุณาตรวจสอบเวอร์ชัน Apps Script');
@@ -37,8 +38,18 @@ export class SettingsRepository {
 
   async saveSettings(payload) {
     const res = await this.provider.saveSettings(payload);
+    const stored = res?.settings || res;
     Cache.invalidate('settings');
-    return res;
+    if (!stored || Object.keys(payload).some(key => {
+      const value = payload[key];
+      if (typeof value === 'string' && value.startsWith('data:image/')) {
+        return typeof stored[key] !== 'string' || (!/^https:\/\//.test(stored[key]) && !(this.provider.supportsInlineSettingsImages && stored[key] === value));
+      }
+      return String(stored[key] ?? '') !== String(value ?? '') && String(stored[key] ?? '') !== "'" + String(value ?? '');
+    })) throw new Error('ไม่สามารถยืนยันการตั้งค่าที่บันทึกได้');
+    Cache.set(Cache.buildKey('settings'), stored);
+    AppState.setSettings(stored);
+    return stored;
   }
 }
 

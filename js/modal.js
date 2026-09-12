@@ -3,6 +3,9 @@
  * Suttinee Teacher Workspace
  */
 
+import { Loading } from './loading.js';
+import { Toast } from './toast.js';
+
 class ModalManager {
   constructor() {
     this.activeBackdrop = null;
@@ -10,6 +13,7 @@ class ModalManager {
   }
 
   open({ title = '', body = '', footer = '', onConfirm = null, confirmText = 'ตกลง', closeText = 'ปิด', closeOnBackdrop = true }) {
+    if (this.activeBackdrop?._saving) return this.activeBackdrop;
     this.close();
 
     const backdrop = document.createElement('div');
@@ -36,6 +40,9 @@ class ModalManager {
     if (body instanceof HTMLElement) {
       backdrop.querySelector('.modal-body').appendChild(body);
     }
+    // Focus explicitly after mounting; native autofocus conflicts with the opener.
+    const focusTarget = backdrop.querySelector('[autofocus]');
+    backdrop.querySelectorAll('[autofocus]').forEach(el => el.removeAttribute('autofocus'));
 
     // Handlers
     const closeBtn = backdrop.querySelector('.modal-close-btn');
@@ -47,12 +54,39 @@ class ModalManager {
     const confirmBtn = backdrop.querySelector('.modal-confirm-btn');
     if (confirmBtn && onConfirm) {
       confirmBtn.onclick = async () => {
-        const shouldClose = await onConfirm();
-        if (shouldClose !== false) {
-          this.close();
+        if (backdrop._saving) return;
+        if ([...backdrop.querySelectorAll('[data-pending-images]')].some(el => Number(el.dataset.pendingImages) > 0)) {
+          Toast.info('กำลังเตรียมรูปภาพ กรุณารอให้เสร็จก่อนบันทึก');
+          return;
         }
+        backdrop._saving = true;
+        const controls = [...backdrop.querySelectorAll('button, input, textarea, select')];
+        const disabled = controls.map(el => el.disabled);
+        controls.forEach(el => { el.disabled = true; });
+        progress.classList.remove('d-none');
+        Loading.start('กำลังดำเนินการ...');
+        let shouldClose = false;
+        try {
+          shouldClose = await onConfirm();
+          if (shouldClose === false) Loading.fail('ยังไม่บันทึก กรุณาตรวจสอบข้อมูลแล้วลองใหม่');
+          else Loading.done('ดำเนินการเรียบร้อย');
+        } catch (error) {
+          Loading.fail(error.message || 'ดำเนินการไม่สำเร็จ');
+          Toast.error(error.message || 'ดำเนินการไม่สำเร็จ');
+        } finally {
+          backdrop._saving = false;
+          controls.forEach((el, i) => { el.disabled = disabled[i]; });
+        }
+        if (shouldClose !== false && this.activeBackdrop === backdrop) this.close();
       };
     }
+
+    const progress = document.createElement('div');
+    progress.className = 'd-none';
+    progress.style.cssText = 'flex:0 0 100%;font-size:0.9rem;';
+    progress.innerHTML = '<strong data-loading-percent>0%</strong> <span data-loading-message></span><div><small data-loading-detail></small></div>';
+    backdrop.querySelector('.modal-footer').prepend(progress);
+    backdrop.querySelector('.modal-footer').style.flexWrap = 'wrap';
 
     if (closeOnBackdrop) {
       backdrop.onclick = (e) => {
@@ -62,12 +96,14 @@ class ModalManager {
 
     document.body.appendChild(backdrop);
     document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
     this.activeBackdrop = backdrop;
 
     requestAnimationFrame(() => {
       backdrop.classList.add('open');
-      const container = backdrop.querySelector('.modal-container');
-      if (container) container.focus();
+      if (this.activeBackdrop !== backdrop) return;
+      const target = focusTarget || backdrop.querySelector('.modal-container');
+      if (target && !backdrop.contains(document.activeElement)) target.focus();
     });
 
     document.addEventListener('keydown', this._handleKeyDown);
@@ -89,12 +125,14 @@ class ModalManager {
 
   close() {
     if (!this.activeBackdrop) return;
+    if (this.activeBackdrop._saving) return;
     const backdrop = this.activeBackdrop;
     this.activeBackdrop = null;
 
     backdrop.classList.remove('open');
     document.removeEventListener('keydown', this._handleKeyDown);
     document.body.style.overflow = '';
+    document.body.classList.remove('modal-open');
 
     setTimeout(() => {
       if (backdrop.parentNode) {

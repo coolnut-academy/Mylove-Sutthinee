@@ -16,6 +16,7 @@ const MOCK_STORAGE_KEY = 'stw:database_clean_v1';
 export class MockDataProvider extends BaseDataProvider {
   constructor() {
     super();
+    this.supportsInlineSettingsImages = true;
     this.db = this._loadDatabase();
   }
 

@@ -18,7 +18,8 @@ const Router = {
             years: Years.getAll(),
             defaultYear: CONFIG.getDefaultYear(),
             storageVersion: '2026-09-12-confirmed-save-v2',
-            performanceVersion: '2026-09-12-targeted-reads-v1'
+            performanceVersion: '2026-09-12-targeted-reads-v1',
+            settingsStorageVersion: '2026-09-12-drive-images-v1'
           };
           break;
 
@@ -107,7 +108,7 @@ const Router = {
 
       switch (action) {
         case 'saveSettings':
-          result = Admin.saveSettings(payload.settings || {});
+          result = Admin.saveSettings(payload.settings || {}, payload.year);
           break;
 
         case 'migrateFeatureStorage':

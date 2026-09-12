@@ -56,6 +56,8 @@ export class AdminAppearanceController {
       input?.addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
         if (file && prev) {
+          this._pendingImages = (this._pendingImages || 0) + 1;
+          input.disabled = true;
           try {
             Toast.info('กำลังบีบอัดภาพตามขนาด A4...');
             const compressed = await compressImage(file, {
@@ -65,6 +67,9 @@ export class AdminAppearanceController {
             Toast.success(`บีบอัดภาพเรียบร้อย (${Math.round(compressed.size / 1024)} KB) ไม่เกิน A4`);
           } catch (err) {
             Toast.error('ไม่สามารถบีบอัดภาพ: ' + err.message);
+          } finally {
+            this._pendingImages--;
+            input.disabled = false;
           }
         }
       });
@@ -78,6 +83,11 @@ export class AdminAppearanceController {
   _bindForm() {
     this.form?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (this._saving) return;
+      if (this._pendingImages) {
+        Toast.info('กรุณารอให้เตรียมรูปภาพเสร็จก่อนบันทึก');
+        return;
+      }
 
       const getVal = (id) => document.getElementById(id)?.value.trim() || '';
 
@@ -94,11 +104,18 @@ export class AdminAppearanceController {
       };
 
       try {
-        await SettingsApi.saveSettings(payload);
-        AppState.setSettings(payload);
+        this._saving = true;
+        const saved = await SettingsApi.saveSettings(payload);
+        AppState.setSettings(saved);
+        for (const [id, key] of [['prev-profile', 'profile_image'], ['prev-cls-cover', 'classroom_cover_image'], ['prev-pa-cover', 'pa_cover_image']]) {
+          const image = document.getElementById(id);
+          if (image && saved[key]) image.src = saved[key];
+        }
         Toast.success('บันทึกการตั้งค่าการแสดงผลเรียบร้อยแล้ว');
       } catch (err) {
         Toast.error(err.message || 'เกิดข้อผิดพลาดในการบันทึกข้อมูล');
+      } finally {
+        this._saving = false;
       }
     });
   }

@@ -20,7 +20,7 @@ const ACTION_MESSAGES = {
   getPaData: 'กำลังโหลดหมวดและเอกสาร ว.PA...',
   updatePaSection: 'กำลังบันทึกหัวข้อ ว.PA...',
   getItem: 'กำลังโหลดรายละเอียดเอกสาร...',
-  saveSettings: 'กำลังบันทึกการตั้งค่าลง Google Sheets...',
+  saveSettings: 'กำลังอัปโหลดภาพและบันทึกการตั้งค่า...',
   createYear: 'กำลังสร้างปีการศึกษาใหม่...',
   saveStudent: 'กำลังบันทึกข้อมูลนักเรียน...',
   saveClassroomDocument: 'กำลังบันทึกเอกสารธุรการชั้นเรียน...',
@@ -214,7 +214,7 @@ export class AppsScriptDataProvider extends BaseDataProvider {
   }
 
   async saveSettings(payload) {
-    return this._request('saveSettings', {}, 'POST', { settings: payload });
+    return this._request('saveSettings', {}, 'POST', { settings: payload, year: AppState.currentYear });
   }
 
   async createYear(payload) {

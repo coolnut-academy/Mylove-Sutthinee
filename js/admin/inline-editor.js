@@ -342,6 +342,8 @@ export const InlineEditor = {
       fileInput.addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        modalBody.dataset.pendingImages = String(Number(modalBody.dataset.pendingImages || 0) + 1);
+        fileInput.disabled = true;
         try {
           if (progressBox) progressBox.classList.remove('d-none');
           if (resultBadge) resultBadge.classList.add('d-none');
@@ -375,6 +377,8 @@ export const InlineEditor = {
         } catch (err) {
           Toast.error('เกิดข้อผิดพลาดในการโหลดรูปภาพ: ' + err.message);
         } finally {
+          modalBody.dataset.pendingImages = String(Math.max(0, Number(modalBody.dataset.pendingImages || 0) - 1));
+          fileInput.disabled = false;
           setTimeout(() => {
             if (progressBox) progressBox.classList.add('d-none');
           }, 600);
@@ -458,7 +462,7 @@ export const InlineEditor = {
         }
 
         try {
-          await SettingsApi.saveSettings({
+          const saved = await SettingsApi.saveSettings({
             site_title: newTitle,
             site_subtitle: newSubtitle,
             header_avatar_image: newAvatar
@@ -466,7 +470,7 @@ export const InlineEditor = {
 
           // Live DOM update
           const headerAvatar = document.getElementById('header-avatar');
-          if (headerAvatar && newAvatar) headerAvatar.src = newAvatar;
+          if (headerAvatar && saved.header_avatar_image) headerAvatar.src = saved.header_avatar_image;
 
           const headerTitle = document.getElementById('header-title');
           if (headerTitle) headerTitle.textContent = newTitle;
@@ -589,7 +593,7 @@ export const InlineEditor = {
         }
 
         try {
-          await SettingsApi.saveSettings({
+          const saved = await SettingsApi.saveSettings({
             profile_image: newAvatar,
             school_logo: newSchoolLogo,
             teacher_name: newName,
@@ -602,10 +606,10 @@ export const InlineEditor = {
 
           // Live DOM updates
           const heroAvatar = document.getElementById('hero-avatar');
-          if (heroAvatar && newAvatar) heroAvatar.src = newAvatar;
+          if (heroAvatar && saved.profile_image) heroAvatar.src = saved.profile_image;
 
           const heroSchoolLogo = document.getElementById('hero-school-logo');
-          if (heroSchoolLogo && newSchoolLogo) heroSchoolLogo.src = newSchoolLogo;
+          if (heroSchoolLogo && saved.school_logo) heroSchoolLogo.src = saved.school_logo;
 
           const heroName = document.getElementById('hero-teacher-name');
           if (heroName) heroName.textContent = newName;
@@ -744,11 +748,11 @@ export const InlineEditor = {
         };
 
         try {
-          await SettingsApi.saveSettings(payload);
+          const saved = await SettingsApi.saveSettings(payload);
 
           if (isClassroom) {
             const coverEl = document.getElementById('cover-classroom');
-            if (coverEl && newCover) coverEl.src = newCover;
+            if (coverEl && saved.classroom_cover_image) coverEl.src = saved.classroom_cover_image;
             const iconEl = document.getElementById('icon-classroom');
             if (iconEl) iconEl.textContent = newIcon;
             const titleEl = document.getElementById('title-classroom');
@@ -757,7 +761,7 @@ export const InlineEditor = {
             if (descEl) descEl.textContent = newDesc;
           } else {
             const coverEl = document.getElementById('cover-pa');
-            if (coverEl && newCover) coverEl.src = newCover;
+            if (coverEl && saved.pa_cover_image) coverEl.src = saved.pa_cover_image;
             const iconEl = document.getElementById('icon-pa');
             if (iconEl) iconEl.textContent = newIcon;
             const titleEl = document.getElementById('title-pa');
