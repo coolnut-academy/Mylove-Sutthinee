@@ -8,6 +8,7 @@
 import { EbookViewerModal } from './ebook-viewer-modal.js';
 import { ExcelViewerModal } from './excel-viewer-modal.js';
 import { Utils } from '../utils.js';
+import { AppState } from '../app-state.js';
 
 export function renderUniversalCard(item, { onDelete = null } = {}) {
   const card = document.createElement('div');
@@ -87,6 +88,12 @@ export function renderUniversalCard(item, { onDelete = null } = {}) {
     }
   }
 
+  // เฉพาะแอดมินที่ล็อกอินแล้วเท่านั้นจึงจะเห็นปุ่มลบ (คนทั่วไปมองเห็นและกดใช้งานได้ แต่ลบ/แก้ไขไม่ได้)
+  const isAdmin = AppState.isAdmin();
+  const deleteBtnHtml = (isAdmin && onDelete)
+    ? `<button type="button" class="btn btn-icon btn-subtle btn-delete-item" title="ลบรายการนี้">🗑️</button>`
+    : '';
+
   card.innerHTML = `
     <div class="u-card-cover-wrapper ${ratioClass}">
       <img src="${coverUrl}" alt="Cover" class="u-card-cover-img" loading="lazy" onerror="this.src='./assets/fallback/classroom-cover.svg'">
@@ -98,7 +105,7 @@ export function renderUniversalCard(item, { onDelete = null } = {}) {
       </div>
       <div class="u-card-actions-row">
         <div class="flex-1">${actionHtml}</div>
-        <button type="button" class="btn btn-icon btn-subtle btn-delete-item" title="ลบรายการนี้">🗑️</button>
+        ${deleteBtnHtml}
       </div>
     </div>
   `;

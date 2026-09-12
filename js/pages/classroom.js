@@ -132,7 +132,7 @@ class ClassroomPageController {
     }
   }
 
-  _openAdminLoginModal() {
+  _openAdminLoginModal(onSuccess = null) {
     const body = document.createElement('div');
     body.innerHTML = `
       <div class="text-center mb-4">
@@ -168,7 +168,11 @@ class ClassroomPageController {
             AppState.setSession(res.session);
             Toast.success('เข้าสู่ระบบสำเร็จ พร้อมแก้ไขข้อมูล');
             this._updateAdminButton();
+            this._renderCurrentView();
             InlineEditor.init();
+            if (typeof onSuccess === 'function') {
+              onSuccess();
+            }
             return true;
           }
         } catch (err) {
@@ -341,6 +345,18 @@ class ClassroomPageController {
         </button>
       `;
       document.getElementById('btn-job-admin-add')?.addEventListener('click', () => {
+        if (!AppState.isAdmin()) {
+          this._openAdminLoginModal(() => {
+            UniversalItemModal.open({
+              module: 'classroom',
+              year: this.currentYear,
+              category: this.currentView,
+              sectionTitle: jobMeta.title,
+              onSaveSuccess: () => this._loadClassroomData(this.currentYear)
+            });
+          });
+          return;
+        }
         UniversalItemModal.open({
           module: 'classroom',
           year: this.currentYear,
@@ -403,6 +419,18 @@ class ClassroomPageController {
         </div>
       `;
       container.querySelector('.btn-empty-add-first')?.addEventListener('click', () => {
+        if (!AppState.isAdmin()) {
+          this._openAdminLoginModal(() => {
+            UniversalItemModal.open({
+              module: 'classroom',
+              year: this.currentYear,
+              category: job,
+              sectionTitle: jobMeta.title,
+              onSaveSuccess: () => this._loadClassroomData(this.currentYear)
+            });
+          });
+          return;
+        }
         UniversalItemModal.open({
           module: 'classroom',
           year: this.currentYear,

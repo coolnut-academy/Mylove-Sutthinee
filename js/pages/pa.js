@@ -149,7 +149,7 @@ class PaPageController {
     }
   }
 
-  _openAdminLoginModal() {
+  _openAdminLoginModal(onSuccess = null) {
     const body = document.createElement('div');
     body.innerHTML = `
       <div class="text-center mb-4">
@@ -185,7 +185,11 @@ class PaPageController {
             AppState.setSession(res.session);
             Toast.success('เข้าสู่ระบบสำเร็จ พร้อมแก้ไขข้อมูล');
             this._updateAdminButton();
+            this._renderCurrentView();
             InlineEditor.init();
+            if (typeof onSuccess === 'function') {
+              onSuccess();
+            }
             return true;
           }
         } catch (err) {
@@ -407,6 +411,18 @@ class PaPageController {
           </div>
         `;
         evidenceGrid.querySelector('.btn-empty-add-pa')?.addEventListener('click', () => {
+          if (!AppState.isAdmin()) {
+            this._openAdminLoginModal(() => {
+              UniversalItemModal.open({
+                module: 'pa',
+                year: this.currentYear,
+                sectionCode: this.currentSec,
+                sectionTitle: meta.title,
+                onSaveSuccess: () => this._loadPaData(this.currentYear)
+              });
+            });
+            return;
+          }
           UniversalItemModal.open({
             module: 'pa',
             year: this.currentYear,
@@ -438,6 +454,18 @@ class PaPageController {
         </button>
       `;
       document.getElementById('btn-sec-add-universal')?.addEventListener('click', () => {
+        if (!AppState.isAdmin()) {
+          this._openAdminLoginModal(() => {
+            UniversalItemModal.open({
+              module: 'pa',
+              year: this.currentYear,
+              sectionCode: this.currentSec,
+              sectionTitle: meta.title,
+              onSaveSuccess: () => this._loadPaData(this.currentYear)
+            });
+          });
+          return;
+        }
         UniversalItemModal.open({
           module: 'pa',
           year: this.currentYear,

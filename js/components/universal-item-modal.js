@@ -11,6 +11,7 @@
 
 import { compressImage, readFileAsBase64 } from '../image-utils.js';
 import { Toast } from '../toast.js';
+import { AppState } from '../app-state.js';
 
 export class UniversalItemModal {
   static modalEl = null;
@@ -263,6 +264,11 @@ export class UniversalItemModal {
   }
 
   static async _handleSave() {
+    if (!AppState.isAdmin()) {
+      Toast.error('เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถบันทึกข้อมูลได้ กรุณาเข้าสู่ระบบก่อน');
+      return;
+    }
+
     const fields = this._getFieldsData();
     if (fields.length === 0) {
       Toast.error('กรุณาระบุข้อมูลอย่างน้อย 1 หัวข้อ');
