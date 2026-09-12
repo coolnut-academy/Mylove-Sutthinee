@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ดูเอกสารและหลักฐาน — Suttinee Teacher Workspace">
+  <meta name="theme-color" content="#A986DE">
+  <title>ดูเอกสาร — Suttinee Teacher Workspace</title>
+
+  <!-- CSS Design System -->
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/pages.css">
+  <link rel="stylesheet" href="./css/utilities.css">
+</head>
+<body>
+
+  <!-- Top Progress Bar -->
+  <div id="top-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="./index.html" class="header-brand">
+        <img src="./assets/fallback/profile.svg" alt="ครูศุทธินี" class="brand-avatar" id="header-avatar">
+        <div class="brand-meta">
+          <span class="brand-title">Suttinee Teacher Workspace</span>
+          <span class="brand-subtitle">ดูเอกสารและหลักฐาน</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="header-nav" aria-label="Main Navigation">
+        <a href="./index.html" class="nav-link" id="nav-home"><span>🏠</span> หน้าหลัก</a>
+        <a href="./classroom.html" class="nav-link" id="nav-classroom"><span>🏫</span> ธุรการชั้นเรียน</a>
+        <a href="./pa.html" class="nav-link" id="nav-pa"><span>📋</span> ประเมิน ว.PA</a>
+      </nav>
+
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-back">
+          &larr; ย้อนกลับ
+        </button>
+        <a href="./admin.html" class="btn btn-subtle btn-sm" id="btn-header-admin" title="ส่วนจัดการระบบสำหรับครูผู้สอน">
+          <span>🔒</span> Admin
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-wrapper">
+    <div class="container">
+
+      <!-- Breadcrumbs -->
+      <div class="d-flex align-center gap-2 mb-4 text-muted" style="font-size: var(--font-size-xs);">
+        <a href="./index.html" id="breadcrumb-home">หน้าหลัก</a>
+        <span>/</span>
+        <span id="breadcrumb-category">เอกสาร</span>
+        <span>/</span>
+        <span class="text-purple font-medium text-truncate" id="breadcrumb-title" style="max-width: 300px;">...</span>
+      </div>
+
+      <!-- Viewer Container -->
+      <div class="viewer-layout animate-fade-in" id="viewer-container">
+        <!-- Main Preview Area -->
+        <div class="viewer-main">
+          <div class="viewer-frame-container" id="preview-viewport">
+            <div class="text-muted">กำลังโหลดเอกสาร...</div>
+          </div>
+        </div>
+
+        <!-- Metadata & Actions Sidebar -->
+        <aside class="viewer-sidebar">
+          <div class="card">
+            <div class="badge badge-purple mb-2" id="meta-badge-type">เอกสาร</div>
+            <h2 style="font-size: var(--font-size-lg); margin-bottom: var(--space-2);" id="meta-title">ชื่อเอกสาร</h2>
+            <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: var(--space-4);" id="meta-desc">
+              คำอธิบายเอกสาร
+            </p>
+
+            <hr style="border: none; border-top: 1px solid var(--border-light); margin: var(--space-4) 0;">
+
+            <div class="d-flex flex-column gap-3 mb-6" style="font-size: var(--font-size-sm);">
+              <div class="d-flex justify-between">
+                <span class="text-muted">ปีการศึกษา:</span>
+                <span class="font-medium" id="meta-year">-</span>
+              </div>
+              <div class="d-flex justify-between">
+                <span class="text-muted">หมวดหมู่/ตัวชี้วัด:</span>
+                <span class="font-medium text-purple" id="meta-section">-</span>
+              </div>
+              <div class="d-flex justify-between">
+                <span class="text-muted">ขนาดไฟล์:</span>
+                <span class="font-medium" id="meta-size">-</span>
+              </div>
+              <div class="d-flex justify-between">
+                <span class="text-muted">วันที่บันทึก:</span>
+                <span class="font-medium" id="meta-date">-</span>
+              </div>
+            </div>
+
+            <div class="d-flex flex-column gap-2">
+              <a href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" id="btn-open-external">
+                <span>🔗</span> เปิดดูไฟล์เต็ม / Google Drive
+              </a>
+              <button type="button" class="btn btn-subtle btn-sm" id="btn-copy-link">
+                <span>📋</span> คัดลอกลิงก์
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Page Script -->
+  <script type="module" src="./js/pages/viewer.js"></script>
+</body>
+</html>

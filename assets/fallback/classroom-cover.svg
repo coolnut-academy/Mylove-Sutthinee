@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340">
+  <defs>
+    <linearGradient id="clsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EAF5EE"/>
+      <stop offset="50%" stop-color="#F2ECFF"/>
+      <stop offset="100%" stop-color="#E7DCFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="340" fill="url(#clsGrad)"/>
+  <!-- Blackboard / classroom icon -->
+  <rect x="80" y="60" width="440" height="220" rx="16" fill="#5C9470" opacity="0.85"/>
+  <rect x="92" y="72" width="416" height="196" rx="10" fill="#3D684E"/>
+  <text x="300" y="150" font-family="'Prompt', sans-serif" font-size="28" font-weight="bold" fill="#FFFDFC" text-anchor="middle">ธุรการในชั้นเรียน</text>
+  <text x="300" y="190" font-family="'Sarabun', sans-serif" font-size="18" fill="#EAF5EE" text-anchor="middle">Classroom Administration &amp; Student Info</text>
+  <circle cx="140" cy="235" r="14" fill="#9BC7AA" opacity="0.6"/>
+  <circle cx="180" cy="235" r="14" fill="#D6C3F8" opacity="0.6"/>
+  <circle cx="220" cy="235" r="14" fill="#EAB8CC" opacity="0.6"/>
+</svg>

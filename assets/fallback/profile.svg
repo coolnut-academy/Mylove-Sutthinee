@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E7DCFF"/>
+      <stop offset="50%" stop-color="#C2A4EF"/>
+      <stop offset="100%" stop-color="#8C6CC4"/>
+    </linearGradient>
+    <linearGradient id="hairGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#40305F"/>
+      <stop offset="100%" stop-color="#2E253E"/>
+    </linearGradient>
+    <linearGradient id="suitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A986DE"/>
+      <stop offset="100%" stop-color="#7054A4"/>
+    </linearGradient>
+  </defs>
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="96" fill="url(#avatarGrad)" stroke="#FAF7FE" stroke-width="4"/>
+  <!-- Hair back -->
+  <path d="M50,110 C45,70 70,35 100,35 C130,35 155,70 150,110 C145,130 140,150 140,150 L60,150 Z" fill="url(#hairGrad)"/>
+  <!-- Neck -->
+  <rect x="88" y="115" width="24" height="22" rx="4" fill="#FCD7C5"/>
+  <!-- Face -->
+  <ellipse cx="100" cy="85" rx="34" ry="40" fill="#FFE5D8"/>
+  <!-- Hair front bangs -->
+  <path d="M66,75 C70,52 85,42 100,42 C115,42 130,52 134,75 C125,65 110,62 100,68 C90,62 75,65 66,75 Z" fill="url(#hairGrad)"/>
+  <!-- Eyes -->
+  <ellipse cx="88" cy="86" rx="3.5" ry="4.5" fill="#40305F"/>
+  <ellipse cx="112" cy="86" rx="3.5" ry="4.5" fill="#40305F"/>
+  <!-- Smile -->
+  <path d="M92,102 Q100,108 108,102" stroke="#B56084" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <!-- Blush -->
+  <circle cx="82" cy="95" r="5" fill="#F7DDE8" opacity="0.8"/>
+  <circle cx="118" cy="95" r="5" fill="#F7DDE8" opacity="0.8"/>
+  <!-- Professional Outfit Collar -->
+  <path d="M60,165 C60,135 75,130 100,130 C125,130 140,135 140,165 L140,195 L60,195 Z" fill="url(#suitGrad)"/>
+  <polygon points="100,130 85,155 100,175 115,155" fill="#FFFDFC"/>
+</svg>

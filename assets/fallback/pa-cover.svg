@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 340" width="600" height="340">
+  <defs>
+    <linearGradient id="paGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2ECFF"/>
+      <stop offset="50%" stop-color="#D6C3F8"/>
+      <stop offset="100%" stop-color="#A986DE"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="340" fill="url(#paGrad)"/>
+  <!-- Document & Academic badge graphic -->
+  <rect x="90" y="55" width="420" height="230" rx="16" fill="#FFFDFC" opacity="0.95"/>
+  <rect x="120" y="85" width="360" height="6" rx="3" fill="#D6C3F8"/>
+  <text x="300" y="145" font-family="'Prompt', sans-serif" font-size="28" font-weight="bold" fill="#40305F" text-anchor="middle">การประเมิน ว.PA</text>
+  <text x="300" y="185" font-family="'Sarabun', sans-serif" font-size="18" fill="#7054A4" text-anchor="middle">Performance Agreement &amp; Professional Development</text>
+  <rect x="230" y="210" width="140" height="32" rx="16" fill="#8C6CC4"/>
+  <text x="300" y="232" font-family="'Prompt', sans-serif" font-size="14" font-weight="600" fill="#FFFDFC" text-anchor="middle">15 ตัวชี้วัด 3 ด้าน</text>
+</svg>

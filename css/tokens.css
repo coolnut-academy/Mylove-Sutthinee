@@ -1,0 +1,151 @@
+/* ==========================================================================
+   THEME DESIGN TOKENS
+   Theme: Lavender Cozy Academic (Pastel Purple · Cozy · Feminine · Academic)
+   Suttinee Teacher Workspace
+   ========================================================================== */
+
+:root {
+  /* --- Primary Purple Palette --- */
+  --purple-50:  #F8F5FF;
+  --purple-100: #F2ECFF;
+  --purple-200: #E7DCFF;
+  --purple-300: #D6C3F8;
+  --purple-400: #C2A4EF;
+  --purple-500: #A986DE;
+  --purple-600: #8C6CC4;
+  --purple-700: #7054A4;
+  --purple-800: #57407F;
+  --purple-900: #40305F;
+
+  /* Primary Brand Shortcuts */
+  --color-primary: #A986DE;
+  --color-primary-strong: #8C6CC4;
+  --color-primary-dark: #7054A4;
+  --color-primary-soft: #F2ECFF;
+  --color-primary-softer: #F8F5FF;
+
+  /* --- Supporting Palette: Warm Cream / Paper --- */
+  --cream-50:  #FFFDFC;
+  --cream-100: #FFF9F5;
+  --cream-200: #F8F1EC;
+  --cream-300: #EFE7E0;
+
+  /* --- Supporting Palette: Soft Rose Accent --- */
+  --rose-soft: #FDF2F7;
+  --rose-mid:  #EAB8CC;
+  --rose-deep: #B56084;
+
+  /* --- Supporting Palette: Soft Sage Accent (Success / Positive) --- */
+  --sage-soft: #EAF5EE;
+  --sage-mid:  #9BC7AA;
+  --sage-deep: #5C9470;
+
+  /* --- Supporting Palette: Soft Gold Accent (Special / Badge) --- */
+  --gold-soft: #FDF8ED;
+  --gold-mid:  #D6B980;
+  --gold-deep: #9A7736;
+
+  /* --- Warning / Danger Accents --- */
+  --amber-soft: #FEF3C7;
+  --amber-mid:  #D97706;
+  --danger-soft: #FEE2E2;
+  --danger-mid:  #EF4444;
+  --danger-deep: #B91C1C;
+
+  /* --- Neutral & Surface Tokens --- */
+  --surface-body: #FAF7FE;
+  --surface-card: #FFFFFF;
+  --surface-card-subtle: #FDFBFF;
+  --surface-glass: rgba(255, 255, 255, 0.88);
+  --surface-glass-border: rgba(169, 134, 222, 0.18);
+  
+  --text-primary: #2E253E;
+  --text-secondary: #5F5472;
+  --text-muted: #8E839F;
+  --text-inverse: #FFFFFF;
+  
+  --border-light: #ECE5F8;
+  --border-medium: #DCD0F2;
+  --border-focus: #A986DE;
+
+  /* --- Typography --- */
+  --font-heading: 'Prompt', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+  --font-body: 'Sarabun', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Thai", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-md: 1.125rem;   /* 18px */
+  --font-size-lg: 1.25rem;    /* 20px */
+  --font-size-xl: 1.5rem;     /* 24px */
+  --font-size-2xl: 1.875rem;  /* 30px */
+  --font-size-3xl: 2.25rem;   /* 36px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.65;
+
+  /* --- Spacing --- */
+  --space-1: 0.25rem;  /* 4px */
+  --space-2: 0.5rem;   /* 8px */
+  --space-3: 0.75rem;  /* 12px */
+  --space-4: 1rem;     /* 16px */
+  --space-5: 1.25rem;  /* 20px */
+  --space-6: 1.5rem;   /* 24px */
+  --space-8: 2rem;     /* 32px */
+  --space-10: 2.5rem;  /* 40px */
+  --space-12: 3rem;    /* 48px */
+  --space-16: 4rem;    /* 64px */
+
+  /* --- Border Radii --- */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 28px;
+  --radius-full: 9999px;
+
+  /* --- Shadows (Soft Lavender-tinted Cozy Glow) --- */
+  --shadow-xs: 0 1px 2px rgba(64, 48, 95, 0.05);
+  --shadow-sm: 0 2px 6px rgba(64, 48, 95, 0.06);
+  --shadow-md: 0 4px 16px rgba(112, 84, 164, 0.08), 0 1px 4px rgba(64, 48, 95, 0.04);
+  --shadow-lg: 0 10px 30px rgba(112, 84, 164, 0.12), 0 2px 8px rgba(64, 48, 95, 0.05);
+  --shadow-xl: 0 20px 40px rgba(87, 64, 127, 0.16);
+  --shadow-focus: 0 0 0 3px rgba(169, 134, 222, 0.35);
+
+  /* --- Transitions --- */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* --- Layout & Breakpoints --- */
+  --container-max-width: 1240px;
+  --header-height: 72px;
+
+  /* --- Z-index Stack --- */
+  --z-base: 1;
+  --z-card: 2;
+  --z-sticky: 100;
+  --z-header: 500;
+  --z-modal-backdrop: 900;
+  --z-modal: 1000;
+  --z-toast: 1100;
+  --z-loading-bar: 1200;
+
+  /* --- Royal & Portfolio Presentation Tokens --- */
+  --grad-royal: linear-gradient(135deg, #2B1055 0%, #4D1A7F 50%, #7B1FA2 100%);
+  --grad-hero: linear-gradient(135deg, #2D124D 0%, #4A1D75 35%, #6A2B99 70%, #9C42C7 100%);
+  --grad-gold: linear-gradient(135deg, #FFE082 0%, #FFB300 50%, #FF8F00 100%);
+  --grad-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 245, 255, 0.88) 100%);
+  --grad-card-interactive: linear-gradient(180deg, #FFFFFF 0%, #FAF6FF 100%);
+  --shadow-gold-glow: 0 4px 18px rgba(255, 179, 0, 0.35);
+  --shadow-royal-glow: 0 10px 30px rgba(77, 26, 127, 0.25);
+  --shadow-card-hover: 0 16px 32px -4px rgba(77, 26, 127, 0.16), 0 4px 12px rgba(77, 26, 127, 0.06);
+}

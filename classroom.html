@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ธุรการในชั้นเรียน — Suttinee Teacher Workspace ข้อมูลนักเรียน เช็กชื่อ สุขภาพ และงานทะเบียน ปพ.">
+  <meta name="theme-color" content="#A986DE">
+  <title>ธุรการในชั้นเรียน — Suttinee Teacher Workspace</title>
+
+  <!-- CSS Design System -->
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/pages.css">
+  <link rel="stylesheet" href="./css/utilities.css">
+</head>
+<body>
+
+  <!-- Top Progress Bar -->
+  <div id="top-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a href="./index.html" class="header-brand">
+        <img src="./assets/fallback/profile.svg" alt="ครูศุทธินี" class="brand-avatar" id="header-avatar">
+        <div class="brand-meta">
+          <span class="brand-title" id="header-title">Suttinee Teacher Workspace</span>
+          <span class="brand-subtitle">ธุรการในชั้นเรียน</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="header-nav" aria-label="Main Navigation">
+        <a href="./index.html" class="nav-link" id="nav-home"><span>🏠</span> หน้าหลัก</a>
+        <a href="./classroom.html" class="nav-link active" id="nav-classroom"><span>🏫</span> ธุรการชั้นเรียน</a>
+        <a href="./pa.html" class="nav-link" id="nav-pa"><span>📋</span> ประเมิน ว.PA</a>
+      </nav>
+
+      <!-- Actions: Year Selector & Top-Right Admin Entry & Mobile Drawer Toggle -->
+      <div class="header-actions">
+        <div class="year-pill-wrapper">
+          <span class="year-pill-label">ปีการศึกษา</span>
+          <select id="header-year-select" class="year-pill-select" aria-label="เลือกปีการศึกษา">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <!-- Top-Right Admin Button -->
+        <a href="./admin.html" class="btn btn-subtle btn-sm" id="btn-header-admin" title="ส่วนจัดการระบบสำหรับครูผู้สอน">
+          <span>🔒</span> Admin
+        </a>
+
+        <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop"></div>
+  <aside class="mobile-drawer" id="mobile-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-drawer-header">
+      <div class="font-semibold text-purple">เมนูหลัก</div>
+      <button type="button" class="btn-icon" id="mobile-drawer-close" aria-label="Close menu">&times;</button>
+    </div>
+    <div class="mobile-nav-links">
+      <a href="./index.html" class="mobile-nav-link" id="mob-nav-home"><span>🏠</span> หน้าหลัก</a>
+      <a href="./classroom.html" class="mobile-nav-link active"><span>🏫</span> ธุรการชั้นเรียน</a>
+      <a href="./pa.html" class="mobile-nav-link" id="mob-nav-pa"><span>📋</span> ประเมิน ว.PA</a>
+      <a href="./admin.html" class="mobile-nav-link" style="margin-top: 2rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+        <span>⚙️</span> จัดการระบบ (Admin)
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-wrapper" id="main-content">
+    <div class="container">
+
+      <!-- Classroom Header Banner -->
+      <div class="card mb-6 animate-fade-in" style="background: var(--grad-glass); border: 1px solid var(--purple-200); box-shadow: var(--shadow-sm);">
+        <div class="d-flex align-center gap-4 flex-wrap flex-md-nowrap">
+          <div style="width: 72px; height: 72px; border-radius: 50%; background: #FFF; padding: 4px; border: 2px solid #FFE082; box-shadow: var(--shadow-sm); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+            <img src="./assets/school_logo.png" alt="ตราโรงเรียนชุมชนแม่ลาศึกษา" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+          </div>
+          <div class="flex-1">
+            <div class="d-flex align-center gap-2 mb-1 flex-wrap">
+              <span class="badge badge-purple">ธุรการในชั้นเรียน</span>
+              <span class="badge badge-sage" id="classroom-year-pill">ปีการศึกษา 2567</span>
+              <span class="badge badge-gold">ชั้นประถมศึกษาปีที่ ๑</span>
+            </div>
+            <h1 style="font-size: var(--font-size-xl); color: var(--purple-900); margin-bottom: 2px;">
+              งานธุรการในชั้นเรียนและระบบดูแลช่วยเหลือนักเรียน
+            </h1>
+            <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 0;" id="classroom-subheading">
+              ครูประจำชั้น: นางสาวศุทธินี ถาวร (ครูนิว) · โรงเรียนชุมชนแม่ลาศึกษา สพป.แม่ฮ่องสอน เขต ๒
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Summary Cards -->
+        <div class="stats-strip mt-6">
+          <div class="stat-card">
+            <span class="stat-value" id="cls-stat-total">0</span>
+            <span class="stat-label">นักเรียนทั้งหมด (คน)</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="cls-stat-attendance">0%</span>
+            <span class="stat-label">อัตราการมาเรียนเฉลี่ย</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="cls-stat-health">100%</span>
+            <span class="stat-label">การตรวจสุขภาพ</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="cls-stat-docs">0</span>
+            <span class="stat-label">เอกสาร ปพ./ประจำชั้น</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Navigation -->
+      <nav class="tabs-container mt-6" aria-label="Classroom Sections">
+        <button type="button" class="tab-btn active" data-tab="members">
+          <span>👥</span> ข้อมูลนักเรียน
+        </button>
+        <button type="button" class="tab-btn" data-tab="routines">
+          <span>🥛</span> เช็กชื่อและกิจวัตร
+        </button>
+        <button type="button" class="tab-btn" data-tab="health">
+          <span>🩺</span> สุขภาพและ SDQ
+        </button>
+        <button type="button" class="tab-btn" data-tab="documents">
+          <span>📁</span> งานทะเบียน / ปพ.
+        </button>
+      </nav>
+
+      <!-- Tab 1: Students Roster -->
+      <section id="tab-members" class="tab-content mt-6">
+        <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
+          <div class="search-box" style="max-width: 360px;">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-students" class="form-control" placeholder="ค้นหาชื่อ, เลขที่ หรือรหัสนักเรียน...">
+          </div>
+          <div class="text-muted" style="font-size: var(--font-size-sm);" id="students-count-label">
+            แสดง 0 คน
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="app-table" id="students-table">
+            <thead>
+              <tr>
+                <th style="width: 80px; text-align: center;">เลขที่</th>
+                <th style="width: 120px;">รหัสประจำตัว</th>
+                <th>ชื่อ - นามสกุล</th>
+                <th>ระดับชั้น</th>
+                <th>สถานะ</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody id="students-table-body">
+              <tr>
+                <td colspan="6" class="text-center" style="padding: 2rem;">กำลังโหลดข้อมูลนักเรียน...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Tab 2: Attendance & Routines -->
+      <section id="tab-routines" class="tab-content mt-6 d-none">
+        <div class="mb-4">
+          <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-2);">กิจวัตรและการมาเรียนประจำวัน</h3>
+          <p class="text-muted" style="font-size: var(--font-size-sm);">
+            การบันทึกการดื่มนม แปรงฟันหลังอาหารกลางวัน และการเข้าแถวเคารพธงชาติ
+          </p>
+        </div>
+
+        <div class="routine-grid mb-6">
+          <div class="routine-card">
+            <div class="routine-icon">🥛</div>
+            <div>
+              <div class="font-semibold text-primary">การดื่มนมโรงเรียน</div>
+              <div class="text-muted" style="font-size: var(--font-size-xs);">ดำเนินการครบถ้วน 100%</div>
+            </div>
+            <span class="badge badge-sage" style="margin-left: auto;">เรียบร้อย</span>
+          </div>
+
+          <div class="routine-card">
+            <div class="routine-icon">🪥</div>
+            <div>
+              <div class="font-semibold text-primary">การแปรงฟันหลังอาหาร</div>
+              <div class="text-muted" style="font-size: var(--font-size-xs);">ตรวจสุขภาพฟันและฝึกวินัย</div>
+            </div>
+            <span class="badge badge-sage" style="margin-left: auto;">เรียบร้อย</span>
+          </div>
+
+          <div class="routine-card">
+            <div class="routine-icon">☀️</div>
+            <div>
+              <div class="font-semibold text-primary">กิจกรรมโฮมรูม</div>
+              <div class="text-muted" style="font-size: var(--font-size-xs);">อบรมคุณธรรมจริยธรรมยามเช้า</div>
+            </div>
+            <span class="badge badge-purple" style="margin-left: auto;">ประจำวัน</span>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th style="width: 80px; text-align: center;">เลขที่</th>
+                <th>ชื่อ - นามสกุล</th>
+                <th style="text-align: center;">การมาเรียน</th>
+                <th style="text-align: center;">ดื่มนม</th>
+                <th style="text-align: center;">แปรงฟัน</th>
+                <th>หมายเหตุ</th>
+              </tr>
+            </thead>
+            <tbody id="routines-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Tab 3: Health & SDQ -->
+      <section id="tab-health" class="tab-content mt-6 d-none">
+        <div class="mb-4">
+          <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-2);">ข้อมูลสุขภาพและระบบดูแลช่วยเหลือนักเรียน</h3>
+          <p class="text-muted" style="font-size: var(--font-size-sm);">
+            การประเมินการเจริญเติบโตทางกายภาพ (น้ำหนัก-ส่วนสูง) และผลการคัดกรองพฤติกรรม (SDQ)
+          </p>
+        </div>
+
+        <div class="table-responsive">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th style="width: 80px; text-align: center;">เลขที่</th>
+                <th>ชื่อ - นามสกุล</th>
+                <th style="text-align: right;">น้ำหนัก (กก.)</th>
+                <th style="text-align: right;">ส่วนสูง (ซม.)</th>
+                <th style="text-align: right;">BMI</th>
+                <th style="text-align: center;">ภาวะโภชนาการ</th>
+                <th style="text-align: center;">ผลประเมิน SDQ</th>
+              </tr>
+            </thead>
+            <tbody id="health-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Tab 4: Classroom Documents (ปพ.) -->
+      <section id="tab-documents" class="tab-content mt-6 d-none">
+        <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
+          <div>
+            <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-1);">งานเอกสารประจำชั้นเรียนและ ปพ.</h3>
+            <p class="text-muted" style="font-size: var(--font-size-sm);">
+              เอกสารวัดผลการเรียน ปพ.5, ปพ.6, แผนการสอน และรายงานการเยี่ยมบ้าน
+            </p>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-subtle btn-sm active" data-doc-filter="all">ทั้งหมด</button>
+            <button type="button" class="btn btn-subtle btn-sm" data-doc-filter="register">ปพ./ทะเบียน</button>
+            <button type="button" class="btn btn-subtle btn-sm" data-doc-filter="plan">แผนการสอน</button>
+            <button type="button" class="btn btn-subtle btn-sm" data-doc-filter="routine">งานประจำชั้น</button>
+          </div>
+        </div>
+
+        <div id="classroom-docs-grid" class="evidence-grid">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-title">Suttinee Teacher Workspace</div>
+        <div class="footer-desc">พื้นที่บันทึกผลงานวิชาชีพและงานธุรการชั้นเรียน · นางสาวศุทธินี ถาวร</div>
+      </div>
+      <div class="footer-links">
+        <a href="./index.html" class="footer-link">หน้าหลัก</a>
+        <a href="./classroom.html" class="footer-link">ธุรการชั้นเรียน</a>
+        <a href="./pa.html" class="footer-link" id="footer-link-pa">ว.PA</a>
+        <a href="./admin.html" class="footer-admin-entry" title="เข้าสู่ส่วนจัดการระบบ">
+          <span>🔒</span> Admin
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Page Logic Script -->
+  <script type="module" src="./js/pages/classroom.js"></script>
+</body>
+</html>

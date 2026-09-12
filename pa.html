@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="การประเมินผลการพัฒนางานตามข้อตกลง (ว.PA) — Suttinee Teacher Workspace ครบ 3 ด้าน 15 ตัวชี้วัด และประเด็นท้าทาย">
+  <meta name="theme-color" content="#A986DE">
+  <title>การประเมินผล ว.PA — Suttinee Teacher Workspace</title>
+
+  <!-- CSS Design System -->
+  <link rel="stylesheet" href="./css/tokens.css">
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/layout.css">
+  <link rel="stylesheet" href="./css/components.css">
+  <link rel="stylesheet" href="./css/pages.css">
+  <link rel="stylesheet" href="./css/utilities.css">
+</head>
+<body>
+
+  <!-- Top Progress Bar -->
+  <div id="top-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+
+  <!-- Header -->
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a href="./index.html" class="header-brand">
+        <img src="./assets/fallback/profile.svg" alt="ครูศุทธินี" class="brand-avatar" id="header-avatar">
+        <div class="brand-meta">
+          <span class="brand-title" id="header-title">Suttinee Teacher Workspace</span>
+          <span class="brand-subtitle">การประเมินผล ว.PA</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="header-nav" aria-label="Main Navigation">
+        <a href="./index.html" class="nav-link" id="nav-home"><span>🏠</span> หน้าหลัก</a>
+        <a href="./classroom.html" class="nav-link" id="nav-classroom"><span>🏫</span> ธุรการชั้นเรียน</a>
+        <a href="./pa.html" class="nav-link active" id="nav-pa"><span>📋</span> ประเมิน ว.PA</a>
+      </nav>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <div class="year-pill-wrapper">
+          <span class="year-pill-label">ปีการศึกษา</span>
+          <select id="header-year-select" class="year-pill-select" aria-label="เลือกปีการศึกษา">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <!-- Top-Right Admin Button -->
+        <a href="./admin.html" class="btn btn-subtle btn-sm" id="btn-header-admin" title="ส่วนจัดการระบบสำหรับครูผู้สอน">
+          <span>🔒</span> Admin
+        </a>
+
+        <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu">
+          ☰
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop"></div>
+  <aside class="mobile-drawer" id="mobile-drawer" aria-label="Mobile Navigation">
+    <div class="mobile-drawer-header">
+      <div class="font-semibold text-purple">เมนูหลัก</div>
+      <button type="button" class="btn-icon" id="mobile-drawer-close" aria-label="Close menu">&times;</button>
+    </div>
+    <div class="mobile-nav-links">
+      <a href="./index.html" class="mobile-nav-link" id="mob-nav-home"><span>🏠</span> หน้าหลัก</a>
+      <a href="./classroom.html" class="mobile-nav-link" id="mob-nav-classroom"><span>🏫</span> ธุรการชั้นเรียน</a>
+      <a href="./pa.html" class="mobile-nav-link active"><span>📋</span> ประเมิน ว.PA</a>
+      <a href="./admin.html" class="mobile-nav-link" style="margin-top: 2rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
+        <span>⚙️</span> จัดการระบบ (Admin)
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-wrapper" id="main-content">
+    <div class="container">
+
+      <!-- Official PA Portfolio Header Banner -->
+      <div class="card mb-6 animate-fade-in" style="background: var(--grad-glass); border: 1px solid var(--purple-200); box-shadow: var(--shadow-sm);">
+        <div class="d-flex align-center gap-4 flex-wrap flex-md-nowrap">
+          <div style="width: 72px; height: 72px; border-radius: 50%; background: #FFF; padding: 4px; border: 2px solid #FFE082; box-shadow: var(--shadow-sm); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+            <img src="./assets/school_logo.png" alt="ตราโรงเรียนชุมชนแม่ลาศึกษา" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+          </div>
+          <div class="flex-1">
+            <div class="d-flex align-center gap-2 mb-1 flex-wrap">
+              <span class="badge badge-gold">ว.PA ข้าราชการครูและบุคลากรทางการศึกษา</span>
+              <span class="badge badge-purple" id="pa-year-pill">ปีการศึกษา 2567</span>
+              <span class="badge badge-sage">วิทยฐานะชำนาญการพิเศษ</span>
+            </div>
+            <h1 style="font-size: var(--font-size-xl); color: var(--purple-900); margin-bottom: 2px;">
+              รายงานผลการพัฒนางานตามข้อตกลง (PA) — 15 ตัวชี้วัด 3 ด้าน &amp; ประเด็นท้าทาย
+            </h1>
+            <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 0;" id="pa-subheading">
+              นางสาวศุทธินี ถาวร (ครูนิว) · ครู วิทยฐานะ ชำนาญการพิเศษ · โรงเรียนชุมชนแม่ลาศึกษา สพป.แม่ฮ่องสอน เขต ๒
+            </p>
+          </div>
+        </div>
+
+        <!-- PA Stats Strip -->
+        <div class="stats-strip mt-6">
+          <div class="stat-card">
+            <span class="stat-value">15</span>
+            <span class="stat-label">ตัวชี้วัด (ส่วนที่ 1)</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">1</span>
+            <span class="stat-label">ประเด็นท้าทาย (ส่วนที่ 2)</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="pa-stat-evidence">0</span>
+            <span class="stat-label">หลักฐานและผลงานที่แนบ</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" style="color: var(--sage-deep);">พร้อมประเมิน</span>
+            <span class="stat-label">สถานะการประเมินตนเอง</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Controls & Search -->
+      <div class="d-flex align-center justify-between flex-wrap gap-4 mb-6">
+        <div class="tabs-container" style="border: none; padding-bottom: 0;">
+          <button type="button" class="tab-btn active" data-pa-filter="all">ทั้งหมด (15 ตัวชี้วัด + ท้าทาย)</button>
+          <button type="button" class="tab-btn" data-pa-filter="ด้านที่ 1">ด้านที่ 1 การจัดการเรียนรู้ (1.1–1.8)</button>
+          <button type="button" class="tab-btn" data-pa-filter="ด้านที่ 2">ด้านที่ 2 ส่งเสริมสนับสนุน (2.1–2.4)</button>
+          <button type="button" class="tab-btn" data-pa-filter="ด้านที่ 3">ด้านที่ 3 พัฒนาตนเอง/วิชาชีพ (3.1–3.3)</button>
+          <button type="button" class="tab-btn" data-pa-filter="ส่วนที่ 2">ส่วนที่ 2 ประเด็นท้าทาย</button>
+        </div>
+
+        <div class="search-box" style="max-width: 320px;">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="search-pa" class="form-control" placeholder="ค้นหาหลักฐาน, ตัวชี้วัด...">
+        </div>
+      </div>
+
+      <!-- PA Indicators Accordion Container -->
+      <section id="pa-sections-container" aria-label="PA Indicators List">
+        <div class="skeleton skeleton-card mb-4"></div>
+        <div class="skeleton skeleton-card mb-4"></div>
+        <div class="skeleton skeleton-card mb-4"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="footer-title">Suttinee Teacher Workspace</div>
+        <div class="footer-desc">พื้นที่บันทึกผลงานวิชาชีพและงานธุรการชั้นเรียน · นางสาวศุทธินี ถาวร</div>
+      </div>
+      <div class="footer-links">
+        <a href="./index.html" class="footer-link">หน้าหลัก</a>
+        <a href="./classroom.html" class="footer-link" id="footer-link-classroom">ธุรการชั้นเรียน</a>
+        <a href="./pa.html" class="footer-link">ว.PA</a>
+        <a href="./admin.html" class="footer-admin-entry" title="เข้าสู่ส่วนจัดการระบบ">
+          <span>🔒</span> Admin
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Page Script -->
+  <script type="module" src="./js/pages/pa.js"></script>
+</body>
+</html>

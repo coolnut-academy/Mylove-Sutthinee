@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 260" width="100%" height="100%">
+  <defs>
+    <linearGradient id="wheelBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4A148C" />
+      <stop offset="100%" stop-color="#8E24AA" />
+    </linearGradient>
+    <linearGradient id="goldRim" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD54F" />
+      <stop offset="100%" stop-color="#FFA000" />
+    </linearGradient>
+    <filter id="glow">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <rect width="360" height="260" rx="16" fill="url(#wheelBg)" />
+  <!-- Sparkles -->
+  <circle cx="50" cy="40" r="3" fill="#FFE082" opacity="0.8" />
+  <circle cx="310" cy="50" r="4" fill="#FFE082" opacity="0.8" />
+  <circle cx="60" cy="220" r="3" fill="#FFE082" opacity="0.6" />
+  <circle cx="320" cy="210" r="3" fill="#FFE082" opacity="0.6" />
+
+  <!-- Wheel Outer Rim -->
+  <g transform="translate(180, 125)" filter="url(#glow)">
+    <circle cx="0" cy="0" r="95" fill="url(#goldRim)" />
+    <circle cx="0" cy="0" r="87" fill="#2E1F40" />
+
+    <!-- 8 Wheel Slices -->
+    <!-- Slice 1: Red -->
+    <path d="M0 0 L0 -85 A85 85 0 0 1 60 -60 Z" fill="#EF5350" />
+    <text x="25" y="-45" fill="#FFF" font-family="'Prompt', sans-serif" font-weight="700" font-size="14" text-anchor="middle">กา</text>
+
+    <!-- Slice 2: Orange -->
+    <path d="M0 0 L60 -60 A85 85 0 0 1 85 0 Z" fill="#FF7043" />
+    <text x="52" y="-20" fill="#FFF" font-family="'Prompt', sans-serif" font-weight="700" font-size="14" text-anchor="middle">ตา</text>
+
+    <!-- Slice 3: Yellow/Amber -->
+    <path d="M0 0 L85 0 A85 85 0 0 1 60 60 Z" fill="#FFA726" />
+    <text x="52" y="32" fill="#2E1F40" font-family="'Prompt', sans-serif" font-weight="700" font-size="14" text-anchor="middle">มา</text>
+
+    <!-- Slice 4: Green -->
+    <path d="M0 0 L60 60 A85 85 0 0 1 0 85 Z" fill="#66BB6A" />
+    <text x="25" y="58" fill="#FFF" font-family="'Prompt', sans-serif" font-weight="700" font-size="14" text-anchor="middle">ดี</text>
+
+    <!-- Slice 5: Teal -->
+    <path d="M0 0 L0 85 A85 85 0 0 1 -60 60 Z" fill="#26A69A" />
+    <text x="-25" y="58" fill="#FFF" font-family="'Prompt', sans-serif" font-weight="700" font-size="14" text-anchor="middle">มี</text>
+
+    <!-- Slice 6: Light Blue -->
+    <path d="M0 0 L-60 60 A85 85 0 0 1 -85 0 Z" fill="#42A5F5" />
+    <text x="-52" y="32" fill="#FFF" font-family="'Prompt', sans-serif" font-weight="700" font-size="14" text-anchor="middle">ปู</text>
+
+    <!-- Slice 7: Indigo -->
+    <path d="M0 0 L-85 0 A85 85 0 0 1 -60 -60 Z" fill="#5C6BC0" />
+    <text x="-52" y="-20" fill="#FFF" font-family="'Prompt', sans-serif" font-weight="700" font-size="14" text-anchor="middle">ดู</text>
+
+    <!-- Slice 8: Purple -->
+    <path d="M0 0 L-60 -60 A85 85 0 0 1 0 -85 Z" fill="#AB47BC" />
+    <text x="-25" y="-45" fill="#FFF" font-family="'Prompt', sans-serif" font-weight="700" font-size="14" text-anchor="middle">ใจ</text>
+
+    <!-- Dividing lines -->
+    <circle cx="0" cy="0" r="85" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.4" />
+
+    <!-- Center Hub -->
+    <circle cx="0" cy="0" r="24" fill="url(#goldRim)" />
+    <circle cx="0" cy="0" r="17" fill="#FFFFFF" />
+    <text x="0" y="5" fill="#4A148C" font-family="'Prompt', sans-serif" font-weight="800" font-size="13" text-anchor="middle">หมุน</text>
+
+    <!-- Top Pointer Arrow -->
+    <path d="M0 -92 L-10 -110 L10 -110 Z" fill="#FFE082" stroke="#FF8F00" stroke-width="2" />
+    <circle cx="0" cy="-105" r="3" fill="#D32F2F" />
+  </g>
+
+  <!-- Title Badge -->
+  <g transform="translate(180, 235)">
+    <rect x="-120" y="-14" width="240" height="28" rx="14" fill="#241438" stroke="#FFE082" stroke-width="1.5" />
+    <text x="0" y="5" fill="#FFE082" font-family="'Prompt', sans-serif" font-weight="600" font-size="13" text-anchor="middle">
+      🎡 เกมวงล้อคำหรรษา (Word Wheel)
+    </text>
+  </g>
+</svg>
