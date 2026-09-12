@@ -337,9 +337,18 @@ class PaPageController {
     this._updateYearDisplay(this.currentYear);
   }
 
+  _showSavedItem(item) {
+    this._dataRevision = (this._dataRevision || 0) + 1;
+    if (String(item.year) !== String(this.currentYear)) return;
+    this.paItems = [...(this.paItems || []).filter(d => d.id !== item.id), item];
+    this._renderCurrentView();
+  }
+
   async _loadPaData(year) {
+    const revision = this._dataRevision || 0;
     try {
       const data = await PaApi.getPaData(year);
+      if (revision !== (this._dataRevision || 0) || String(year) !== String(this.currentYear)) return;
       this.paSections = data.sections || [];
       this.paItems = data.items || [];
       this._renderCurrentView();
@@ -441,7 +450,7 @@ class PaPageController {
               year: this.currentYear,
               sectionCode: this.currentSec,
               sectionTitle: meta.title,
-              onSaveSuccess: () => this._loadPaData(this.currentYear)
+              onSaveSuccess: item => this._showSavedItem(item)
             });
           });
           return;
@@ -451,7 +460,7 @@ class PaPageController {
           year: this.currentYear,
           sectionCode: this.currentSec,
           sectionTitle: meta.title,
-          onSaveSuccess: () => this._loadPaData(this.currentYear)
+          onSaveSuccess: item => this._showSavedItem(item)
         });
       });
     }
@@ -538,7 +547,7 @@ class PaPageController {
               year: this.currentYear,
               sectionCode: this.currentSec,
               sectionTitle: meta.title,
-              onSaveSuccess: () => this._loadPaData(this.currentYear)
+              onSaveSuccess: item => this._showSavedItem(item)
             });
           });
           return;
@@ -548,7 +557,7 @@ class PaPageController {
           year: this.currentYear,
           sectionCode: this.currentSec,
           sectionTitle: meta.title,
-          onSaveSuccess: () => this._loadPaData(this.currentYear)
+          onSaveSuccess: item => this._showSavedItem(item)
         });
       });
     } else {

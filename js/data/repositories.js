@@ -9,7 +9,7 @@ import { Cache } from '../cache.js';
 async function verifySavedItem(provider, result, payload) {
   if (!result?.id) throw new Error('เซิร์ฟเวอร์ไม่ส่งรหัสรายการที่บันทึก กรุณาตรวจสอบเวอร์ชัน Apps Script');
   try {
-    const item = await provider.getItem(result.id, { timeoutMs: 75000 });
+    const item = result._persisted === true ? result : await provider.getItem(result.id, { timeoutMs: 75000 });
     if (!item || String(item.year) !== String(payload.year) ||
         item.title !== payload.title ||
         (payload.category && item.category !== payload.category) ||
@@ -65,8 +65,7 @@ export class ClassroomRepository {
   }
 
   async getClassroomData(year) {
-    const key = Cache.buildKey('classroom', year);
-    return Cache.swr(key, () => this.provider.getClassroomData(year));
+    return this.provider.getClassroomData(year);
   }
 
   async saveStudent(payload) {
@@ -99,8 +98,7 @@ export class PaRepository {
   }
 
   async getItems(year, sectionCode = '') {
-    const key = Cache.buildKey(`pa_items_${sectionCode || 'all'}`, year);
-    return Cache.swr(key, () => this.provider.getPaItems({ year, sectionCode }));
+    return this.provider.getPaItems({ year, sectionCode });
   }
 
   async getPaData(year) {

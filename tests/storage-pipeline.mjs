@@ -23,7 +23,7 @@ const spreadsheet = { getSheetByName: name => tabs.get(name), insertSheet: name 
 } };
 const context = vm.createContext({ console, CONFIG: {
   getSpreadsheetId: () => 'database', getRootDriveFolderId: () => ''
-}, SpreadsheetApp: { openById: () => spreadsheet, flush() {} }, Logger: { log() {} } });
+}, LockService: { getScriptLock: () => ({ waitLock() {}, releaseLock() {} }) }, SpreadsheetApp: { openById: () => spreadsheet, flush() {} }, Logger: { log() {} } });
 for (const name of ['Utils', 'Sheets', 'Drive', 'Classroom', 'PA', 'Upload']) {
   vm.runInContext(fs.readFileSync(`apps-script/${name}.gs`, 'utf8') + `\nglobalThis.${name} = ${name};`, context);
 }
@@ -42,6 +42,10 @@ for (const category of ['students', 'attendance', 'teeth', 'milk', 'growth', 'he
   const saved = Classroom.saveDocument({ year: '2567', category, title: category, cover_url: 'https://example.org/image',
     fields: [{ label: 'Name', value: category }], published: true, archived: false });
   assert.ok(Classroom.getData(2567).documents.some(x => x.id === saved.id && x.category === category));
+  assert.equal(saved._persisted, true);
+  const count = Classroom.getData(2567).documents.length;
+  Classroom.saveDocument({ ...saved, title: category + ' updated' });
+  assert.equal(Classroom.getData(2567).documents.length, count, 'retry preserves the same record ID');
 }
 assert.equal(Drive.getFeaturePath({ sectionCode: '2.3' }), 'PA/2.3');
 assert.throws(() => Drive.getRootFolder(), /ROOT_DRIVE_FOLDER_ID/);
@@ -71,6 +75,9 @@ repo.provider.getItem = async () => null;
 await assert.rejects(() => repo.saveDocument(payload), error => error.savedItem.id === saved.id);
 repo.provider.saveClassroomDocument = async () => ({ success: true });
 await assert.rejects(() => repo.saveDocument(payload), /Apps Script/);
+repo.provider.saveClassroomDocument = async () => ({ ...saved, _persisted: true });
+repo.provider.getItem = async () => { throw Error('This redundant network read must not happen'); };
+assert.equal((await repo.saveDocument(payload)).id, saved.id);
 console.log('Storage pipeline tests passed: legacy schema, 15 classroom categories, PA routing, upload failures, readback verification.');
 
 // Exercise the actual modal orchestration without contacting production.

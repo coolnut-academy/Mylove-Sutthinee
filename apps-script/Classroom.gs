@@ -106,19 +106,6 @@ const Classroom = {
     }
 
     // 💡 Upsert
-    let updated = false;
-    if (doc.id) {
-      doc.updated_at = new Date().toISOString();
-      updated = Sheets.updateRow('CLASSROOM_DOCUMENTS', 'id', doc.id, doc);
-    }
-    if (!updated) {
-      if (!doc.id) doc.id = Utils.generateId('cls_doc');
-      if (!doc.created_at) doc.created_at = new Date().toISOString();
-      doc.updated_at = new Date().toISOString();
-      if (doc.published === undefined) doc.published = true;
-      if (doc.archived === undefined) doc.archived = false;
-      Sheets.appendRow('CLASSROOM_DOCUMENTS', doc);
-    }
-    return doc;
+    return Sheets.saveVerified('CLASSROOM_DOCUMENTS', doc, 'cls_doc');
   }
 };

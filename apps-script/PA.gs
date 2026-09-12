@@ -87,22 +87,7 @@ const PA = {
     }
 
     // 💡 ระบบ Upsert: ตรวจสอบว่ามีแถวเดิมอยู่หรือไม่ ถ้ามีให้อัปเดต ถ้ายังไม่มีให้เพิ่มใหม่
-    let updated = false;
-    if (item.id) {
-      item.updated_at = new Date().toISOString();
-      updated = Sheets.updateRow('PA_ITEMS', 'id', item.id, item);
-    }
-
-    if (!updated) {
-      if (!item.id) item.id = Utils.generateId('pa_item');
-      if (!item.created_at) item.created_at = new Date().toISOString();
-      item.updated_at = new Date().toISOString();
-      if (item.published === undefined) item.published = true;
-      if (item.archived === undefined) item.archived = false;
-      Sheets.appendRow('PA_ITEMS', item);
-    }
-
-    return item;
+    return Sheets.saveVerified('PA_ITEMS', item, 'pa_item');
   },
 
   setPublished: function(id, published) {

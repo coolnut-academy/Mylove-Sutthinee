@@ -4,6 +4,30 @@
  */
 
 const Sheets = {
+  saveVerified: function(sheetName, obj, prefix) {
+    const lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+    try {
+      delete obj._persisted;
+      if (!obj.id) obj.id = Utils.generateId(prefix);
+      obj.updated_at = new Date().toISOString();
+      if (obj.published === undefined) obj.published = true;
+      if (obj.archived === undefined) obj.archived = false;
+      if (!this.updateRow(sheetName, 'id', obj.id, obj)) {
+        if (!obj.created_at) obj.created_at = obj.updated_at;
+        this.appendRow(sheetName, obj);
+      }
+      SpreadsheetApp.flush();
+      const stored = this.getTable(sheetName).find(row => String(row.id) === String(obj.id));
+      if (!stored || Object.keys(obj).some(key =>
+        String(stored[key]) !== String(Utils.sanitizeForSheet(obj[key])))) {
+        throw new Error('ไม่สามารถยืนยันข้อมูลที่บันทึกลงชีตได้ กรุณาลองบันทึกอีกครั้ง');
+      }
+      return Object.assign({}, stored, { _persisted: true });
+    } finally {
+      lock.releaseLock();
+    }
+  },
   getSpreadsheet: function() {
     const id = CONFIG.getSpreadsheetId();
     if (!id) {

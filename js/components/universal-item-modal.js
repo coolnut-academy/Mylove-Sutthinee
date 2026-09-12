@@ -15,6 +15,7 @@ import { AppState } from '../app-state.js';
 import { Cache } from '../cache.js';
 
 export class UniversalItemModal {
+  static saving = false;
   static modalEl = null;
   static currentContext = {
     module: 'classroom', // 'classroom' | 'pa'
@@ -36,6 +37,7 @@ export class UniversalItemModal {
   };
 
   static open(options = {}) {
+    if (this.saving) return;
     this.currentContext = {
       module: options.module || 'classroom',
       year: options.year || '2569',
@@ -63,6 +65,10 @@ export class UniversalItemModal {
   }
 
   static close() {
+    if (this.saving) {
+      Toast.error('กำลังบันทึก กรุณารอผลก่อนปิดหน้าต่าง');
+      return;
+    }
     if (!this.modalEl) return;
     this.modalEl.classList.add('d-none');
     document.body.classList.remove('modal-open');
@@ -272,6 +278,7 @@ export class UniversalItemModal {
   }
 
   static async _handleSave() {
+    if (this.saving) return;
     if (this.state.coverPending) {
       Toast.error('กรุณารอเตรียมภาพหน้าปกให้เสร็จก่อนบันทึก');
       return;
@@ -309,6 +316,9 @@ export class UniversalItemModal {
     const primaryTitle = fields[0]?.value || 'รายการผลงาน';
 
     const saveBtn = document.getElementById('u-modal-save-btn');
+    this.saving = true;
+    this.state.submissionId ||= this.currentContext.editingItem?.id ||
+      `${this.currentContext.module === 'pa' ? 'pa_item' : 'cls_doc'}_${crypto.randomUUID()}`;
     if (saveBtn) {
       saveBtn.disabled = true;
       saveBtn.innerHTML = '⏳ กำลังเตรียมนำส่งข้อมูล...';
@@ -340,14 +350,14 @@ export class UniversalItemModal {
 
           const coverItem = coverRes?.item || coverRes;
           if (!coverItem?.drive_file_id || !(coverItem.thumbnail_url || coverItem.external_url)) {
-            throw new Error('???????????????????????????????? Google Drive');
+            throw new Error('ไม่ได้รับผลยืนยันการอัปโหลดภาพจาก Google Drive');
           }
           if (coverItem) {
             coverUrl = coverItem.thumbnail_url || coverItem.external_url || coverItem.drive_url || coverUrl;
             this.state.coverBase64 = coverUrl;
           }
         } catch (coverErr) {
-          throw new Error('?????????????????????????: ' + coverErr.message);
+          throw new Error('อัปโหลดภาพหน้าปกไม่สำเร็จ: ' + coverErr.message);
         }
       } else if (!coverUrl) {
         coverUrl = './assets/fallback/classroom-cover.svg';
@@ -379,7 +389,7 @@ export class UniversalItemModal {
 
         const docItem = docRes?.item || docRes;
         if (!docItem?.drive_file_id || !(docItem.external_url || docItem.drive_url || docItem.preview_url)) {
-          throw new Error('??????????????????????????????????? Google Drive');
+          throw new Error('ไม่ได้รับผลยืนยันการอัปโหลดเอกสารจาก Google Drive');
         }
         if (docItem) {
           driveFileId = docItem.drive_file_id || '';
@@ -390,6 +400,7 @@ export class UniversalItemModal {
       // 3. บันทึกข้อมูลกำกับลง Google Sheets
       if (saveBtn) saveBtn.innerHTML = '⏳ กำลังบันทึกข้อมูลลง Google Sheets...';
       const newItem = {
+        id: this.state.submissionId,
         year: String(this.currentContext.year || '2567'),
         category: this.currentContext.category || '',
         section_code: this.currentContext.sectionCode || '',
@@ -432,12 +443,14 @@ export class UniversalItemModal {
         await this.currentContext.onSaveSuccess(savedResult || newItem);
       }
       Toast.success('บันทึกข้อมูลและนำส่ง Google Cloud เรียบร้อยแล้ว');
+      this.saving = false;
       this.close();
     } catch (err) {
       console.error('Error saving universal item:', err);
       if (err.savedItem) this.currentContext.editingItem = err.savedItem;
       Toast.error('เกิดข้อผิดพลาดในการบันทึก: ' + err.message);
     } finally {
+      this.saving = false;
       if (saveBtn) {
         saveBtn.disabled = false;
         saveBtn.innerHTML = '💾 บันทึกข้อมูล';

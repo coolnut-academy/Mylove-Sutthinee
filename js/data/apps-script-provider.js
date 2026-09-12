@@ -119,9 +119,9 @@ export class AppsScriptDataProvider extends BaseDataProvider {
 
     try {
       const resp = await fetch(url.toString(), options);
-      clearTimeout(timerId);
 
       const text = await resp.text();
+      clearTimeout(timerId);
       let data;
       try {
         data = JSON.parse(text);

@@ -290,9 +290,20 @@ class ClassroomPageController {
     this._updateYearDisplay(this.currentYear);
   }
 
+  _showSavedItem(item) {
+    this._dataRevision = (this._dataRevision || 0) + 1;
+    if (String(item.year) !== String(this.currentYear)) return;
+    this.classroomData ||= { documents: [] };
+    this.classroomData.documents = [...(this.classroomData.documents || []).filter(d => d.id !== item.id), item];
+    this._renderCurrentView();
+  }
+
   async _loadClassroomData(year) {
+    const revision = this._dataRevision || 0;
     try {
-      this.classroomData = await ClassroomApi.getClassroomData(year);
+      const data = await ClassroomApi.getClassroomData(year);
+      if (revision !== (this._dataRevision || 0) || String(year) !== String(this.currentYear)) return;
+      this.classroomData = data;
       this._renderCurrentView();
     } catch (err) {
       console.error("Error fetching classroom data:", err);
@@ -354,7 +365,7 @@ class ClassroomPageController {
               year: this.currentYear,
               category: this.currentView,
               sectionTitle: jobMeta.title,
-              onSaveSuccess: () => this._loadClassroomData(this.currentYear)
+              onSaveSuccess: item => this._showSavedItem(item)
             });
           });
           return;
@@ -364,7 +375,7 @@ class ClassroomPageController {
           year: this.currentYear,
           category: this.currentView,
           sectionTitle: jobMeta.title,
-          onSaveSuccess: () => this._loadClassroomData(this.currentYear)
+          onSaveSuccess: item => this._showSavedItem(item)
         });
       });
     }
@@ -483,7 +494,7 @@ class ClassroomPageController {
               year: this.currentYear,
               category: job,
               sectionTitle: jobMeta.title,
-              onSaveSuccess: () => this._loadClassroomData(this.currentYear)
+              onSaveSuccess: item => this._showSavedItem(item)
             });
           });
           return;
@@ -493,7 +504,7 @@ class ClassroomPageController {
           year: this.currentYear,
           category: job,
           sectionTitle: jobMeta.title,
-          onSaveSuccess: () => this._loadClassroomData(this.currentYear)
+          onSaveSuccess: item => this._showSavedItem(item)
         });
       });
       return;

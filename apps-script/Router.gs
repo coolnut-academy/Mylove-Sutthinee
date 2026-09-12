@@ -17,7 +17,7 @@ const Router = {
             settings: Admin.getSettings(),
             years: Years.getAll(),
             defaultYear: CONFIG.getDefaultYear(),
-            storageVersion: '2026-09-12-feature-folders-v1'
+            storageVersion: '2026-09-12-confirmed-save-v2'
           };
           break;
 
