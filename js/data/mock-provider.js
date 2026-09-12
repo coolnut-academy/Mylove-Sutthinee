@@ -11,7 +11,7 @@ import { INITIAL_STUDENTS, INITIAL_ATTENDANCE, INITIAL_ROUTINES, INITIAL_HEALTH,
 import { INITIAL_CLASSROOM_DOCUMENTS } from '../mock/classroom.js';
 import { INITIAL_PA_SECTIONS, INITIAL_PA_ITEMS } from '../mock/pa.js';
 
-const MOCK_STORAGE_KEY = 'stw:mock_database';
+const MOCK_STORAGE_KEY = 'stw:database_clean_v1';
 
 export class MockDataProvider extends BaseDataProvider {
   constructor() {
@@ -98,7 +98,7 @@ export class MockDataProvider extends BaseDataProvider {
 
   async getClassroomData(year) {
     await this._delay();
-    const documents = this.db.classroomDocuments.filter(d => d.year === year);
+    const documents = this.db.classroomDocuments.filter(d => String(d.year) === String(year));
     const studentData = await this.getStudents(year);
     return {
       documents,
@@ -109,17 +109,23 @@ export class MockDataProvider extends BaseDataProvider {
   async getPaSections(year) {
     await this._delay();
     return this.db.paSections
-      .filter(s => s.year === year)
+      .filter(s => String(s.year) === String(year))
       .sort((a, b) => a.sort_order - b.sort_order);
   }
 
   async getPaItems({ year, sectionCode }) {
     await this._delay();
-    let items = this.db.paItems.filter(i => i.year === year);
+    let items = this.db.paItems.filter(i => String(i.year) === String(year));
     if (sectionCode) {
       items = items.filter(i => i.section_code === sectionCode);
     }
     return items.sort((a, b) => a.sort_order - b.sort_order);
+  }
+
+  async getPaData(year) {
+    const sections = await this.getPaSections(year);
+    const items = await this.getPaItems({ year });
+    return { sections, items };
   }
 
   async getItem(id) {
@@ -269,6 +275,14 @@ export class MockDataProvider extends BaseDataProvider {
       return { success: true };
     }
     throw new Error('Item not found');
+  }
+
+  async deleteItem(id) {
+    await this._delay(100);
+    this.db.classroomDocuments = this.db.classroomDocuments.filter(x => x.id !== id);
+    this.db.paItems = this.db.paItems.filter(x => x.id !== id);
+    this._saveDatabase();
+    return { success: true };
   }
 
   async archiveItem({ id, entity, archived = true }) {

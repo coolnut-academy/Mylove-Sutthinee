@@ -6,6 +6,7 @@
 import { SettingsApi } from '../api.js';
 import { AppState } from '../app-state.js';
 import { Toast } from '../toast.js';
+import { compressImage } from '../image-utils.js';
 
 export class AdminAppearanceController {
   constructor() {
@@ -52,14 +53,19 @@ export class AdminAppearanceController {
     const setupPreview = (inputId, prevId) => {
       const input = document.getElementById(inputId);
       const prev = document.getElementById(prevId);
-      input?.addEventListener('change', (e) => {
+      input?.addEventListener('change', async (e) => {
         const file = e.target.files?.[0];
         if (file && prev) {
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            prev.src = ev.target.result;
-          };
-          reader.readAsDataURL(file);
+          try {
+            Toast.info('กำลังบีบอัดภาพตามขนาด A4...');
+            const compressed = await compressImage(file, {
+              quality: 0.82
+            });
+            prev.src = compressed.dataUrl;
+            Toast.success(`บีบอัดภาพเรียบร้อย (${Math.round(compressed.size / 1024)} KB) ไม่เกิน A4`);
+          } catch (err) {
+            Toast.error('ไม่สามารถบีบอัดภาพ: ' + err.message);
+          }
         }
       });
     };

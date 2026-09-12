@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Suttinee Teacher Workspace — ผลงานการพัฒนาวิชาชีพ (ว.PA) และงานธุรการชั้นเรียน โดย นางสาวศุทธินี ถาวร สำหรับคณะกรรมการประเมิน">
+  <meta name="description" content="Suttinee Teacher Workspace — แฟ้มสะสมผลงานการพัฒนาวิชาชีพ (PA) และธุรการในชั้นเรียน โดย นางสาวศุทธินี ถาวร โรงเรียนชุมชนแม่ลาศึกษา">
   <meta name="theme-color" content="#A986DE">
-  <title>Suttinee Teacher Workspace — แฟ้มสะสมผลงานและประเมิน ว.PA ครูศุทธินี ถาวร</title>
+  <title id="page-title">Suttinee Teacher Workspace — ครูศุทธินี ถาวร</title>
   <link rel="icon" type="image/png" href="./assets/school_logo.png">
 
   <!-- CSS Design System -->
@@ -24,28 +24,31 @@
   <!-- Header -->
   <header class="site-header" id="site-header">
     <div class="header-inner">
-      <a href="./index.html" class="header-brand" id="header-brand-link">
-        <img src="./assets/fallback/profile.svg" alt="ครูศุทธินี" class="brand-avatar" id="header-avatar">
-        <div class="brand-meta">
-          <span class="brand-title" id="header-title">Suttinee Teacher Workspace</span>
-          <span class="brand-subtitle" id="header-subtitle">พัฒนาวิชาชีพและธุรการชั้นเรียน</span>
-        </div>
-      </a>
+      <div class="header-brand-wrap" data-editable="header-brand">
+        <a href="./index.html" class="header-brand" id="header-brand-link">
+          <img src="./assets/fallback/profile.svg" alt="ครูศุทธินี" class="brand-avatar" id="header-avatar">
+          <div class="brand-meta">
+            <span class="brand-title" id="header-title">Suttinee Teacher Workspace</span>
+            <span class="brand-subtitle" id="header-subtitle">พัฒนาวิชาชีพและธุรการชั้นเรียน</span>
+          </div>
+        </a>
+      </div>
+
 
       <!-- Desktop Navigation -->
       <nav class="header-nav" aria-label="Main Navigation">
         <a href="./index.html" class="nav-link active" id="nav-home">
-          <span>🏠</span> หน้าหลักผลงาน
-        </a>
-        <a href="./pa.html" class="nav-link" id="nav-pa">
-          <span>📋</span> รายงาน ว.PA (15 ตัวชี้วัด)
+          <span>🏠</span> หน้าแรก
         </a>
         <a href="./classroom.html" class="nav-link" id="nav-classroom">
-          <span>🏫</span> ธุรการชั้นเรียน
+          <span>🏫</span> ธุรการในชั้นเรียน
+        </a>
+        <a href="./pa.html" class="nav-link" id="nav-pa">
+          <span>📋</span> รายงาน PA
         </a>
       </nav>
 
-      <!-- Header Actions: Year Selector, Top-Right Admin Entry & Mobile Toggle -->
+      <!-- Header Actions: Year Selector & Admin Entry -->
       <div class="header-actions">
         <div class="year-pill-wrapper" title="เลือกปีการศึกษา">
           <span class="year-pill-label">ปีการศึกษา</span>
@@ -54,12 +57,9 @@
           </select>
         </div>
 
-        <!-- Top-Right Admin Button -->
-        <div id="header-admin-wrapper">
-          <a href="./admin.html" class="btn btn-subtle btn-sm" id="btn-header-admin" title="ส่วนจัดการระบบสำหรับครูผู้สอน">
-            <span id="admin-btn-icon">🔒</span> <span id="admin-btn-text">Admin</span>
-          </a>
-        </div>
+        <a href="./admin.html" class="btn btn-subtle btn-sm" id="btn-header-admin" title="ส่วนจัดการระบบสำหรับครูผู้สอน">
+          <span id="admin-btn-icon">🔒</span> <span id="admin-btn-text">จัดการเว็บไซต์</span>
+        </a>
 
         <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu">
           ☰
@@ -72,546 +72,111 @@
   <div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop"></div>
   <aside class="mobile-drawer" id="mobile-drawer" aria-label="Mobile Navigation">
     <div class="mobile-drawer-header">
-      <div class="font-semibold text-purple">เมนูนำทาง</div>
+      <div class="font-semibold text-purple">เมนูหลัก</div>
       <button type="button" class="btn-icon" id="mobile-drawer-close" aria-label="Close menu">&times;</button>
     </div>
     <div class="mobile-nav-links">
-      <a href="./index.html" class="mobile-nav-link active"><span>🏠</span> หน้าหลักผลงาน</a>
-      <a href="./pa.html" class="mobile-nav-link" id="mob-nav-pa"><span>📋</span> รายงาน ว.PA 15 ตัวชี้วัด</a>
-      <a href="./classroom.html" class="mobile-nav-link" id="mob-nav-classroom"><span>🏫</span> ธุรการชั้นเรียน</a>
+      <a href="./index.html" class="mobile-nav-link active"><span>🏠</span> หน้าแรก</a>
+      <a href="./classroom.html" class="mobile-nav-link" id="mob-nav-classroom"><span>🏫</span> ธุรการในชั้นเรียน</a>
+      <a href="./pa.html" class="mobile-nav-link" id="mob-nav-pa"><span>📋</span> รายงานผลการพัฒนางาน (PA)</a>
       <a href="./admin.html" class="mobile-nav-link" style="margin-top: 2rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
-        <span>🔒</span> เข้าสู่ระบบจัดการ (Admin)
+        <span>🔒</span> จัดการเว็บไซต์ (Admin)
       </a>
     </div>
   </aside>
 
-  <!-- Main Content -->
+  <!-- Main Content: Gateway Experience -->
   <main class="main-wrapper" id="main-content">
     <div class="container">
 
-      <!-- Hero Portfolio Presentation Showcase -->
-      <section class="hero-portfolio-showcase animate-fade-in" aria-labelledby="hero-teacher-name" data-editable="hero-profile">
-        <div class="hero-inner-layout">
-          <div class="hero-identity">
-            <div class="hero-avatar-crest">
-              <img src="./assets/showcase/avatar-krunew.svg" alt="ภาพครูนิว ศุทธินี ถาวร" class="hero-avatar-img" id="hero-avatar">
-              <!-- School Emblem Seal -->
-              <div class="school-emblem-badge" title="โรงเรียนชุมชนแม่ลาศึกษา">
-                <img src="./assets/school_logo.png" alt="ตราโรงเรียนชุมชนแม่ลาศึกษา" id="hero-school-logo">
-              </div>
-              <span class="senior-seal-badge">ชำนาญการพิเศษ ⭐</span>
+      <!-- Hero Profile Presentation -->
+      <section class="gateway-hero animate-fade-in" aria-labelledby="hero-teacher-name" data-editable="hero-profile">
+        <div class="gateway-hero-bg" id="hero-custom-bg"></div>
+        <div class="gateway-hero-content">
+          <div class="hero-avatar-crest">
+            <img src="./assets/showcase/avatar-krunew.svg" alt="ภาพครูนิว ศุทธินี ถาวร" class="hero-avatar-img" id="hero-avatar">
+            <div class="school-emblem-badge" title="โรงเรียนชุมชนแม่ลาศึกษา">
+              <img src="./assets/school_logo.png" alt="ตราโรงเรียนชุมชนแม่ลาศึกษา" id="hero-school-logo">
             </div>
+          </div>
 
-            <div class="hero-meta-box">
-              <div class="d-flex align-center gap-2 mb-2 flex-wrap justify-center justify-md-start">
-                <span class="badge badge-sage">พร้อมรับการประเมิน ว.PA ครบ 100%</span>
-                <span class="badge badge-purple" id="hero-year-badge">ปีการศึกษา 2567</span>
-                <span class="badge badge-gold">กลุ่มสาระการเรียนรู้ภาษาไทย</span>
+          <div class="hero-text-box">
+            <div class="d-flex align-center gap-2 mb-2 flex-wrap">
+              <span class="badge badge-purple" id="hero-year-badge">ปีการศึกษา 2569</span>
+              <span class="badge badge-gold" id="hero-role-badge">ชำนาญการพิเศษ</span>
+            </div>
+            <h1 class="gateway-title" id="hero-teacher-name">นางสาวศุทธินี ถาวร</h1>
+            <div class="gateway-role-text" id="hero-role">ครูประจำชั้นประถมศึกษาปีที่ ๑ · กลุ่มสาระการเรียนรู้ภาษาไทย</div>
+            <div class="gateway-school-text" id="hero-school">
+              <span>🏫</span> <span id="hero-school-name">โรงเรียนชุมชนแม่ลาศึกษา</span> <span id="hero-school-affiliation">อำเภอแม่ลาน้อย จังหวัดแม่ฮ่องสอน</span>
+            </div>
+            <p class="gateway-motto" id="hero-motto">
+              “<span id="hero-motto-text">การศึกษาคือการสร้างโอกาส และการเรียนรู้ภาษาไทยคือรากฐานสำคัญของชีวิต</span>”
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Gateway Directive: Exactly 2 Big Cards -->
+      <section class="gateway-section" aria-label="Main Gateway Options">
+        <div class="gateway-grid">
+
+          <!-- Card 1: ธุรการในชั้นเรียน -->
+          <a href="./classroom.html" class="gateway-card card-interactive" id="card-gateway-classroom" data-editable="gateway-classroom">
+            <div class="gateway-cover-wrap">
+              <img src="./assets/fallback/classroom-cover.svg" alt="ธุรการในชั้นเรียน" class="gateway-cover-img" id="cover-classroom">
+              <div class="gateway-badge-overlay">
+                <span class="badge badge-purple">งานประจำชั้น</span>
               </div>
-              <h1 class="hero-title-main" id="hero-teacher-name">นางสาวศุทธินี ถาวร (ครูนิว)</h1>
-              <div class="hero-rank-text" id="hero-role">ครู วิทยฐานะ ชำนาญการพิเศษ · ครูประจำชั้นประถมศึกษาปีที่ ๑</div>
-              <div class="hero-school-text" id="hero-school">
-                <span>🏫</span> <span id="hero-school-name">โรงเรียนชุมชนแม่ลาศึกษา</span> อำเภอแม่ลาน้อย จังหวัดแม่ฮ่องสอน (สพป.มส. เขต ๒)
+            </div>
+            <div class="gateway-body">
+              <div class="gateway-card-header">
+                <span class="gateway-card-icon" id="icon-classroom">🏫</span>
+                <h2 class="gateway-card-title" id="title-classroom">ธุรการในชั้นเรียน</h2>
               </div>
-              <p class="hero-quote-box" id="hero-quote" data-editable="motto">
-                “<span id="hero-motto-text">การศึกษาคือการสร้างโอกาส และการเรียนรู้ภาษาไทยคือรากฐานสำคัญของชีวิต มุ่งมั่นจัดการเรียนรู้เชิงรุก (Active Learning) บูรณาการสื่อนวัตกรรมเกมเพื่อพัฒนาศักยภาพผู้เรียนอย่างรอบด้าน</span>”
+              <p class="gateway-card-desc" id="desc-classroom">
+                เช็กชื่อมาเรียน บันทึกแปรงฟัน ดื่มนม น้ำหนัก-ส่วนสูง ตรวจสุขภาพ แบบประเมิน SDQ และงานทะเบียน ปพ.
               </p>
-            </div>
-          </div>
-
-          <!-- Quick Evaluator Status & Contact Card -->
-          <div class="d-flex flex-column gap-3 align-center align-md-end">
-            <div class="badge badge-gold" style="font-size: var(--font-size-xs); padding: 6px 14px; border: 1px solid rgba(255,255,255,0.4);">
-              ⭐ แฟ้มสะสมผลงานสำหรับคณะกรรมการประเมิน
-            </div>
-            <div class="text-right d-none d-md-block" style="font-size: var(--font-size-xs); color: rgba(255,255,255,0.85); line-height: 1.6;">
-              <div>📞 ติดต่อครูศุทธินี: <strong>064-618-0472</strong></div>
-              <div>📍 ม.1 ต.แม่ลาหลวง อ.แม่ลาน้อย จ.แม่ฮ่องสอน</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Evaluator Welcome & Quick-Jump Gateway -->
-      <section class="evaluator-quick-strip animate-slide-up" aria-label="Evaluator Gateway">
-        <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
-          <div>
-            <div class="d-flex align-center gap-2">
-              <span style="font-size: 1.5rem;">📋</span>
-              <h2 style="font-size: var(--font-size-lg); color: var(--purple-900);">
-                ศูนย์ข้อมูลสำหรับคณะกรรมการประเมินผลการพัฒนางาน (ว.PA)
-              </h2>
-            </div>
-            <p class="text-secondary" style="font-size: var(--font-size-sm); margin-top: 4px;">
-              คณะกรรมการสามารถเปิดดูเอกสาร ร่องรอยหลักฐาน และประเมินผลงานได้ทันทีโดยไม่ต้องเข้าสู่ระบบ
-            </p>
-          </div>
-
-          <!-- Quick Navigation Buttons for Committee -->
-          <div class="d-flex flex-wrap gap-2">
-            <a href="./pa.html" class="btn btn-primary" id="btn-eval-pa">
-              <span>📋</span> ตรวจ ว.PA 15 ตัวชี้วัด &rarr;
-            </a>
-            <a href="./pa.html#indicator-CHALLENGE" class="btn btn-secondary" id="btn-eval-challenge">
-              <span>💡</span> ประเด็นท้าทาย STAD
-            </a>
-            <a href="./classroom.html" class="btn btn-subtle" id="btn-eval-classroom">
-              <span>🏫</span> ธุรการชั้นเรียน &amp; ปพ.
-            </a>
-          </div>
-        </div>
-
-        <!-- 3 Aspects Summary Cards for Evaluators -->
-        <div class="d-grid gap-3" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
-          <div style="background: var(--surface-card); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--border-light);">
-            <div class="font-semibold text-purple mb-1">ด้านที่ 1 การจัดการเรียนรู้</div>
-            <div class="text-muted" style="font-size: var(--font-size-xs);">8 ตัวชี้วัด (1.1 - 1.8)</div>
-            <div class="badge badge-sage mt-2">หลักฐานครบถ้วน 100%</div>
-          </div>
-
-          <div style="background: var(--surface-card); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--border-light);">
-            <div class="font-semibold text-purple mb-1">ด้านที่ 2 ส่งเสริมและสนับสนุน</div>
-            <div class="text-muted" style="font-size: var(--font-size-xs);">4 ตัวชี้วัด (2.1 - 2.4)</div>
-            <div class="badge badge-sage mt-2">ระบบดูแลช่วยเหลือนักเรียน</div>
-          </div>
-
-          <div style="background: var(--surface-card); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--border-light);">
-            <div class="font-semibold text-purple mb-1">ด้านที่ 3 พัฒนาตนเองและวิชาชีพ</div>
-            <div class="text-muted" style="font-size: var(--font-size-xs);">3 ตัวชี้วัด (3.1 - 3.3)</div>
-            <div class="badge badge-sage mt-2">อบรมต่อเนื่อง &amp; ชุมชน PLC</div>
-          </div>
-
-          <div style="background: var(--surface-card); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--border-light);">
-            <div class="font-semibold text-purple mb-1">ส่วนที่ 2 ประเด็นท้าทาย</div>
-            <div class="text-muted" style="font-size: var(--font-size-xs);">การพัฒนาทักษะภาษาไทย (STAD)</div>
-            <div class="badge badge-gold mt-2">ผลลัพธ์บรรลุเป้าหมาย</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Stats Strip -->
-      <section class="stats-strip" aria-label="Summary Statistics">
-        <div class="stat-card">
-          <span class="stat-value" id="stat-pa-indicators">15</span>
-          <span class="stat-label">ตัวชี้วัด ว.PA (3 ด้าน)</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value" id="stat-games">4</span>
-          <span class="stat-label">สื่อนวัตกรรมเกมภาษาไทย</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value" id="stat-students">-</span>
-          <span class="stat-label">นักเรียนชั้น ป.1 ในความดูแล (คน)</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-value" id="stat-docs">-</span>
-          <span class="stat-label">เอกสารงานทะเบียน/ปพ./วิชาการ</span>
-        </div>
-      </section>
-
-      <!-- INTERACTIVE PORTFOLIO SHOWCASE SECTION (SEMI-PORTFOLIO PRESENTATION) -->
-      <section class="portfolio-showcase-section" aria-labelledby="portfolio-tabs-heading">
-        <div class="d-flex align-center justify-between mb-4 flex-wrap gap-2">
-          <div>
-            <h2 id="portfolio-tabs-heading" style="font-size: var(--font-size-xl); color: var(--purple-900);">
-              🌟 แฟ้มนำเสนอผลงานเด่น (Interactive Showcase)
-            </h2>
-            <p class="text-muted" style="font-size: var(--font-size-xs);">
-              เลือกหมวดหมู่ผลงานเพื่อรับชมนวัตกรรมการสอน เกมการศึกษา งานวิจัย และเอกสารหลักฐาน
-            </p>
-          </div>
-        </div>
-
-        <!-- Portfolio Tab Buttons -->
-        <div class="portfolio-tabs-nav" role="tablist" aria-label="หมวดหมู่นำเสนอผลงาน">
-          <button type="button" class="portfolio-tab-btn active" data-tab="tab-pa" role="tab" aria-selected="true" aria-controls="pane-pa">
-            <span>📋</span> แฟ้มรายงาน ว.PA 15 ตัวชี้วัด
-          </button>
-          <button type="button" class="portfolio-tab-btn" data-tab="tab-games" role="tab" aria-selected="false" aria-controls="pane-games">
-            <span>🎮</span> สื่อนวัตกรรมเกมภาษาไทย (4 เกม)
-          </button>
-          <button type="button" class="portfolio-tab-btn" data-tab="tab-academic" role="tab" aria-selected="false" aria-controls="pane-academic">
-            <span>📚</span> วิจัยในชั้นเรียน, PLC, SAR &amp; แผนการสอน
-          </button>
-          <button type="button" class="portfolio-tab-btn" data-tab="tab-classroom" role="tab" aria-selected="false" aria-controls="pane-classroom">
-            <span>🏫</span> งานประจำชั้น &amp; ระบบดูแลช่วยเหลือ ป.1
-          </button>
-          <button type="button" class="portfolio-tab-btn" data-tab="tab-awards" role="tab" aria-selected="false" aria-controls="pane-awards">
-            <span>🏆</span> รางวัลและผลงานที่ภาคภูมิใจ
-          </button>
-        </div>
-
-        <!-- Tab Panes -->
-        <div class="portfolio-tabs-content">
-
-          <!-- TAB PANE 1: PA 15 Indicators & Challenge -->
-          <div class="portfolio-tab-pane active" id="pane-pa" role="tabpanel">
-            <div class="modules-grid">
-              <a href="./pa.html" class="module-card card-interactive" id="card-pa-link">
-                <div class="module-cover-wrapper">
-                  <img src="./assets/fallback/pa-cover.svg" alt="ปกรายงาน ว.PA" class="module-cover" id="cover-pa">
-                  <span class="badge badge-purple module-badge-tag">รายงาน ว.PA ครบ 3 ด้าน</span>
-                </div>
-                <div class="module-body">
-                  <h3 class="module-title">รายงานผลการประเมิน ว.PA (15 ตัวชี้วัด)</h3>
-                  <p class="module-desc">
-                    การปฏิบัติงานตามมาตรฐานตำแหน่งครู 15 ตัวชี้วัด ครอบคลุมด้านการจัดการเรียนรู้ การส่งเสริมและสนับสนุน และการพัฒนาตนเองและวิชาชีพ พร้อมคลังร่องรอยหลักฐานครบถ้วน
-                  </p>
-                  <div class="module-footer">
-                    <span>เปิดดูรายงาน ว.PA ครบ 15 ตัวชี้วัด</span>
-                    <span>&rarr;</span>
-                  </div>
-                </div>
-              </a>
-
-              <div class="module-card card-interactive" id="card-challenge-link" data-editable="pa-challenge">
-                <div class="module-cover-wrapper" style="background: linear-gradient(135deg, #FFE082, #FFB300);">
-                  <img src="./assets/showcase/cover-research.svg" alt="ปกประเด็นท้าทาย STAD" class="module-cover">
-                  <span class="badge badge-gold module-badge-tag">ส่วนที่ 2 ข้อตกลงประเด็นท้าทาย</span>
-                </div>
-                <div class="module-body">
-                  <h3 class="module-title" id="challenge-title-text">ข้อตกลงในการพัฒนางานที่เป็นประเด็นท้าทาย (STAD)</h3>
-                  <p class="module-desc" id="challenge-desc-text">
-                    การพัฒนาผลสัมฤทธิ์ทางการเรียนภาษาไทย เรื่อง การอ่านและการเขียนสะกดคำ โดยใช้รูปแบบการจัดการเรียนรู้แบบร่วมมือ STAD ร่วมกับสื่อนวัตกรรมเกม สำหรับนักเรียนชั้น ป.1
-                  </p>
-                  <div class="module-footer">
-                    <a href="./pa.html#indicator-CHALLENGE" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                      <span>เปิดดูรายละเอียดประเด็นท้าทายและผลลัพธ์</span>
-                      <span>&rarr;</span>
-                    </a>
-                  </div>
-                </div>
+              <div class="gateway-card-footer">
+                <span>เข้าสู่ธุรการในชั้นเรียน</span>
+                <span class="gateway-arrow">&rarr;</span>
               </div>
             </div>
-          </div>
+          </a>
 
-          <!-- TAB PANE 2: 4 Educational Games (From krunew site) -->
-          <div class="portfolio-tab-pane" id="pane-games" role="tabpanel">
-            <div class="d-flex align-center justify-between mb-4">
-              <div>
-                <h3 style="font-size: var(--font-size-md); color: var(--purple-900);">
-                  สื่อนวัตกรรมเกมการศึกษาภาษาไทย เพื่อพัฒนาการอ่านออกเขียนได้ ชั้น ป.1
-                </h3>
-                <p class="text-secondary" style="font-size: var(--font-size-xs);">
-                  สื่อการสอน Gamified Learning สร้างสรรค์โดยครูนิว กรรมการสามารถคลิกเพื่อทดลองเล่นจำลองได้ทันที
-                </p>
+          <!-- Card 2: รายงานผลการพัฒนางานตามข้อตกลง (PA) -->
+          <a href="./pa.html" class="gateway-card card-interactive" id="card-gateway-pa" data-editable="gateway-pa">
+            <div class="gateway-cover-wrap">
+              <img src="./assets/fallback/pa-cover.svg" alt="รายงานผลการพัฒนางานตามข้อตกลง (PA)" class="gateway-cover-img" id="cover-pa">
+              <div class="gateway-badge-overlay">
+                <span class="badge badge-gold">ว.PA ดิจิทัล</span>
               </div>
             </div>
-
-            <div class="games-showcase-grid">
-              <!-- Game 1: Word Wheel -->
-              <div class="game-card" data-editable="game-item">
-                <div class="game-thumb-box">
-                  <img src="./assets/games/game-wheel.svg" alt="เกมวงล้อคำหรรษา">
-                </div>
-                <div class="game-card-body">
-                  <div class="badge badge-purple mb-2 align-self-start">สระและการแจกลูก</div>
-                  <h4 class="game-card-title">🎡 เกมวงล้อคำหรรษา (Word Wheel)</h4>
-                  <p class="game-card-desc">
-                    ฝึกการอ่านสะกดคำแจกลูก พยัญชนะต้นและสระเดี่ยว หมุนวงล้อเพื่อประสมคำและออกเสียงคำที่ได้
-                  </p>
-                  <button type="button" class="game-play-btn" data-game="wheel">
-                    <span>🎮</span> ทดลองเล่นเกมวงล้อ
-                  </button>
-                </div>
+            <div class="gateway-body">
+              <div class="gateway-card-header">
+                <span class="gateway-card-icon" id="icon-pa">📋</span>
+                <h2 class="gateway-card-title" id="title-pa">รายงานผลการพัฒนางานตามข้อตกลง (PA)</h2>
               </div>
-
-              <!-- Game 2: Whack-a-Mole -->
-              <div class="game-card" data-editable="game-item">
-                <div class="game-thumb-box">
-                  <img src="./assets/games/game-mole.svg" alt="เกมตีตัวตุ่นสระไทย">
-                </div>
-                <div class="game-card-body">
-                  <div class="badge badge-sage mb-2 align-self-start">แยกแยะรูปสระ</div>
-                  <h4 class="game-card-title">🔨 เกมตีตัวตุ่น สระอะ สระอา สระอิ</h4>
-                  <p class="game-card-desc">
-                    เกมฝึกความจำและประสาทสัมผัส ตีตัวตุ่นที่มีสระถูกต้องตามโจทย์เพื่อสะสมคะแนน
-                  </p>
-                  <button type="button" class="game-play-btn" data-game="mole">
-                    <span>🎮</span> ทดลองเล่นเกมตีตัวตุ่น
-                  </button>
-                </div>
-              </div>
-
-              <!-- Game 3: Airplane Flight -->
-              <div class="game-card" data-editable="game-item">
-                <div class="game-thumb-box">
-                  <img src="./assets/games/game-airplane.svg" alt="เกมเครื่องบินเหินเวหา">
-                </div>
-                <div class="game-card-body">
-                  <div class="badge badge-purple mb-2 align-self-start">คำควบกล้ำ &amp; ความหมาย</div>
-                  <h4 class="game-card-title">✈️ เกมเครื่องบินเหินเวหาล่าคำศัพท์</h4>
-                  <p class="game-card-desc">
-                    บินนำเครื่องบินไปชนบอลลูนคำศัพท์ที่ถูกต้อง ช่วยฝึกสมาธิและความจำคำศัพท์อย่างรวดเร็ว
-                  </p>
-                  <button type="button" class="game-play-btn" data-game="airplane">
-                    <span>🎮</span> ทดลองเล่นเกมเครื่องบิน
-                  </button>
-                </div>
-              </div>
-
-              <!-- Game 4: Puzzle Match -->
-              <div class="game-card" data-editable="game-item">
-                <div class="game-thumb-box">
-                  <img src="./assets/games/game-puzzle.svg" alt="เกมต่อภาพผสมคำ">
-                </div>
-                <div class="game-card-body">
-                  <div class="badge badge-gold mb-2 align-self-start">ประสมคำสองพยางค์</div>
-                  <h4 class="game-card-title">🧩 เกมจับคู่ต่อภาพผสมคำ (Word Match)</h4>
-                  <p class="game-card-desc">
-                    ต่อจิ๊กซอว์พยัญชนะ สระ และรูปภาพให้สมบูรณ์ เสริมสร้างคลังคำศัพท์ภาษาไทย
-                  </p>
-                  <button type="button" class="game-play-btn" data-game="puzzle">
-                    <span>🎮</span> ทดลองเล่นเกมต่อภาพ
-                  </button>
-                </div>
+              <p class="gateway-card-desc" id="desc-pa">
+                แฟ้มสะสมผลงานการประเมิน ว.PA ครบ 3 ด้าน 15 ตัวชี้วัด และรายงานผลการดำเนินงานประเด็นท้าทาย
+              </p>
+              <div class="gateway-card-footer">
+                <span>เปิดแฟ้มรายงาน PA</span>
+                <span class="gateway-arrow">&rarr;</span>
               </div>
             </div>
-          </div>
-
-          <!-- TAB PANE 3: Academic Showcase (SAR, PLC, Research, Lesson Plans) -->
-          <div class="portfolio-tab-pane" id="pane-academic" role="tabpanel">
-            <div class="d-flex align-center justify-between mb-4">
-              <div>
-                <h3 style="font-size: var(--font-size-md); color: var(--purple-900);">
-                  ผลงานทางวิชาการ การวิจัยในชั้นเรียน และการพัฒนาวิชาชีพ
-                </h3>
-                <p class="text-secondary" style="font-size: var(--font-size-xs);">
-                  เอกสารประกอบการประเมินวิทยฐานะชำนาญการพิเศษ และผลการปฏิบัติงานรายบุคคล
-                </p>
-              </div>
-            </div>
-
-            <div class="academic-showcase-grid">
-              <!-- Book 1: SAR -->
-              <div class="book-card" data-editable="book-item">
-                <div class="book-cover-box">
-                  <img src="./assets/showcase/cover-sar.svg" alt="รายงาน SAR">
-                </div>
-                <div class="book-card-body">
-                  <div class="badge badge-purple mb-2 align-self-start">รายงานประเมินตนเอง</div>
-                  <h4 class="book-card-title">เล่มรายงานการประเมินตนเอง (SAR)</h4>
-                  <p class="book-card-desc">
-                    รายงานผลการปฏิบัติงานตนเองรายบุคคล นางสาวศุทธินี ถาวร ชำนาญการพิเศษ ปีการศึกษา 2567
-                  </p>
-                  <a href="./assets/showcase/cover-sar.svg" target="_blank" class="btn btn-secondary btn-sm mt-auto">
-                    <span>📖</span> เปิดดูเล่ม SAR
-                  </a>
-                </div>
-              </div>
-
-              <!-- Book 2: PLC -->
-              <div class="book-card" data-editable="book-item">
-                <div class="book-cover-box">
-                  <img src="./assets/showcase/cover-plc.svg" alt="บันทึก PLC">
-                </div>
-                <div class="book-card-body">
-                  <div class="badge badge-sage mb-2 align-self-start">ชุมชนการเรียนรู้ทางวิชาชีพ</div>
-                  <h4 class="book-card-title">บันทึกชุมชนการเรียนรู้ PLC</h4>
-                  <p class="book-card-desc">
-                    การรวมกลุ่มแก้ปัญหาการอ่านไม่ออกเขียนไม่ได้ กลุ่มสาระภาษาไทย โรงเรียนชุมชนแม่ลาศึกษา
-                  </p>
-                  <a href="./assets/showcase/cover-plc.svg" target="_blank" class="btn btn-secondary btn-sm mt-auto">
-                    <span>📖</span> เปิดดูบันทึก PLC
-                  </a>
-                </div>
-              </div>
-
-              <!-- Book 3: Research STAD -->
-              <div class="book-card" data-editable="book-item">
-                <div class="book-cover-box">
-                  <img src="./assets/showcase/cover-research.svg" alt="วิจัยในชั้นเรียน STAD">
-                </div>
-                <div class="book-card-body">
-                  <div class="badge badge-gold mb-2 align-self-start">วิจัยชั้นเรียน Active Learning</div>
-                  <h4 class="book-card-title">วิจัยในชั้นเรียน รูปแบบ STAD</h4>
-                  <p class="book-card-desc">
-                    การพัฒนาผลสัมฤทธิ์ทางการอ่านและการเขียนสะกดคำภาษาไทย ชั้นประถมศึกษาปีที่ 1
-                  </p>
-                  <a href="./assets/showcase/cover-research.svg" target="_blank" class="btn btn-secondary btn-sm mt-auto">
-                    <span>📖</span> เปิดดูรายงานวิจัย
-                  </a>
-                </div>
-              </div>
-
-              <!-- Book 4: Lesson Plans -->
-              <div class="book-card" data-editable="book-item">
-                <div class="book-cover-box">
-                  <img src="./assets/showcase/cover-lessonplan.svg" alt="แผนการจัดการเรียนรู้">
-                </div>
-                <div class="book-card-body">
-                  <div class="badge badge-purple mb-2 align-self-start">Active Learning</div>
-                  <h4 class="book-card-title">แผนการจัดการเรียนรู้เชิงรุก ป.1</h4>
-                  <p class="book-card-desc">
-                    แผนบูรณาการจัดกิจกรรมการเรียนรู้แบบร่วมมือและเกมมิฟิเคชัน เน้นผู้เรียนเป็นสำคัญ
-                  </p>
-                  <a href="./assets/showcase/cover-lessonplan.svg" target="_blank" class="btn btn-secondary btn-sm mt-auto">
-                    <span>📖</span> เปิดดูแผนการสอน
-                  </a>
-                </div>
-              </div>
-
-              <!-- Book 5: Salary Advancement -->
-              <div class="book-card" data-editable="book-item">
-                <div class="book-cover-box">
-                  <img src="./assets/showcase/cover-salary.svg" alt="ประเมินเลื่อนขั้นเงินเดือน">
-                </div>
-                <div class="book-card-body">
-                  <div class="badge badge-gold mb-2 align-self-start">เลื่อนขั้นเงินเดือน</div>
-                  <h4 class="book-card-title">เอกสารประกอบการประเมินเลื่อนขั้นเงินเดือน</h4>
-                  <p class="book-card-desc">
-                    สรุปผลการปฏิบัติงานตามมาตรฐานตำแหน่งและภาระงานสอน รอบการประเมินที่ 1 และ 2
-                  </p>
-                  <a href="./assets/showcase/cover-salary.svg" target="_blank" class="btn btn-secondary btn-sm mt-auto">
-                    <span>📖</span> เปิดดูเอกสารประกอบ
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAB PANE 4: Classroom Management & Student Care (From krunew site) -->
-          <div class="portfolio-tab-pane" id="pane-classroom" role="tabpanel">
-            <div class="d-flex align-center justify-between mb-4">
-              <div>
-                <h3 style="font-size: var(--font-size-md); color: var(--purple-900);">
-                  งานประจำชั้นและระบบดูแลช่วยเหลือนักเรียน ชั้น ป.1
-                </h3>
-                <p class="text-secondary" style="font-size: var(--font-size-xs);">
-                  บันทึกกิจวัตรประจำวัน การดื่มนม แปรงฟัน ตรวจสุขภาพ เวลาเรียน และแบบประเมิน SDQ
-                </p>
-              </div>
-              <a href="./classroom.html" class="btn btn-primary btn-sm">เข้าสู่หน้าธุรการชั้นเรียน &rarr;</a>
-            </div>
-
-            <div class="classroom-actions-grid">
-              <a href="./classroom.html#tab-students" class="action-card">
-                <div class="action-card-icon">👦👧</div>
-                <div class="action-card-title">สมาชิกห้องเรียน ป.1</div>
-                <div class="action-card-count" id="count-action-students">- คน</div>
-              </a>
-
-              <a href="./classroom.html#tab-attendance" class="action-card">
-                <div class="action-card-icon">📅</div>
-                <div class="action-card-title">เช็คชื่อมาเรียน</div>
-                <div class="action-card-count">สถิติเวลาเรียน</div>
-              </a>
-
-              <a href="./classroom.html#tab-routines" class="action-card">
-                <div class="action-card-icon">🦷</div>
-                <div class="action-card-title">การแปรงฟัน</div>
-                <div class="action-card-count">หลังอาหารกลางวัน</div>
-              </a>
-
-              <a href="./classroom.html#tab-routines" class="action-card">
-                <div class="action-card-icon">🥛</div>
-                <div class="action-card-title">การดื่มนมโรงเรียน</div>
-                <div class="action-card-count">บันทึกทุกวัน</div>
-              </a>
-
-              <a href="./classroom.html#tab-health" class="action-card">
-                <div class="action-card-icon">⚖️</div>
-                <div class="action-card-title">น้ำหนัก-ส่วนสูง</div>
-                <div class="action-card-count">เกณฑ์มาตรฐาน BMI</div>
-              </a>
-
-              <a href="./classroom.html#tab-sdq" class="action-card">
-                <div class="action-card-icon">📝</div>
-                <div class="action-card-title">คัดกรอง SDQ</div>
-                <div class="action-card-count">ดูแลช่วยเหลือนักเรียน</div>
-              </a>
-
-              <a href="./classroom.html#tab-documents" class="action-card">
-                <div class="action-card-icon">📑</div>
-                <div class="action-card-title">สมุด ปพ.5 / ปพ.6</div>
-                <div class="action-card-count">งานทะเบียนประวัติ</div>
-              </a>
-
-              <a href="./classroom.html#tab-documents" class="action-card">
-                <div class="action-card-icon">🏡</div>
-                <div class="action-card-title">การเยี่ยมบ้าน 100%</div>
-                <div class="action-card-count">ประสานผู้ปกครอง</div>
-              </a>
-            </div>
-          </div>
-
-          <!-- TAB PANE 5: Honors & Awards -->
-          <div class="portfolio-tab-pane" id="pane-awards" role="tabpanel">
-            <div class="card" style="background: var(--surface-card); border-left: 4px solid var(--color-primary-strong);" data-editable="awards">
-              <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
-                <div>
-                  <div class="d-flex align-center gap-2">
-                    <span style="font-size: 1.4rem;">🏆</span>
-                    <h3 style="font-size: var(--font-size-xl); color: var(--purple-900);">
-                      เกียรติบัตรและรางวัลที่ภาคภูมิใจ (Honors &amp; Awards)
-                    </h3>
-                  </div>
-                  <p class="text-secondary" style="font-size: var(--font-size-sm); margin-top: 2px;">
-                    เกียรติประวัติและผลลัพธ์ความสำเร็จจากการทุ่มเทในการจัดการเรียนการสอนและการพัฒนาผู้เรียน
-                  </p>
-                </div>
-                <span class="badge badge-gold">ผลงานเชิงประจักษ์</span>
-              </div>
-
-              <div class="d-grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
-                <div class="d-flex gap-3 align-start" style="padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-card-subtle); border: 1px solid var(--border-light);">
-                  <div style="font-size: 2.2rem;">🥇</div>
-                  <div>
-                    <div class="font-semibold text-primary">ครูผู้สอนดีเด่นกลุ่มสาระการเรียนรู้ภาษาไทย</div>
-                    <div class="text-muted" style="font-size: var(--font-size-xs); margin-top: 2px;">สำนักงานเขตพื้นที่การศึกษาประถมศึกษาแม่ฮ่องสอน เขต 2</div>
-                    <p class="text-secondary mt-1" style="font-size: var(--font-size-xs);">
-                      ได้รับการยกย่องเชิดชูเกียรติครูดีเด่น ผู้มีความมุ่งมั่นพัฒนาการอ่านออกเขียนได้
-                    </p>
-                  </div>
-                </div>
-
-                <div class="d-flex gap-3 align-start" style="padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-card-subtle); border: 1px solid var(--border-light);">
-                  <div style="font-size: 2.2rem;">💡</div>
-                  <div>
-                    <div class="font-semibold text-primary">รางวัลนวัตกรรมการสอนภาษาไทยแบบร่วมมือ (STAD)</div>
-                    <div class="text-muted" style="font-size: var(--font-size-xs); margin-top: 2px;">รางวัลนวัตกรรมการสอนยอดเยี่ยม</div>
-                    <p class="text-secondary mt-1" style="font-size: var(--font-size-xs);">
-                      การพัฒนาผลสัมฤทธิ์การอ่านสะกดคำของนักเรียนชั้น ป.1 โรงเรียนชุมชนแม่ลาศึกษา
-                    </p>
-                  </div>
-                </div>
-
-                <div class="d-flex gap-3 align-start" style="padding: var(--space-3); border-radius: var(--radius-md); background: var(--surface-card-subtle); border: 1px solid var(--border-light);">
-                  <div style="font-size: 2.2rem;">🤝</div>
-                  <div>
-                    <div class="font-semibold text-primary">ผู้นำชุมชนการเรียนรู้ทางวิชาชีพ (PLC Leader)</div>
-                    <div class="text-muted" style="font-size: var(--font-size-xs); margin-top: 2px;">การขับเคลื่อนคุณภาพการศึกษาในสถานศึกษา</div>
-                    <p class="text-secondary mt-1" style="font-size: var(--font-size-xs);">
-                      แลกเปลี่ยนเรียนรู้ร่วมกับคณะครูเพื่อแก้ปัญหาการเรียนรู้ของผู้เรียนอย่างยั่งยืน
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          </a>
 
         </div>
       </section>
 
-      <!-- Quick Document Showcase / Recent Highlights -->
-      <section class="mt-8" aria-labelledby="quick-docs-heading">
-        <div class="d-flex align-center justify-between mb-4 flex-wrap gap-2">
-          <div>
-            <h2 id="quick-docs-heading" style="font-size: var(--font-size-xl); color: var(--purple-900);">
-              📑 คลังเอกสารและหลักฐานสำคัญสำหรับตรวจสอบ
-            </h2>
-            <p class="text-muted" style="font-size: var(--font-size-xs);">คลิกเพื่อเปิดดูรายละเอียดและดาวน์โหลดไฟล์เอกสาร</p>
-          </div>
-          <a href="./pa.html" class="btn btn-subtle btn-sm">ดูหลักฐานทั้งหมด &rarr;</a>
-        </div>
 
-        <div id="home-recent-list" class="evidence-grid">
-          <!-- Populated by JS -->
-          <div class="skeleton skeleton-card"></div>
-          <div class="skeleton skeleton-card"></div>
-          <div class="skeleton skeleton-card"></div>
-        </div>
-      </section>
+      <!-- Bottom Fast Entry for Admin -->
+      <div class="text-center mt-6 mb-8">
+        <a href="./admin.html" class="btn btn-subtle btn-sm" id="btn-bottom-admin">
+          <span>🔒</span> จัดการเว็บไซต์ (สำหรับครูศุทธินี)
+        </a>
+      </div>
 
     </div>
   </main>
@@ -620,15 +185,15 @@
   <footer class="site-footer">
     <div class="footer-inner">
       <div class="footer-brand">
-        <div class="footer-title">Suttinee Teacher Workspace</div>
-        <div class="footer-desc">แฟ้มสะสมผลงานวิชาชีพและงานธุรการชั้นเรียน · นางสาวศุทธินี ถาวร</div>
+        <div class="footer-title" id="footer-title">Suttinee Teacher Workspace</div>
+        <div class="footer-desc" id="footer-desc">พื้นที่บันทึกผลงานวิชาชีพและงานธุรการชั้นเรียน · นางสาวศุทธินี ถาวร</div>
       </div>
       <div class="footer-links">
-        <a href="./index.html" class="footer-link">หน้าหลักผลงาน</a>
-        <a href="./pa.html" class="footer-link" id="footer-link-pa">รายงาน ว.PA</a>
-        <a href="./classroom.html" class="footer-link" id="footer-link-classroom">ธุรการชั้นเรียน</a>
-        <a href="./admin.html" class="footer-admin-entry" title="เข้าสู่ส่วนจัดการระบบ (สำหรับครูผู้สอน)">
-          <span>🔒</span> ระบบจัดการครูผู้สอน
+        <a href="./index.html" class="footer-link">หน้าแรก</a>
+        <a href="./classroom.html" class="footer-link">ธุรการในชั้นเรียน</a>
+        <a href="./pa.html" class="footer-link">รายงาน PA</a>
+        <a href="./admin.html" class="footer-admin-entry" title="เข้าสู่ส่วนจัดการเว็บไซต์">
+          <span>🔒</span> จัดการเว็บไซต์
         </a>
       </div>
     </div>

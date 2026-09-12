@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#7054A4">
-  <title>ระบบจัดการ — Suttinee Teacher Workspace Admin</title>
+  <title>จัดการเว็บไซต์ — Suttinee Teacher Workspace</title>
   <link rel="icon" type="image/png" href="./assets/school_logo.png">
 
   <!-- CSS Design System -->
@@ -23,21 +23,18 @@
   <div id="top-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
 
   <!-- Admin Login View (Shown when not authenticated) -->
-  <div id="admin-login-view" class="container d-flex flex-column align-center justify-center" style="min-height: 90vh;">
+  <div id="admin-login-view" class="container d-flex flex-column align-center justify-center" style="min-height: 85vh;">
     <div class="admin-login-card animate-slide-up">
-      <div style="font-size: 3rem; margin-bottom: var(--space-3);">🌸</div>
-      <h1 style="font-size: var(--font-size-xl); margin-bottom: var(--space-1); color: var(--purple-900);">เข้าสู่ระบบจัดการ</h1>
+      <div style="font-size: 3rem; margin-bottom: var(--space-2);">🌸</div>
+      <h1 style="font-size: var(--font-size-xl); margin-bottom: var(--space-1); color: var(--purple-900);">จัดการเว็บไซต์</h1>
       <p class="text-secondary mb-6" style="font-size: var(--font-size-sm);">
-        Suttinee Teacher Workspace · นางสาวศุทธินี ถาวร
+        นางสาวศุทธินี ถาวร · โรงเรียนชุมชนแม่ลาศึกษา
       </p>
 
       <form id="admin-login-form">
         <div class="form-group text-left">
-          <label for="admin-password" class="form-label">รหัสผ่านผู้ดูแลระบบ</label>
-          <input type="password" id="admin-password" class="form-control" placeholder="กรอกรหัสผ่านเพื่อจัดการข้อมูล" required autofocus>
-          <div class="form-hint" id="mock-login-hint">
-            💡 โหมดทดสอบ (Mock Mode): สามารถใช้ <code>DEV ONLY</code> หรือ <code>admin123</code>
-          </div>
+          <label for="admin-password" class="form-label">รหัสผ่าน</label>
+          <input type="password" id="admin-password" class="form-control" placeholder="กรอกรหัสผ่านเพื่อเข้าสู่ระบบ" required autofocus>
         </div>
         <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
           เข้าสู่ระบบ &rarr;
@@ -59,20 +56,19 @@
     <header class="site-header" style="background: var(--surface-card);">
       <div class="header-inner">
         <div class="d-flex align-center gap-3">
-          <img src="./assets/fallback/profile.svg" alt="ครูศุทธินี" class="brand-avatar">
+          <img src="./assets/fallback/profile.svg" alt="ครูศุทธินี" class="brand-avatar" id="admin-top-avatar">
           <div>
             <div class="font-semibold" style="font-size: var(--font-size-sm); color: var(--purple-900);">
-              ระบบจัดการ Suttinee Workspace
+              จัดการเว็บไซต์ · ครูศุทธินี ถาวร
             </div>
             <div class="text-muted" style="font-size: var(--font-size-xs);">
               <span class="badge badge-purple" id="admin-active-year-badge">ปีการศึกษา 2569</span>
-              <span id="admin-mode-badge" class="badge badge-sage" style="margin-left: 4px;">Mock Mode</span>
             </div>
           </div>
         </div>
 
         <div class="d-flex align-center gap-3">
-          <a href="./index.html" class="btn btn-subtle btn-sm" target="_blank" title="เปิดหน้าเว็บไซต์ในแท็บใหม่">
+          <a href="./index.html" class="btn btn-subtle btn-sm" target="_blank" title="เปิดดูหน้าเว็บไซต์ในแท็บใหม่">
             <span>🌐</span> ดูหน้าเว็บ
           </a>
           <button type="button" class="btn btn-danger btn-sm" id="btn-logout">
@@ -82,260 +78,72 @@
       </div>
     </header>
 
-    <!-- Admin Main Layout -->
-    <div class="admin-layout">
+    <!-- Admin Content Area -->
+    <main class="container py-6">
 
-      <!-- Admin Navigation Sidebar -->
-      <aside class="admin-sidebar">
-        <nav class="admin-nav" aria-label="Admin Navigation">
-          <button type="button" class="admin-nav-item active" data-admin-tab="overview">
-            <span>📊</span> ภาพรวมระบบ
+      <!-- Greeting & Year Bar -->
+      <div class="card mb-6 animate-fade-in" style="background: linear-gradient(135deg, rgba(248, 245, 255, 0.95) 0%, rgba(242, 236, 255, 0.9) 100%); border: 1px solid var(--border-light);">
+        <div class="d-flex align-center justify-between flex-wrap gap-4">
+          <div>
+            <h1 style="font-size: var(--font-size-xl); color: var(--purple-900); margin-bottom: 2px;">
+              จัดการเว็บไซต์
+            </h1>
+            <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 0;">
+              เลือกงานที่ต้องการแก้ไขหรือเพิ่มข้อมูล
+            </p>
+          </div>
+
+          <div class="d-flex align-center gap-2">
+            <span class="text-muted font-medium" style="font-size: var(--font-size-sm);">ปีการศึกษาที่กำลังจัดการ:</span>
+            <select id="admin-year-select" class="form-control" style="width: auto; padding: 6px 14px; font-weight: 600;">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Task-First Navigation Bar (Directive Section 15) -->
+      <div class="admin-task-menu-container mb-6">
+        <h2 class="text-purple font-semibold mb-3" style="font-size: var(--font-size-md);">
+          วันนี้ต้องการทำอะไร?
+        </h2>
+        <div class="admin-task-tabs">
+          <button type="button" class="admin-task-tab-btn active" data-task="home">
+            <span>🏠</span> แก้หน้าแรก
           </button>
-          <button type="button" class="admin-nav-item" data-admin-tab="upload">
-            <span>🚀</span> อัปโหลดหลักฐาน (Bulk Upload)
+          <button type="button" class="admin-task-tab-btn" data-task="classroom">
+            <span>🏫</span> แก้ธุรการในชั้นเรียน
           </button>
-          <button type="button" class="admin-nav-item" data-admin-tab="pa">
-            <span>📋</span> จัดการ ว.PA 15 ตัวชี้วัด
+          <button type="button" class="admin-task-tab-btn" data-task="pa">
+            <span>📋</span> แก้รายงาน PA
           </button>
-          <button type="button" class="admin-nav-item" data-admin-tab="students">
-            <span>👥</span> ทะเบียนนักเรียน
+          <button type="button" class="admin-task-tab-btn" data-task="upload">
+            <span>🚀</span> เพิ่มรูป / เพิ่มไฟล์
           </button>
-          <button type="button" class="admin-nav-item" data-admin-tab="years">
+          <button type="button" class="admin-task-tab-btn" data-task="years">
             <span>📅</span> จัดการปีการศึกษา
           </button>
-          <button type="button" class="admin-nav-item" data-admin-tab="appearance">
-            <span>🎨</span> ปรับแต่งการแสดงผล
-          </button>
-        </nav>
-
-        <!-- Developer Mode Utilities -->
-        <div style="margin-top: auto; padding-top: var(--space-4); border-top: 1px solid var(--border-light);">
-          <div class="text-muted mb-2" style="font-size: 0.7rem; text-transform: uppercase;">Developer Mode</div>
-          <button type="button" class="btn btn-subtle btn-sm" id="btn-reset-mock" style="width: 100%; font-size: var(--font-size-xs); color: var(--danger-deep);">
-            <span>🔄</span> รีเซ็ต Mock Database
-          </button>
         </div>
-      </aside>
+      </div>
 
-      <!-- Admin Content Area -->
-      <main class="admin-content">
+      <!-- TASK 1: แก้หน้าแรก -->
+      <section id="task-sec-home" class="admin-task-sec animate-fade-in">
+        <div class="card">
+          <h3 class="text-purple font-semibold mb-2" style="font-size: var(--font-size-lg);">
+            🏠 แก้ไขข้อมูลหน้าแรกและข้อมูลครู
+          </h3>
+          <p class="text-secondary mb-6" style="font-size: var(--font-size-sm);">
+            ปรับแต่งชื่อเว็บไซต์ ข้อมูลครู คำแนะนำตัว รูปโปรไฟล์ และภาพปกหลัก
+          </p>
 
-        <!-- 1. Overview Section -->
-        <section id="admin-sec-overview" class="admin-sec animate-fade-in">
-          <div class="admin-topbar">
-            <div>
-              <h2>ภาพรวมและสถานะระบบ</h2>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">
-                สถิติข้อมูลและการตั้งค่าปัจจุบันของเว็บไซต์
-              </p>
-            </div>
-            <div class="d-flex align-center gap-2">
-              <span class="text-muted" style="font-size: var(--font-size-xs);">ปีการศึกษาที่กำลังจัดการ:</span>
-              <select id="admin-year-select" class="form-control" style="width: auto; padding: 4px 10px;">
-                <!-- Populated dynamically -->
-              </select>
-            </div>
-          </div>
-
-          <div class="stats-strip">
-            <div class="stat-card">
-              <span class="stat-value" id="ad-stat-students">0</span>
-              <span class="stat-label">นักเรียนในชั้นเรียน (คน)</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-value" id="ad-stat-pa-items">0</span>
-              <span class="stat-label">รายการหลักฐาน ว.PA</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-value" id="ad-stat-cls-docs">0</span>
-              <span class="stat-label">เอกสารชั้นเรียน/ปพ.</span>
-            </div>
-            <div class="stat-card">
-              <span class="stat-value" id="ad-stat-years">0</span>
-              <span class="stat-label">ปีการศึกษาที่บันทึก</span>
-            </div>
-          </div>
-
-          <!-- Quick Actions Cards -->
-          <div class="modules-grid mt-6">
-            <div class="card card-interactive" onclick="document.querySelector('[data-admin-tab=upload]').click()">
-              <h3 style="font-size: var(--font-size-md); margin-bottom: var(--space-2);">🚀 อัปโหลดหลักฐานด่วน (Bulk Upload)</h3>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">
-                ลากไฟล์รูปภาพหรือ PDF หลายไฟล์พร้อมกันเพื่อสร้างหลักฐาน ว.PA ลงตัวชี้วัดที่เลือกโดยอัตโนมัติ
-              </p>
-            </div>
-            <div class="card card-interactive" onclick="document.querySelector('[data-admin-tab=appearance]').click()">
-              <h3 style="font-size: var(--font-size-md); margin-bottom: var(--space-2);">🎨 แก้ไขข้อมูลและภาพหน้าเว็บ</h3>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">
-                เปลี่ยนชื่อ ข้อความแนะนำ รูปโปรไฟล์ ภาพปกห้องเรียน และภาพปก ว.PA
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- 2. Bulk Upload Section -->
-        <section id="admin-sec-upload" class="admin-sec d-none">
-          <div class="admin-topbar">
-            <div>
-              <h2>อัปโหลดหลักฐานหลายไฟล์ (Bulk Upload UX)</h2>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">
-                ลากไฟล์หลายไฟล์ลงในกล่อง ระบบจะนำเข้าและสร้างรายการหลักฐานให้โดยอัตโนมัติ
-              </p>
-            </div>
-          </div>
-
-          <div class="card mb-6">
-            <div class="d-flex flex-wrap gap-4 mb-4">
-              <div class="form-group flex-1" style="min-width: 200px; margin-bottom: 0;">
-                <label class="form-label">ปีการศึกษาเป้าหมาย</label>
-                <select id="upload-target-year" class="form-control">
-                  <!-- Populated by JS -->
-                </select>
-              </div>
-
-              <div class="form-group flex-1" style="min-width: 260px; margin-bottom: 0;">
-                <label class="form-label">ผูกกับตัวชี้วัด ว.PA</label>
-                <select id="upload-target-section" class="form-control">
-                  <!-- Populated by JS -->
-                </select>
-              </div>
-            </div>
-
-            <!-- Dropzone -->
-            <div class="upload-dropzone" id="upload-dropzone">
-              <div class="dropzone-icon">📁</div>
-              <div class="font-semibold text-purple" style="font-size: var(--font-size-md);">
-                ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์
-              </div>
-              <p class="text-muted" style="font-size: var(--font-size-xs);">
-                รองรับไฟล์ PDF, รูปภาพ (PNG, JPG, WebP), Word, Excel (สูงสุด 10MB ต่อไฟล์)
-              </p>
-              <input type="file" id="file-input-hidden" multiple style="display: none;">
-            </div>
-
-            <!-- Upload Queue Header & Start Button -->
-            <div class="d-flex align-center justify-between mt-6">
-              <div class="font-semibold text-primary">
-                คิวรายการไฟล์ (<span id="queue-count">0</span> ไฟล์)
-              </div>
-              <div class="d-flex gap-2">
-                <button type="button" class="btn btn-subtle btn-sm" id="btn-clear-queue">ล้างคิว</button>
-                <button type="button" class="btn btn-primary" id="btn-start-upload" disabled>
-                  <span>⬆️</span> เริ่มอัปโหลดทั้งหมด
-                </button>
-              </div>
-            </div>
-
-            <!-- Queue List -->
-            <div class="upload-queue" id="upload-queue-list">
-              <div class="text-muted text-center" style="padding: 2rem; font-size: var(--font-size-sm);">
-                ยังไม่มีไฟล์ในคิวอัปโหลด
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- 3. PA Manager Section -->
-        <section id="admin-sec-pa" class="admin-sec d-none">
-          <div class="admin-topbar">
-            <div>
-              <h2>จัดการรายการ ว.PA 15 ตัวชี้วัด</h2>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">
-                ดูและจัดการหลักฐาน แสดง/ซ่อน หรือจัดเก็บเข้าคลังประวัติ
-              </p>
-            </div>
-          </div>
-
-          <div id="admin-pa-list" class="d-flex flex-column gap-4">
-            <!-- Populated by JS -->
-          </div>
-        </section>
-
-        <!-- 4. Students Manager Section -->
-        <section id="admin-sec-students" class="admin-sec d-none">
-          <div class="admin-topbar">
-            <div>
-              <h2>ทะเบียนนักเรียนในชั้นเรียน</h2>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">
-                จัดการรายชื่อนักเรียน เลขประจำตัว และข้อมูลประจำชั้น
-              </p>
-            </div>
-            <button type="button" class="btn btn-primary" id="btn-add-student">
-              <span>+</span> เพิ่มนักเรียนใหม่
-            </button>
-          </div>
-
-          <div class="table-responsive">
-            <table class="app-table">
-              <thead>
-                <tr>
-                  <th style="width: 70px; text-align: center;">เลขที่</th>
-                  <th style="width: 120px;">รหัสประจำตัว</th>
-                  <th>ชื่อ - นามสกุล</th>
-                  <th>ระดับชั้น</th>
-                  <th>สถานะ</th>
-                  <th style="text-align: right;">การกระทำ</th>
-                </tr>
-              </thead>
-              <tbody id="admin-students-tbody">
-                <!-- Populated by JS -->
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- 5. Year Management Section -->
-        <section id="admin-sec-years" class="admin-sec d-none">
-          <div class="admin-topbar">
-            <div>
-              <h2>จัดการปีการศึกษา</h2>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">
-                สร้างปีการศึกษาใหม่ หรือตั้งค่าปีปัจจุบัน
-              </p>
-            </div>
-            <button type="button" class="btn btn-primary" id="btn-create-year">
-              <span>+</span> สร้างปีการศึกษาใหม่
-            </button>
-          </div>
-
-          <div class="table-responsive">
-            <table class="app-table">
-              <thead>
-                <tr>
-                  <th>ปีการศึกษา</th>
-                  <th>ชื่อกำกับ</th>
-                  <th>สถานะ</th>
-                  <th>ปีปัจจุบัน (Default)</th>
-                  <th>ช่วงประเมิน ว.PA</th>
-                  <th>วันที่สร้าง</th>
-                </tr>
-              </thead>
-              <tbody id="admin-years-tbody">
-                <!-- Populated by JS -->
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <!-- 6. Appearance Section -->
-        <section id="admin-sec-appearance" class="admin-sec d-none">
-          <div class="admin-topbar">
-            <div>
-              <h2>ปรับแต่งการแสดงผลและข้อมูลครู</h2>
-              <p class="text-secondary" style="font-size: var(--font-size-sm);">
-                แก้ไขชื่อเว็บไซต์ ข้อมูลครู คำแนะนำตัว และภาพหน้าปก
-              </p>
-            </div>
-          </div>
-
-          <form id="form-appearance" class="card" style="max-width: 720px;">
+          <form id="form-appearance" style="max-width: 760px;">
             <div class="form-group">
               <label class="form-label" for="app-site-title">ชื่อเว็บไซต์</label>
               <input type="text" id="app-site-title" class="form-control" required>
             </div>
 
             <div class="form-group">
-              <label class="form-label" for="app-site-subtitle">คำบรรยายเว็บไซต์</label>
+              <label class="form-label" for="app-site-subtitle">คำอธิบายเว็บไซต์</label>
               <input type="text" id="app-site-subtitle" class="form-control" required>
             </div>
 
@@ -361,11 +169,11 @@
 
             <hr style="border: none; border-top: 1px solid var(--border-light); margin: var(--space-6) 0;">
 
-            <h3 style="font-size: var(--font-size-md); margin-bottom: var(--space-4);">รูปภาพและภาพปก</h3>
+            <h4 class="text-purple font-semibold mb-4">รูปภาพและภาพปกหน้าแรก</h4>
 
-            <div class="d-grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+            <div class="d-grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
               <div>
-                <label class="form-label">รูปภาพโปรไฟล์</label>
+                <label class="form-label">รูปภาพโปรไฟล์ครู</label>
                 <div class="image-preview-box mb-2">
                   <img id="prev-profile" src="./assets/fallback/profile.svg" alt="Preview Profile">
                 </div>
@@ -373,7 +181,7 @@
               </div>
 
               <div>
-                <label class="form-label">ภาพปกธุรการชั้นเรียน</label>
+                <label class="form-label">ภาพปกธุรการในชั้นเรียน</label>
                 <div class="image-preview-box mb-2">
                   <img id="prev-cls-cover" src="./assets/fallback/classroom-cover.svg" alt="Preview Classroom Cover">
                 </div>
@@ -381,7 +189,7 @@
               </div>
 
               <div>
-                <label class="form-label">ภาพปก ว.PA</label>
+                <label class="form-label">ภาพปกรายงาน PA</label>
                 <div class="image-preview-box mb-2">
                   <img id="prev-pa-cover" src="./assets/fallback/pa-cover.svg" alt="Preview PA Cover">
                 </div>
@@ -391,76 +199,286 @@
 
             <div class="d-flex justify-end mt-6">
               <button type="submit" class="btn btn-primary btn-lg">
-                <span>💾</span> บันทึกการเปลี่ยนแปลง
+                <span>💾</span> บันทึกข้อมูลหน้าแรก
               </button>
             </div>
           </form>
-        </section>
-
-      </main>
-    </div>
-  </div>
-
-  <!-- Submission Progress Overlay Component -->
-  <div id="submissionProgressOverlay" class="sub-progress-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="subProgressTitle">
-    <div class="sub-progress-card">
-      <div class="sub-progress-icon-wrap">
-        <span class="sub-progress-icon">🚀</span>
-        <div class="sub-progress-ring"></div>
-      </div>
-      <h3 id="subProgressTitle" class="sub-progress-title">กำลังนำส่งข้อมูลเข้าสู่ระบบ</h3>
-      <p id="subProgressSubtitle" class="sub-progress-subtitle">ระบบกำลังเตรียมนำส่งข้อมูลขึ้น Google Cloud...</p>
-
-      <div class="sub-progress-percent-box">
-        <span id="subProgressNumber" class="sub-progress-number">0</span>
-        <span class="sub-progress-unit">%</span>
-      </div>
-
-      <div class="sub-progress-track">
-        <div id="subProgressBarFill" class="sub-progress-fill" style="width: 0%;"></div>
-      </div>
-
-      <div class="sub-progress-steps">
-        <div class="sub-step-item" id="subStep1">
-          <span class="sub-step-icon">📋</span>
-          <span class="sub-step-text">1. ตรวจสอบข้อมูลในแบบฟอร์ม</span>
-          <span class="sub-step-badge">⏳</span>
         </div>
-        <div class="sub-step-item" id="subStep2">
-          <span class="sub-step-icon">🖼️</span>
-          <span class="sub-step-text">2. ประมวลผลและลดขนาดรูปภาพ (WebP)</span>
-          <span class="sub-step-badge">⏳</span>
-        </div>
-        <div class="sub-step-item" id="subStep3">
-          <span class="sub-step-icon">☁️</span>
-          <span class="sub-step-text">3. อัปโหลดไฟล์ขึ้น Google Drive</span>
-          <span class="sub-step-badge">⏳</span>
-        </div>
-        <div class="sub-step-item" id="subStep4">
-          <span class="sub-step-icon">📊</span>
-          <span class="sub-step-text">4. บันทึกข้อมูลลง Google Sheets</span>
-          <span class="sub-step-badge">⏳</span>
-        </div>
-        <div class="sub-step-item" id="subStep5">
-          <span class="sub-step-icon">✨</span>
-          <span class="sub-step-text">5. ตรวจสอบความสมบูรณ์และเสร็จสิ้น</span>
-          <span class="sub-step-badge">⏳</span>
-        </div>
-      </div>
+      </section>
 
-      <div class="sub-progress-warning">
-        <span class="sub-warning-icon">⚠️</span>
-        <div class="sub-warning-desc">
-          <strong>กรุณารอสักครู่ ห้ามปิดหน้าต่างหรือกดรีเฟรช (F5)</strong><br>
-          ระบบกำลังเชื่อมต่อ Google Drive และ Sheets เพื่อความสมบูรณ์ของข้อมูล
-        </div>
-      </div>
+      <!-- TASK 2: แก้ธุรการในชั้นเรียน -->
+      <section id="task-sec-classroom" class="admin-task-sec d-none">
+        <div class="card">
+          <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
+            <div>
+              <h3 class="text-purple font-semibold" style="font-size: var(--font-size-lg); margin-bottom: 2px;">
+                🏫 แก้ธุรการในชั้นเรียน
+              </h3>
+              <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 0;">
+                เลือกงานที่ต้องการแก้ไขหรือเพิ่มข้อมูล สำหรับปีการศึกษาที่เลือก
+              </p>
+            </div>
+            <a href="./classroom.html" target="_blank" class="btn btn-secondary btn-sm">
+              เปิดดูหน้าธุรการจริง &rarr;
+            </a>
+          </div>
 
-      <div id="subProgressError" class="sub-progress-error hidden">
-        <p id="subProgressErrorMsg" class="sub-error-text"></p>
-        <button type="button" id="subProgressRetryBtn" class="btn-sub-retry">ลองใหม่อีกครั้ง</button>
-      </div>
-    </div>
+          <div class="table-responsive">
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px; text-align: center;">ลำดับ</th>
+                  <th>ชื่องานธุรการ</th>
+                  <th>รายละเอียดข้อมูล</th>
+                  <th style="text-align: right; width: 180px;">การจัดการ</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="text-align: center;">1</td>
+                  <td class="font-semibold text-purple">👥 สมาชิกในห้องเรียน</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">รายชื่อ เลขประจำตัว และข้อมูลนักเรียน ป.1</td>
+                  <td style="text-align: right;">
+                    <button type="button" class="btn btn-primary btn-sm btn-cls-manage" data-job="students">แก้ไขรายชื่อ</button>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">2</td>
+                  <td class="font-semibold text-purple">📅 เช็กชื่อมาเรียน</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">บันทึกสถิติการมาเรียนประจำวัน</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=attendance" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">3</td>
+                  <td class="font-semibold text-purple">🪥 เช็กชื่อแปรงฟัน</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">บันทึกการแปรงฟันหลังอาหารกลางวัน</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=teeth" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">4</td>
+                  <td class="font-semibold text-purple">🥛 เช็กชื่อดื่มนม</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">บันทึกการดื่มนมโรงเรียนเพื่อสุขภาพ</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=milk" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">5</td>
+                  <td class="font-semibold text-purple">⚖️ น้ำหนัก / ส่วนสูง</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">ข้อมูลน้ำหนัก ส่วนสูง และดัชนีมวลกาย (BMI)</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=growth" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">6</td>
+                  <td class="font-semibold text-purple">🩺 บันทึกการตรวจสุขภาพ</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">การตรวจสุขภาพร่างกาย เล็บ ผม และช่องปาก</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=health" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">7</td>
+                  <td class="font-semibold text-purple">📝 แบบประเมิน SDQ</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">การคัดกรองพฤติกรรมเด็ก 5 ด้าน</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=sdq" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">8</td>
+                  <td class="font-semibold text-purple">📁 บันทึก ปพ.</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">สมุด ปพ.5 และ ปพ.6</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=pp" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">9</td>
+                  <td class="font-semibold text-purple">🎮 ทะเบียนสื่อ / แหล่งเรียนรู้</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">สื่อนวัตกรรมเกมภาษาไทยและสื่อการสอน</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=media" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">10</td>
+                  <td class="font-semibold text-purple">💬 บันทึก PLC</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">ชุมชนการเรียนรู้ทางวิชาชีพ</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=plc" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">11</td>
+                  <td class="font-semibold text-purple">🔬 วิจัยในชั้นเรียน</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">วิจัยพัฒนาการอ่านออกเขียนได้ STAD</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=research" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">12</td>
+                  <td class="font-semibold text-purple">📖 แผนการสอน</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">แผนการจัดการเรียนรู้ Active Learning</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=plan" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">13</td>
+                  <td class="font-semibold text-purple">🏆 ผลงานครู / เกียรติบัตร</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">เกียรติบัตร รางวัล และผลงานวิชาชีพ</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=awards" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">14</td>
+                  <td class="font-semibold text-purple">📘 รายงาน SAR</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">รายงานการประเมินตนเองครูผู้สอน</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=sar" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="text-align: center;">15</td>
+                  <td class="font-semibold text-purple">📎 เอกสารอื่น ๆ</td>
+                  <td class="text-secondary" style="font-size: var(--font-size-xs);">เลื่อนขั้นเงินเดือน และแบบฟอร์ม</td>
+                  <td style="text-align: right;">
+                    <a href="./classroom.html?view=other" target="_blank" class="btn btn-subtle btn-sm">เปิดจัดการ &rarr;</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TASK 3: แก้รายงาน PA -->
+      <section id="task-sec-pa" class="admin-task-sec d-none">
+        <div class="card">
+          <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
+            <div>
+              <h3 class="text-purple font-semibold" style="font-size: var(--font-size-lg); margin-bottom: 2px;">
+                📋 แก้รายงานผลการพัฒนางานตามข้อตกลง (PA)
+              </h3>
+              <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 0;">
+                สารบัญตัวชี้วัด 3 ด้าน 15 ตัวชี้วัด และประเด็นท้าทาย
+              </p>
+            </div>
+            <a href="./pa.html" target="_blank" class="btn btn-secondary btn-sm">
+              เปิดดูแฟ้ม PA จริง &rarr;
+            </a>
+          </div>
+
+          <div id="admin-pa-toc-list" class="d-flex flex-column gap-3">
+            <!-- Populated dynamically by admin.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TASK 4: เพิ่มรูป / เพิ่มไฟล์ (Bulk Upload) -->
+      <section id="task-sec-upload" class="admin-task-sec d-none">
+        <div class="card">
+          <h3 class="text-purple font-semibold mb-2" style="font-size: var(--font-size-lg);">
+            🚀 เพิ่มรูป / เพิ่มไฟล์หลักฐาน
+          </h3>
+          <p class="text-secondary mb-4" style="font-size: var(--font-size-sm);">
+            เลือกตัวชี้วัดที่ต้องการ แล้วลากไฟล์รูปภาพหรือ PDF หลายไฟล์พร้อมกัน ระบบจะนำเข้าให้อัตโนมัติ
+          </p>
+
+          <div class="d-flex flex-wrap gap-4 mb-4">
+            <div class="form-group flex-1" style="min-width: 200px; margin-bottom: 0;">
+              <label class="form-label">ปีการศึกษาเป้าหมาย</label>
+              <select id="upload-target-year" class="form-control">
+                <!-- Populated by JS -->
+              </select>
+            </div>
+
+            <div class="form-group flex-1" style="min-width: 280px; margin-bottom: 0;">
+              <label class="form-label">ผูกเข้ากับตัวชี้วัด / หัวข้อ</label>
+              <select id="upload-target-section" class="form-control">
+                <!-- Populated by JS -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Dropzone -->
+          <div class="upload-dropzone" id="upload-dropzone">
+            <div class="dropzone-icon">📁</div>
+            <div class="font-semibold text-purple" style="font-size: var(--font-size-md);">
+              ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์
+            </div>
+            <p class="text-muted" style="font-size: var(--font-size-xs);">
+              รองรับไฟล์ PDF, รูปภาพ (PNG, JPG, WebP), Word, Excel
+            </p>
+            <input type="file" id="file-input-hidden" multiple style="display: none;">
+          </div>
+
+          <!-- Upload Queue Header & Start Button -->
+          <div class="d-flex align-center justify-between mt-6">
+            <div class="font-semibold text-primary">
+              คิวรายการไฟล์ (<span id="queue-count">0</span> ไฟล์)
+            </div>
+            <div class="d-flex gap-2">
+              <button type="button" class="btn btn-subtle btn-sm" id="btn-clear-queue">ล้างคิว</button>
+              <button type="button" class="btn btn-primary" id="btn-start-upload" disabled>
+                <span>⬆️</span> เริ่มอัปโหลดทั้งหมด
+              </button>
+            </div>
+          </div>
+
+          <!-- Queue List -->
+          <div class="upload-queue mt-3" id="upload-queue-list">
+            <div class="text-muted text-center py-6" style="font-size: var(--font-size-sm);">
+              ยังไม่มีไฟล์ในคิวอัปโหลด
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TASK 5: จัดการปีการศึกษา -->
+      <section id="task-sec-years" class="admin-task-sec d-none">
+        <div class="card">
+          <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
+            <div>
+              <h3 class="text-purple font-semibold" style="font-size: var(--font-size-lg); margin-bottom: 2px;">
+                📅 จัดการปีการศึกษา
+              </h3>
+              <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 0;">
+                รายการปีการศึกษาที่บันทึกข้อมูลไว้ และการเพิ่มปีการศึกษาใหม่
+              </p>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-create-year">
+              <span>+</span> เพิ่มปีการศึกษาใหม่
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="app-table">
+              <thead>
+                <tr>
+                  <th>ปีการศึกษา</th>
+                  <th>สถานะ</th>
+                  <th style="text-align: center;">ปีปัจจุบัน</th>
+                  <th>ช่วงประเมิน ว.PA</th>
+                </tr>
+              </thead>
+              <tbody id="admin-years-tbody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
   </div>
 
   <!-- Toast Container -->

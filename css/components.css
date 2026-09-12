@@ -533,6 +533,47 @@ body.admin-mode .editable-section:hover {
   color: #D97706;
 }
 
+body.admin-mode .btn-inline-edit {
+  border-color: #D97706;
+  opacity: 1;
+}
+
+/* Header Brand Inline Edit Positioning */
+.header-brand-wrap {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.header-brand-wrap .btn-inline-edit {
+  position: relative;
+  top: auto;
+  right: auto;
+  margin-left: 12px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+}
+
+/* Gateway Card Inline Edit Positioning */
+.gateway-card {
+  position: relative;
+}
+
+.gateway-card .btn-inline-edit {
+  top: 14px;
+  right: 14px;
+  z-index: 25;
+}
+
+.icon-pick-btn {
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.icon-pick-btn:hover {
+  transform: scale(1.18);
+  background: var(--purple-100);
+}
+
 /* Floating Admin Status Bar */
 .admin-status-bar {
   position: fixed;

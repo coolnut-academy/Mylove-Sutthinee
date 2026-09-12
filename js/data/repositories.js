@@ -52,13 +52,19 @@ export class ClassroomRepository {
 
   async saveStudent(payload) {
     const res = await this.provider.saveStudent(payload);
-    Cache.invalidate(`classroom:${payload.year}`);
+    Cache.invalidate('classroom');
     return res;
   }
 
   async saveDocument(payload) {
     const res = await this.provider.saveClassroomDocument(payload);
-    Cache.invalidate(`classroom:${payload.year}`);
+    Cache.invalidate('classroom');
+    return res;
+  }
+
+  async deleteDocument(id, year) {
+    const res = await this.provider.deleteItem(id);
+    Cache.invalidate('classroom');
     return res;
   }
 }
@@ -78,8 +84,22 @@ export class PaRepository {
     return Cache.swr(key, () => this.provider.getPaItems({ year, sectionCode }));
   }
 
+  async getPaData(year) {
+    const [sections, items] = await Promise.all([
+      this.getSections(year),
+      this.getItems(year)
+    ]);
+    return { sections: sections || [], items: items || [] };
+  }
+
   async saveItem(payload) {
     const res = await this.provider.savePaItem(payload);
+    Cache.invalidate(`pa_items`);
+    return res;
+  }
+
+  async deleteItem(id) {
+    const res = await this.provider.deleteItem(id);
     Cache.invalidate(`pa_items`);
     return res;
   }
@@ -96,3 +116,4 @@ export class PaRepository {
     return res;
   }
 }
+

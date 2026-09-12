@@ -55,6 +55,7 @@
   /* --- Neutral & Surface Tokens --- */
   --surface-body: #FAF7FE;
   --surface-card: #FFFFFF;
+  --bg-card: #FFFFFF;
   --surface-card-subtle: #FDFBFF;
   --surface-glass: rgba(255, 255, 255, 0.88);
   --surface-glass-border: rgba(169, 134, 222, 0.18);

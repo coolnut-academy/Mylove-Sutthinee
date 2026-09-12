@@ -33,6 +33,14 @@ export class BaseDataProvider {
     throw new Error("getPaItems not implemented");
   }
 
+  async getPaData(year) {
+    const [sections, items] = await Promise.all([
+      this.getPaSections(year),
+      this.getPaItems({ year })
+    ]);
+    return { sections: sections || [], items: items || [] };
+  }
+
   async getItem(id) {
     throw new Error("getItem not implemented");
   }
@@ -75,6 +83,10 @@ export class BaseDataProvider {
 
   async archiveItem({ id, entity, archived }) {
     throw new Error("archiveItem not implemented");
+  }
+
+  async deleteItem(id) {
+    throw new Error("deleteItem not implemented");
   }
 
   async uploadFile(fileData) {

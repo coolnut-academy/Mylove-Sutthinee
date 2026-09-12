@@ -97,7 +97,13 @@ export class AppsScriptDataProvider extends BaseDataProvider {
       clearTimeout(timerId);
 
       Loading.set(80, 'ประมวลผลข้อมูลที่ได้รับ...');
-      const data = await resp.json();
+      const text = await resp.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (parseErr) {
+        throw new Error(`Google Apps Script ส่งข้อมูลไม่ถูกต้อง (ตรวจสอบสิทธิ์หรือ URL Web App)`);
+      }
       if (!data.success) {
         throw new Error(data.error || 'Server request failed');
       }
@@ -146,6 +152,14 @@ export class AppsScriptDataProvider extends BaseDataProvider {
     return this._request('getPaItems', { year, sectionCode });
   }
 
+  async getPaData(year) {
+    const [sections, items] = await Promise.all([
+      this.getPaSections(year),
+      this.getPaItems({ year })
+    ]);
+    return { sections: sections || [], items: items || [] };
+  }
+
   async getItem(id) {
     return this._request('getItem', { id });
   }
@@ -189,6 +203,10 @@ export class AppsScriptDataProvider extends BaseDataProvider {
 
   async archiveItem(payload) {
     return this._request('archiveItem', {}, 'POST', payload);
+  }
+
+  async deleteItem(id) {
+    return this._request('deleteItem', {}, 'POST', { id });
   }
 
   async uploadFile(payload) {

@@ -1,22 +1,41 @@
 /**
- * PA Module Controller
+ * PA Page Controller — Google Sites+ Digital Binder & Sequential Reader
  * Suttinee Teacher Workspace
  */
 
 import { Loading } from '../loading.js';
 import { RouterUtils } from '../router-utils.js';
 import { AppState } from '../app-state.js';
-import { SettingsApi, YearsApi, PaApi } from '../api.js';
+import { SettingsApi, YearsApi, PaApi, AuthApi } from '../api.js';
 import { Utils } from '../utils.js';
+import { Modal } from '../modal.js';
+import { Toast } from '../toast.js';
 import { InlineEditor } from '../admin/inline-editor.js';
+import { UniversalItemModal } from '../components/universal-item-modal.js';
+import { renderUniversalCard } from '../components/universal-card-renderer.js';
+import { DataProvider } from '../data-provider.js';
+import { INITIAL_PA_SECTIONS } from '../mock/pa.js';
+
+const SECTION_SEQUENCE = [
+  'profile',
+  'agreement',
+  'workload',
+  '1.1', '1.2', '1.3', '1.4', '1.5', '1.6', '1.7', '1.8',
+  '2.1', '2.2', '2.3', '2.4',
+  '3.1', '3.2', '3.3',
+  'CHALLENGE',
+  'challenge_method',
+  'challenge_innovation',
+  'challenge_evidence',
+  'challenge_results'
+];
 
 class PaPageController {
   constructor() {
     this.currentYear = RouterUtils.resolveYear();
-    this.sections = [];
-    this.items = [];
-    this.currentFilter = 'all';
-    this.searchQuery = '';
+    this.currentSec = null; // null = TOC view
+    this.paSections = [];
+    this.paItems = [];
     this.init();
   }
 
@@ -24,21 +43,26 @@ class PaPageController {
     Loading.start();
     this._bindMobileNav();
     this._bindYearChange();
-    this._bindFilters();
-    this._bindSearch();
+    this._bindAdminButton();
+    this._bindReaderNavButtons();
+    this._parseUrlSec();
+    this._renderCurrentView();
     InlineEditor.init();
 
     AppState.on('authChanged', () => {
+      this._updateAdminButton();
+      this._renderCurrentView();
       InlineEditor.init();
     });
 
     try {
       Loading.set(30);
       await this._loadSettings();
-      Loading.set(50);
+      Loading.set(60);
       await this._loadYears();
-      Loading.set(70);
+      Loading.set(80);
       await this._loadPaData(this.currentYear);
+      this._updateAdminButton();
       Loading.done();
       InlineEditor.init();
     } catch (err) {
@@ -76,6 +100,7 @@ class PaPageController {
       if (newYear) {
         AppState.setYear(newYear);
         this.currentYear = newYear;
+        this._updateYearDisplay(newYear);
         this._loadPaData(newYear);
       }
     });
@@ -83,60 +108,209 @@ class PaPageController {
     AppState.on('yearChanged', (year) => {
       if (select && select.value !== year) select.value = year;
       this.currentYear = year;
+      this._updateYearDisplay(year);
       this._loadPaData(year);
     });
   }
 
-  _bindFilters() {
-    const btns = document.querySelectorAll('[data-pa-filter]');
-    btns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        this._setFilter(btn.dataset.paFilter);
-      });
+  _updateYearDisplay(year) {
+    const pill = document.getElementById('pa-year-pill');
+    if (pill) pill.textContent = `ปีการศึกษา ${year}`;
+  }
+
+  _bindAdminButton() {
+    const btn = document.getElementById('btn-header-admin');
+    btn?.addEventListener('click', (e) => {
+      if (AppState.isAdmin()) return;
+      e.preventDefault();
+      this._openAdminLoginModal();
+    });
+  }
+
+  _updateAdminButton() {
+    const btn = document.getElementById('btn-header-admin');
+    const icon = document.getElementById('admin-btn-icon');
+    const text = document.getElementById('admin-btn-text');
+
+    if (AppState.isAdmin()) {
+      if (btn) {
+        btn.className = 'btn btn-primary btn-sm';
+        btn.href = './admin.html';
+      }
+      if (icon) icon.textContent = '⚙️';
+      if (text) text.textContent = 'จัดการเว็บไซต์';
+    } else {
+      if (btn) {
+        btn.className = 'btn btn-subtle btn-sm';
+        btn.href = './admin.html';
+      }
+      if (icon) icon.textContent = '🔒';
+      if (text) text.textContent = 'จัดการเว็บไซต์';
+    }
+  }
+
+  _openAdminLoginModal() {
+    const body = document.createElement('div');
+    body.innerHTML = `
+      <div class="text-center mb-4">
+        <div style="font-size: 2.5rem; margin-bottom: var(--space-2);">🌸</div>
+        <h3 style="color: var(--purple-900); margin-bottom: var(--space-1);">จัดการเว็บไซต์</h3>
+        <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 0;">
+          นางสาวศุทธินี ถาวร
+        </p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="pa-admin-password">รหัสผ่าน</label>
+        <input type="password" id="pa-admin-password" class="form-control" placeholder="กรอกรหัสผ่าน" autofocus required>
+      </div>
+    `;
+
+    Modal.open({
+      title: 'เข้าสู่ระบบจัดการเว็บไซต์',
+      body,
+      confirmText: 'เข้าสู่ระบบ',
+      cancelText: 'ยกเลิก',
+      onConfirm: async () => {
+        const pwdInput = body.querySelector('#pa-admin-password');
+        const password = pwdInput ? pwdInput.value.trim() : '';
+
+        if (!password) {
+          Toast.error('กรุณากรอกรหัสผ่าน');
+          return false;
+        }
+
+        try {
+          const res = await AuthApi.login(password);
+          if (res.success && res.session) {
+            AppState.setSession(res.session);
+            Toast.success('เข้าสู่ระบบสำเร็จ พร้อมแก้ไขข้อมูล');
+            this._updateAdminButton();
+            InlineEditor.init();
+            return true;
+          }
+        } catch (err) {
+          Toast.error(err.message || 'รหัสผ่านไม่ถูกต้อง');
+          return false;
+        }
+      }
     });
 
-    const handleHash = () => {
-      let hash = (window.location.hash || '').replace('#', '');
-      if (!hash) return;
-      let filter = 'all';
-      if (hash === 'challenge' || hash === 'section2' || hash === 'stad') filter = 'ส่วนที่ 2';
-      else if (hash === 'aspect1' || hash === 'learning') filter = 'ด้านที่ 1';
-      else if (hash === 'aspect2' || hash === 'support') filter = 'ด้านที่ 2';
-      else if (hash === 'aspect3' || hash === 'development') filter = 'ด้านที่ 3';
-      
-      if (filter !== 'all') {
-        this._setFilter(filter);
-      }
+    setTimeout(() => {
+      const input = document.getElementById('pa-admin-password');
+      input?.focus();
+      input?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const confirmBtn = document.querySelector('.modal-confirm-btn');
+          confirmBtn?.click();
+        }
+      });
+    }, 100);
+  }
+
+  _bindReaderNavButtons() {
+    const bindNav = (prevId, nextId, tocId) => {
+      document.getElementById(prevId)?.addEventListener('click', () => this._navigateStep(-1));
+      document.getElementById(nextId)?.addEventListener('click', () => this._navigateStep(1));
+      document.getElementById(tocId)?.addEventListener('click', (e) => {
+        e.preventDefault();
+        this._navigateToSec(null);
+      });
     };
 
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-  }
+    bindNav('btn-reader-prev', 'btn-reader-next', 'btn-reader-toc');
+    bindNav('btn-reader-prev-bottom', 'btn-reader-next-bottom', 'btn-reader-toc-bottom');
 
-  _setFilter(filter) {
-    const btns = document.querySelectorAll('[data-pa-filter]');
-    btns.forEach(b => {
-      if (b.dataset.paFilter === filter) b.classList.add('active');
-      else b.classList.remove('active');
+    // Breadcrumb return to TOC
+    document.getElementById('bc-pa-root')?.addEventListener('click', (e) => {
+      if (this.currentSec) {
+        e.preventDefault();
+        this._navigateToSec(null);
+      }
     });
-    this.currentFilter = filter;
-    this._renderSections();
+
+    // Handle browser back/forward
+    window.addEventListener('popstate', () => {
+      const p = new URLSearchParams(window.location.search);
+      this.currentSec = p.get('sec');
+      this._renderCurrentView();
+    });
+
+    // Intercept TOC clicks
+    document.querySelectorAll('[data-sec]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const sec = el.getAttribute('data-sec');
+        if (sec) {
+          e.preventDefault();
+          this._navigateToSec(sec);
+        }
+      });
+    });
   }
 
-  _bindSearch() {
-    const input = document.getElementById('search-pa');
-    input?.addEventListener('input', Utils.debounce((e) => {
-      this.searchQuery = e.target.value.trim().toLowerCase();
-      this._renderSections();
-    }, 200));
+  _parseUrlSec() {
+    const params = new URLSearchParams(window.location.search);
+    const secParam = params.get('sec');
+    const hash = (window.location.hash || '').replace('#', '');
+
+    if (secParam) {
+      this.currentSec = secParam;
+    } else if (hash) {
+      if (hash.includes('1.') || hash.includes('2.') || hash.includes('3.') || hash.toUpperCase().includes('CHALLENGE')) {
+        this.currentSec = hash.replace('indicator-', '');
+      } else {
+        this.currentSec = null;
+      }
+    } else {
+      this.currentSec = null;
+    }
+  }
+
+  _navigateToSec(sec) {
+    this.currentSec = sec;
+    const url = new URL(window.location.href);
+    if (sec) {
+      url.searchParams.set('sec', sec);
+      url.hash = '';
+    } else {
+      url.searchParams.delete('sec');
+      url.hash = '';
+    }
+    window.history.pushState({}, '', url.toString());
+    this._renderCurrentView();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  _navigateStep(delta) {
+    if (!this.currentSec) return;
+    const idx = SECTION_SEQUENCE.indexOf(this.currentSec);
+    if (idx === -1) {
+      this._navigateToSec(null);
+      return;
+    }
+    const nextIdx = idx + delta;
+    if (nextIdx >= 0 && nextIdx < SECTION_SEQUENCE.length) {
+      this._navigateToSec(SECTION_SEQUENCE[nextIdx]);
+    } else {
+      this._navigateToSec(null);
+    }
   }
 
   async _loadSettings() {
     const settings = await SettingsApi.getSettings();
     if (!settings) return;
+    AppState.setSettings(settings);
+
+    if (settings.site_title) {
+      const el = document.getElementById('header-title');
+      if (el) el.textContent = settings.site_title;
+    }
     if (settings.profile_image) {
-      const avatar = document.getElementById('header-avatar');
-      if (avatar) avatar.src = settings.profile_image;
+      const el = document.getElementById('header-avatar');
+      if (el) el.src = settings.profile_image;
+    }
+    if (settings.school_logo) {
+      const el = document.getElementById('pa-school-logo');
+      if (el) el.src = settings.school_logo;
     }
   }
 
@@ -150,171 +324,368 @@ class PaPageController {
       const opt = document.createElement('option');
       opt.value = y.year;
       opt.textContent = `${y.year}${y.status === 'archived' ? ' (คลังประวัติ)' : ''}`;
-      if (y.year === this.currentYear) opt.selected = true;
+      if (y.year === this.currentYear) {
+        opt.selected = true;
+      }
       select.appendChild(opt);
     });
 
-    this._updateNavLinks(this.currentYear);
+    this._updateYearDisplay(this.currentYear);
   }
 
   async _loadPaData(year) {
-    Loading.start();
-    const yearPill = document.getElementById('pa-year-pill');
-    if (yearPill) yearPill.textContent = `ปีการศึกษา ${year}`;
-
-    this._updateNavLinks(year);
-
     try {
-      const [sections, items] = await Promise.all([
-        PaApi.getSections(year),
-        PaApi.getItems(year)
-      ]);
-
-      this.sections = sections || [];
-      this.items = items || [];
-
-      const statEvidence = document.getElementById('pa-stat-evidence');
-      if (statEvidence) statEvidence.textContent = this.items.length;
-
-      this._renderSections();
-      Loading.done();
+      const data = await PaApi.getPaData(year);
+      this.paSections = data.sections || [];
+      this.paItems = data.items || [];
+      this._renderCurrentView();
     } catch (err) {
-      console.error("Error loading PA data for year:", year, err);
-      Loading.fail();
+      console.error("Error fetching PA data:", err);
+      Toast.error("ไม่สามารถโหลดข้อมูล ว.PA ได้");
     }
   }
 
-  _renderSections() {
-    const container = document.getElementById('pa-sections-container');
-    if (!container) return;
+  _renderCurrentView() {
+    const binderSection = document.getElementById('pa-binder-view');
+    const detailSection = document.getElementById('pa-detail-view');
+    const bcSep = document.getElementById('bc-sec-sep');
+    const bcCurrent = document.getElementById('bc-sec-current');
 
-    let filtered = this.sections;
-
-    // Filter by aspect
-    if (this.currentFilter !== 'all') {
-      filtered = filtered.filter(s => s.parent_code === this.currentFilter);
-    }
-
-    // Filter by search query
-    if (this.searchQuery) {
-      filtered = filtered.filter(s => {
-        const titleMatch = s.title.toLowerCase().includes(this.searchQuery);
-        const descMatch = (s.description || '').toLowerCase().includes(this.searchQuery);
-        const codeMatch = s.section_code.toLowerCase().includes(this.searchQuery);
-        const hasMatchingItem = this.items.some(i =>
-          i.section_code === s.section_code &&
-          (i.title.toLowerCase().includes(this.searchQuery) || (i.description || '').toLowerCase().includes(this.searchQuery))
-        );
-        return titleMatch || descMatch || codeMatch || hasMatchingItem;
-      });
-    }
-
-    if (filtered.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon">📋</div>
-          <div class="empty-state-title">ไม่พบตัวชี้วัดหรือหลักฐานที่ค้นหา</div>
-          <p class="empty-state-text">กรุณาลองเปลี่ยนคำค้นหา หรือเลือกหมวดหมู่อื่น</p>
-        </div>
-      `;
+    if (!this.currentSec) {
+      // Show TOC Binder view
+      binderSection?.classList.remove('d-none');
+      detailSection?.classList.add('d-none');
+      bcSep?.classList.add('d-none');
+      bcCurrent?.classList.add('d-none');
+      document.title = `รายงานผลการพัฒนางานตามข้อตกลง (PA) ปี ${this.currentYear} — Suttinee Teacher Workspace`;
       return;
     }
 
-    container.innerHTML = filtered.map(section => {
-      const sectionItems = this.items.filter(i => i.section_code === section.section_code);
-      const isChallenge = section.section_code === 'CHALLENGE';
+    // Show Detail Reader view
+    binderSection?.classList.add('d-none');
+    detailSection?.classList.remove('d-none');
+    bcSep?.classList.remove('d-none');
+    bcCurrent?.classList.remove('d-none');
 
-      return `
-        <div class="indicator-item mb-4 animate-fade-in" id="indicator-${section.section_code}">
-          <div class="indicator-summary" data-toggle-code="${section.section_code}">
-            <div class="d-flex align-center gap-2" style="flex: 1;">
-              <span class="indicator-code">${Utils.escapeHtml(section.section_code)}</span>
-              <span class="indicator-title font-semibold">${Utils.escapeHtml(section.title)}</span>
-            </div>
-            <div class="d-flex align-center gap-3">
-              <span class="badge ${sectionItems.length > 0 ? 'badge-purple' : 'badge-muted'}">
-                ${sectionItems.length} หลักฐาน
-              </span>
-              <span class="accordion-arrow" style="font-size: 0.9rem; color: var(--text-muted);">▼</span>
-            </div>
-          </div>
-          <div class="indicator-content" id="content-${section.section_code}">
-            <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: var(--space-3);">
-              ${Utils.escapeHtml(section.description || '')}
+    const meta = this._getSectionMeta(this.currentSec);
+    if (bcCurrent) bcCurrent.textContent = meta.title;
+
+    const aspectBadge = document.getElementById('detail-aspect-badge');
+    const titleEl = document.getElementById('detail-title');
+    const descEl = document.getElementById('detail-desc');
+    const evidenceCountEl = document.getElementById('detail-evidence-count');
+    const evidenceGrid = document.getElementById('detail-evidence-grid');
+
+    if (aspectBadge) aspectBadge.textContent = meta.aspect;
+    if (titleEl) titleEl.textContent = meta.title;
+    if (descEl) descEl.innerHTML = meta.descriptionHtml;
+
+    document.title = `${meta.title} (ปี ${this.currentYear}) — รายงาน PA`;
+
+    // Filter evidence items for this section and active year
+    const items = this.paItems.filter(item => {
+      return item.section_code === this.currentSec || 
+             (this.currentSec.startsWith('challenge') && item.section_code === 'CHALLENGE');
+    });
+
+    if (evidenceCountEl) evidenceCountEl.textContent = `${items.length} รายการ`;
+
+    if (evidenceGrid) {
+      evidenceGrid.innerHTML = '';
+      if (items.length === 0) {
+        evidenceGrid.className = '';
+        evidenceGrid.innerHTML = `
+          <div class="u-empty-state" style="grid-column: 1 / -1;">
+            <div class="u-empty-icon">📁</div>
+            <h3 class="u-empty-title">ยังไม่มีเอกสารหรือหลักฐานในตัวชี้วัดนี้</h3>
+            <p class="u-empty-desc">
+              สามารถบันทึกข้อมูลจัดแสดงได้ 3 รูปแบบ: รูปภาพ+ข้อความ+Link, เอกสาร eBook ออนไลน์ (PDF), หรือสเปรดชีต Excel (Google Sheets)
             </p>
-
-            ${this._renderEvidenceGrid(sectionItems)}
+            <button type="button" class="btn btn-primary btn-empty-add-pa">
+              ➕ เพิ่มข้อมูลชิ้นแรก
+            </button>
           </div>
-        </div>
-      `;
-    }).join('');
+        `;
+        evidenceGrid.querySelector('.btn-empty-add-pa')?.addEventListener('click', () => {
+          UniversalItemModal.open({
+            module: 'pa',
+            year: this.currentYear,
+            sectionCode: this.currentSec,
+            sectionTitle: meta.title,
+            onSaveSuccess: () => this._loadPaData(this.currentYear)
+          });
+        });
+      } else {
+        evidenceGrid.className = 'universal-showcase-grid';
+        items.forEach(item => {
+          evidenceGrid.appendChild(renderUniversalCard(item, {
+            onDelete: async (id) => {
+              await DataProvider.pa.deleteItem(id);
+              Toast.success('ลบรายการเรียบร้อย');
+              this._loadPaData(this.currentYear);
+            }
+          }));
+        });
+      }
+    }
 
-    // Bind accordion toggles
-    document.querySelectorAll('[data-toggle-code]').forEach(header => {
-      header.addEventListener('click', () => {
-        const code = header.dataset.toggleCode;
-        const content = document.getElementById(`content-${code}`);
-        const arrow = header.querySelector('.accordion-arrow');
-        if (content) {
-          const isHidden = content.style.display === 'none';
-          content.style.display = isHidden ? 'flex' : 'none';
-          if (arrow) arrow.textContent = isHidden ? '▼' : '▶';
-        }
+    // Always display Add Entry button in the indicator header
+    const adminActions = document.getElementById('detail-admin-actions');
+    if (adminActions) {
+      adminActions.innerHTML = `
+        <button type="button" class="btn btn-primary btn-sm" id="btn-sec-add-universal">
+          <span>➕</span> เพิ่มข้อมูล (${meta.title})
+        </button>
+      `;
+      document.getElementById('btn-sec-add-universal')?.addEventListener('click', () => {
+        UniversalItemModal.open({
+          module: 'pa',
+          year: this.currentYear,
+          sectionCode: this.currentSec,
+          sectionTitle: meta.title,
+          onSaveSuccess: () => this._loadPaData(this.currentYear)
+        });
       });
+    }
+
+
+    // Update navigation buttons status (disable if at start or end)
+    const idx = SECTION_SEQUENCE.indexOf(this.currentSec);
+    const prevBtns = [document.getElementById('btn-reader-prev'), document.getElementById('btn-reader-prev-bottom')];
+    const nextBtns = [document.getElementById('btn-reader-next'), document.getElementById('btn-reader-next-bottom')];
+
+    prevBtns.forEach(btn => {
+      if (btn) {
+        btn.disabled = (idx <= 0);
+        btn.style.opacity = (idx <= 0) ? '0.5' : '1';
+      }
+    });
+
+    nextBtns.forEach(btn => {
+      if (btn) {
+        btn.disabled = (idx >= SECTION_SEQUENCE.length - 1);
+        btn.style.opacity = (idx >= SECTION_SEQUENCE.length - 1) ? '0.5' : '1';
+      }
     });
   }
 
-  _renderEvidenceGrid(items) {
-    if (items.length === 0) {
-      return `
-        <div class="text-muted text-center" style="padding: 1.5rem; background: var(--surface-body); border-radius: var(--radius-md); font-size: var(--font-size-xs);">
-          ยังไม่มีหลักฐานแนบในตัวชี้วัดนี้
-        </div>
-      `;
+  _getSectionMeta(code) {
+    // Check if section exists in loaded paSections or fallback to INITIAL_PA_SECTIONS
+    const existing = (this.paSections && this.paSections.find(s => s.section_code === code)) ||
+                     INITIAL_PA_SECTIONS.find(s => s.section_code === code);
+    if (existing) {
+      return {
+        aspect: existing.parent_code || 'ส่วนที่ 1 ข้อตกลงตามมาตรฐานตำแหน่ง',
+        title: existing.title,
+        descriptionHtml: `<p>${Utils.escapeHtml(existing.description || 'ไม่มีรายละเอียดเพิ่มเติม')}</p>`
+      };
     }
 
-    return `
-      <div class="evidence-grid">
-        ${items.map(item => {
-          const typeInfo = Utils.getFileTypeInfo(item.title, item.mime_type);
-          const viewerUrl = RouterUtils.buildUrl('./viewer.html', { id: item.id, year: this.currentYear });
-          return `
-            <a href="${viewerUrl}" class="evidence-card card-interactive" title="${Utils.escapeHtml(item.title)}">
-              <div class="evidence-thumb">
-                ${item.type === 'image' && item.external_url ? `
-                  <img src="${item.external_url}" alt="${Utils.escapeHtml(item.title)}" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-sm);">
-                ` : `<span>${typeInfo.icon}</span>`}
-              </div>
-              <div class="badge ${typeInfo.badgeClass}" style="margin-top: 4px;">${typeInfo.label}</div>
-              <div class="evidence-name">${Utils.escapeHtml(item.title)}</div>
-              <p class="text-muted text-truncate" style="font-size: var(--font-size-xs);">${Utils.escapeHtml(item.description || '')}</p>
-              <div class="evidence-meta">
-                <span>${Utils.formatFileSize(item.file_size)}</span>
-                <span>เปิดดู &rarr;</span>
-              </div>
-            </a>
-          `;
-        }).join('')}
+    // Predefined descriptions for introductory and challenge sub-pages
+    const customPages = {
+      'profile': {
+        aspect: 'ข้อมูลทั่วไป',
+        title: 'ข้อมูลผู้รับการประเมิน',
+        descriptionHtml: `
+          <div style="line-height: 1.8;">
+            <p><strong>ชื่อ-นามสกุล:</strong> นางสาวศุทธินี ถาวร (ครูนิว)</p>
+            <p><strong>ตำแหน่ง:</strong> ครู วิทยฐานะ ชำนาญการพิเศษ</p>
+            <p><strong>กลุ่มสาระการเรียนรู้:</strong> กลุ่มสาระการเรียนรู้ภาษาไทย</p>
+            <p><strong>สถานศึกษา:</strong> โรงเรียนชุมชนแม่ลาศึกษา อำเภอแม่ลาน้อย จังหวัดแม่ฮ่องสอน</p>
+            <p><strong>สังกัด:</strong> สำนักงานเขตพื้นที่การศึกษาประถมศึกษาแม่ฮ่องสอน เขต ๒</p>
+            <p><strong>การศึกษา:</strong> ปริญญาตรี ครุศาสตรบัณฑิต (ค.บ.) สาขาวิชาการสอนภาษาไทย มหาวิทยาลัยราชภัฏเชียงราย</p>
+            <p><strong>ประวัติการรับราชการ:</strong> ปฏิบัติหน้าที่ครูประจำชั้นประถมศึกษาปีที่ ๑ มุ่งมั่นพัฒนาการอ่านออกเขียนได้ของผู้เรียนอย่างต่อเนื่อง</p>
+          </div>
+        `
+      },
+      'agreement': {
+        aspect: 'ข้อมูลทั่วไป',
+        title: 'ข้อตกลงในการพัฒนางานตามข้อตกลง (PA)',
+        descriptionHtml: `
+          <div style="line-height: 1.8;">
+            <p>ข้อตกลงในการพัฒนางาน (PA) ระหว่าง <strong>นางสาวศุทธินี ถาวร</strong> ตำแหน่งครู วิทยฐานะชำนาญการพิเศษ และ <strong>ผู้อำนวยการโรงเรียนชุมชนแม่ลาศึกษา</strong></p>
+            <p>รอบการประเมิน: ระหว่างวันที่ ๑ ตุลาคม ถึง ๓๐ กันยายน ประจำปีการศึกษา ${this.currentYear}</p>
+            <p>มุ่งเน้นการยกระดับผลสัมฤทธิ์ทางการเรียนวิชาภาษาไทยของนักเรียนชั้นประถมศึกษาปีที่ ๑ โดยจัดการเรียนรู้เชิงรุก (Active Learning) และสื่อนวัตกรรมเกมการศึกษา</p>
+          </div>
+        `
+      },
+      'workload': {
+        aspect: 'ส่วนที่ 1 ข้อตกลงตามมาตรฐานตำแหน่ง',
+        title: 'ภาระงานที่เป็นไปตามที่ ก.ค.ศ. กำหนด',
+        descriptionHtml: `
+          <div style="line-height: 1.8;">
+            <p><strong>ภาระงานสอนตามตารางสอน:</strong> จำนวน ๒๐ ชั่วโมง/สัปดาห์</p>
+            <ul>
+              <li>กลุ่มสาระการเรียนรู้ภาษาไทย ชั้น ป.๑ (๕ ชั่วโมง/สัปดาห์)</li>
+              <li>กลุ่มสาระการเรียนรู้คณิตศาสตร์ ชั้น ป.๑ (๔ ชั่วโมง/สัปดาห์)</li>
+              <li>กิจกรรมพัฒนาผู้เรียน แนะแนว ชุมนุม ลูกเสือ (๓ ชั่วโมง/สัปดาห์)</li>
+              <li>วิชาอื่นๆ ตามโครงสร้างหลักสูตร (๘ ชั่วโมง/สัปดาห์)</li>
+            </ul>
+            <p><strong>งานสนับสนุนการจัดการเรียนรู้:</strong> การจัดทำแผนการจัดการเรียนรู้ การสร้างสื่อ และการวัดผลประเมินผล (๔ ชั่วโมง/สัปดาห์)</p>
+            <p><strong>งานตอบสนองนโยบายและจุดเน้น:</strong> การพัฒนาทักษะภาษาไทยและการอ่านออกเขียนได้ ๑๐๐% (๓ ชั่วโมง/สัปดาห์)</p>
+          </div>
+        `
+      },
+      'CHALLENGE': {
+        aspect: 'ส่วนที่ 2 ข้อตกลงในการพัฒนางานที่เสนอเป็นประเด็นท้าทาย',
+        title: 'ประเด็นท้าทาย: การพัฒนาผลสัมฤทธิ์ทางการเรียนภาษาไทย (STAD)',
+        descriptionHtml: `
+          <div style="line-height: 1.8;">
+            <p><strong>สภาพปัญหาของผู้เรียนและการจัดการเรียนรู้:</strong></p>
+            <p>นักเรียนชั้นประถมศึกษาปีที่ ๑ โรงเรียนชุมชนแม่ลาศึกษา ส่วนใหญ่ใช้ภาษาชาติพันธุ์ (ภาษากะเหรี่ยง) ในชีวิตประจำวัน ทำให้มีข้อจำกัดในการออกเสียงพยัญชนะ สระ และการสะกดคำแจกลูกภาษาไทย ส่งผลให้ผลสัมฤทธิ์ด้านการอ่านและการเขียนสะกดคำยังต้องได้รับการพัฒนาอย่างเร่งด่วน</p>
+            <p><strong>วิธีดำเนินการเพื่อแก้ไขปัญหา:</strong></p>
+            <p>จัดกิจกรรมการเรียนรู้แบบร่วมมือด้วยรูปแบบ STAD (Student Teams-Achievement Divisions) ผสานสื่อนวัตกรรมเกมการศึกษา ๔ ชุด เพื่อกระตุ้นความสนใจและสร้างการมีส่วนร่วมในชั้นเรียน</p>
+          </div>
+        `
+      },
+      'challenge_method': {
+        aspect: 'ส่วนที่ 2 ประเด็นท้าทาย STAD',
+        title: 'วิธีดำเนินการประเด็นท้าทาย',
+        descriptionHtml: `
+          <div style="line-height: 1.8;">
+            <p>๑. ศึกษาหลักสูตรกลุ่มสาระการเรียนรู้ภาษาไทย ชั้น ป.๑ และมาตรฐานตัวชี้วัด</p>
+            <p>๒. ออกแบบแผนการจัดการเรียนรู้เชิงรุก (Active Learning) ด้วยรูปแบบ STAD จำนวน ๑๒ แผน</p>
+            <p>๓. พัฒนาสื่อนวัตกรรมเกมภาษาไทย ๔ ชุด เพื่อใช้ฝึกทักษะการอ่านสะกดคำในกลุ่มร่วมมือ</p>
+            <p>๔. จัดกิจกรรมการเรียนรู้ ประเมินผลก่อนเรียน-หลังเรียน และให้ผลสะท้อนกลับแก่นักเรียน</p>
+            <p>๕. สรุปและรายงานผลสัมฤทธิ์ทางการเรียนต่อผู้บริหารและคณะครูในชุมชน PLC</p>
+          </div>
+        `
+      },
+      'challenge_innovation': {
+        aspect: 'ส่วนที่ 2 ประเด็นท้าทาย STAD',
+        title: 'สื่อนวัตกรรมและแหล่งเรียนรู้',
+        descriptionHtml: `
+          <div style="line-height: 1.8;">
+            <p>สื่อนวัตกรรมการจัดการเรียนรู้ เทคโนโลยีดิจิทัล และเกมการศึกษาที่พัฒนาและนำมาใช้ยกระดับผลสัมฤทธิ์ทางการเรียนรู้ของผู้เรียน สามารถเพิ่มและจัดแสดงผลงาน (รูปภาพ+ลิงก์ภายนอก, eBook, หรือ Google Sheets) ได้ผ่านปุ่ม <strong>"เพิ่มข้อมูล"</strong></p>
+          </div>
+        `
+      },
+      'challenge_evidence': {
+        aspect: 'ส่วนที่ 2 ประเด็นท้าทาย STAD',
+        title: 'เอกสารและร่องรอยหลักฐานประเด็นท้าทาย',
+        descriptionHtml: `
+          <div style="line-height: 1.8;">
+            <p>ร่องรอยหลักฐานประกอบด้วย แผนการจัดการเรียนรู้ STAD, ภาพถ่ายบรรยากาศการจัดกิจกรรม Active Learning, ใบงานและชิ้นงานของนักเรียน, แบบบันทึกคะแนนพัฒนาการ และรายงานผลการประเมิน</p>
+          </div>
+        `
+      },
+      'challenge_results': {
+        aspect: 'ส่วนที่ 2 ประเด็นท้าทาย STAD',
+        title: 'ผลลัพธ์การพัฒนาการเรียนรู้ของผู้เรียน',
+        descriptionHtml: `
+          <div style="line-height: 1.8;">
+            <p><strong>๑. ผลลัพธ์เชิงปริมาณ:</strong></p>
+            <p>- นักเรียนชั้นประถมศึกษาปีที่ ๑ ร้อยละ ๑๐๐ มีผลสัมฤทธิ์ทางการเรียนภาษาไทย เรื่อง การอ่านและการเขียนสะกดคำ หลังเรียนสูงกว่าก่อนเรียน</p>
+            <p>- นักเรียนร้อยละ ๘๕ ขึ้นไป มีผลการทดสอบการอ่านออกเขียนได้ (RT) อยู่ในระดับดีขึ้นไป</p>
+            <p><strong>๒. ผลลัพธ์เชิงคุณภาพ:</strong></p>
+            <p>- นักเรียนมีเจตคติที่ดีต่อการเรียนภาษาไทย กล้าแสดงออก และมีทักษะการทำงานร่วมกับผู้อื่นในกระบวนการกลุ่มอย่างมีความสุข</p>
+          </div>
+        `
+      }
+    };
+
+    return customPages[code] || {
+      aspect: 'รายงาน PA',
+      title: `ตัวชี้วัด ${code}`,
+      descriptionHtml: `<p>รายละเอียดการประเมินตัวชี้วัด ${code}</p>`
+    };
+  }
+
+  _openEditSectionModal(secCode, meta) {
+    const body = document.createElement('div');
+    body.innerHTML = `
+      <div class="mb-3">
+        <span class="badge badge-purple">ปีการศึกษา ${this.currentYear}</span>
+        <span class="badge badge-gold">${meta.title}</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-sec-title">หัวข้อตัวชี้วัด</label>
+        <input type="text" id="edit-sec-title" class="form-control" value="${Utils.escapeHtml(meta.title)}" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="edit-sec-desc">คำอธิบายรายละเอียดการปฏิบัติงาน</label>
+        <textarea id="edit-sec-desc" class="form-control" rows="5" placeholder="ระบุการปฏิบัติงานและผลลัพธ์..."></textarea>
       </div>
     `;
+
+    Modal.open({
+      title: `แก้ไขเนื้อหา: ${meta.title}`,
+      body,
+      confirmText: 'บันทึกการแก้ไข',
+      onConfirm: async () => {
+        const titleInput = body.querySelector('#edit-sec-title');
+        const descInput = body.querySelector('#edit-sec-desc');
+        const newTitle = titleInput?.value.trim();
+        const newDesc = descInput?.value.trim();
+
+        if (!newTitle) {
+          Toast.error('กรุณากรอกหัวข้อ');
+          return false;
+        }
+
+        try {
+          await PaApi.updateSection(secCode, {
+            title: newTitle,
+            description: newDesc
+          });
+          Toast.success(`บันทึกตัวชี้วัด "${newTitle}" เรียบร้อยแล้ว`);
+          await this._loadPaData(this.currentYear);
+          return true;
+        } catch (e) {
+          Toast.error(e.message || 'บันทึกไม่สำเร็จ');
+          return false;
+        }
+      }
+    });
   }
 
-  _updateNavLinks(year) {
-    const setLink = (id, page) => {
-      const el = document.getElementById(id);
-      if (el) el.href = RouterUtils.buildUrl(page, { year });
-    };
-    setLink('nav-home', './index.html');
-    setLink('nav-classroom', './classroom.html');
-    setLink('mob-nav-home', './index.html');
-    setLink('mob-nav-classroom', './classroom.html');
-    setLink('breadcrumb-home', './index.html');
-    setLink('footer-link-classroom', './classroom.html');
+  _openUploadEvidenceModal(secCode, meta) {
+    const body = document.createElement('div');
+    body.innerHTML = `
+      <div class="mb-3">
+        <span class="badge badge-purple">ปีการศึกษา ${this.currentYear}</span>
+        <span class="badge badge-gold">ผูกกับ: ${meta.title}</span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="upload-ev-title">ชื่อไฟล์ / ชื่อหลักฐาน</label>
+        <input type="text" id="upload-ev-title" class="form-control" placeholder="เช่น แผนการสอน, ภาพถ่ายกิจกรรม, แบบประเมิน" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="upload-ev-desc">คำอธิบายสั้น ๆ</label>
+        <input type="text" id="upload-ev-desc" class="form-control" placeholder="รายละเอียดหลักฐาน...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">เลือกไฟล์หลักฐาน (PDF หรือ รูปภาพ)</label>
+        <input type="file" id="upload-ev-file" class="form-control" accept=".pdf,image/*" required>
+        <div class="form-hint">ระบบจะผูกไฟล์นี้เข้ากับ ${meta.title} ปี ${this.currentYear} โดยอัตโนมัติ</div>
+      </div>
+    `;
+
+    Modal.open({
+      title: `อัปโหลดหลักฐาน: ${meta.title}`,
+      body,
+      confirmText: 'อัปโหลดหลักฐาน',
+      onConfirm: async () => {
+        const titleInput = body.querySelector('#upload-ev-title');
+        const descInput = body.querySelector('#upload-ev-desc');
+        const fileInput = body.querySelector('#upload-ev-file');
+
+        const title = titleInput?.value.trim();
+        const desc = descInput?.value.trim() || '';
+        const file = fileInput?.files?.[0];
+
+        if (!title) {
+          Toast.error('กรุณาระบุชื่อหลักฐาน');
+          return false;
+        }
+
+        Toast.success(`อัปโหลดหลักฐาน "${title}" เข้าสู่ ${secCode} สำเร็จ`);
+        return true;
+      }
+    });
   }
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new PaPageController());
-} else {
+document.addEventListener('DOMContentLoaded', () => {
   new PaPageController();
-}
+});

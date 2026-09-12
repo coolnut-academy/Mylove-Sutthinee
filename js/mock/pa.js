@@ -1,5 +1,5 @@
 /**
- * Mock Performance Agreement (ว.PA) Dataset
+ * Performance Agreement (ว.PA) Dataset (Clean Slate)
  * Suttinee Teacher Workspace
  * Full 15 Indicators (Aspect 1: 1.1-1.8, Aspect 2: 2.1-2.4, Aspect 3: 3.1-3.3) + Part 2 Challenge
  */
@@ -8,7 +8,7 @@ const SECTIONS_DEF = [
   { code: "1.1", aspect: "ด้านที่ 1", title: "1.1 การสร้างและหรือพัฒนาหลักสูตร", desc: "จัดทำรายวิชาและหน่วยการเรียนรู้กลุ่มสาระภาษาไทยให้สอดคล้องกับมาตรฐานการเรียนรู้ และตัวชี้วัดหลักสูตรแกนกลาง" },
   { code: "1.2", aspect: "ด้านที่ 1", title: "1.2 การออกแบบการจัดการเรียนรู้", desc: "เน้นผู้เรียนเป็นสำคัญ ออกแบบกิจกรรมการเรียนรู้ Active Learning ฝึกทักษะการอ่านออกเขียนได้" },
   { code: "1.3", aspect: "ด้านที่ 1", title: "1.3 การจัดกิจกรรมการเรียนรู้", desc: "จัดการเรียนรู้เชิงรุก (Active Learning) ด้วยรูปแบบร่วมมือ STAD และกระบวนการกลุ่ม" },
-  { code: "1.4", aspect: "ด้านที่ 1", title: "1.4 การสร้างและหรือพัฒนาสื่อนวัตกรรม", desc: "พัฒนาสื่อนวัตกรรมเกมการศึกษาภาษาไทย 4 ชุด (วงล้อคำ, ตีตัวตุ่น, เครื่องบินชนคำ, ผสมคำ)" },
+  { code: "1.4", aspect: "ด้านที่ 1", title: "1.4 การสร้างและหรือพัฒนาสื่อนวัตกรรม", desc: "การสร้างและพัฒนาสื่อนวัตกรรม เทคโนโลยีดิจิทัล และแหล่งเรียนรู้เพื่อพัฒนาทักษะการเรียนรู้ของผู้เรียน" },
   { code: "1.5", aspect: "ด้านที่ 1", title: "1.5 การวัดและประเมินผลการเรียนรู้", desc: "วัดและประเมินผลด้วยเครื่องมือที่หลากหลาย รูบริกส์ แบบสังเกตพฤติกรรม และแบบทดสอบก่อน-หลังเรียน" },
   { code: "1.6", aspect: "ด้านที่ 1", title: "1.6 การศึกษา วิเคราะห์ สังเคราะห์ วิจัย", desc: "วิจัยในชั้นเรียนเพื่อแก้ไขปัญหาการอ่านและการเขียนสะกดคำภาษาไทยโดยใช้รูปแบบการเรียนรู้แบบร่วมมือ STAD" },
   { code: "1.7", aspect: "ด้านที่ 1", title: "1.7 การจัดบรรยากาศที่ส่งเสริมและพัฒนาผู้เรียน", desc: "จัดมุมส่งเสริมการอ่าน สื่อสร้างสรรค์ ป้ายนิเทศภาษาไทย บรรยากาศอบอุ่นและปลอดภัย" },
@@ -20,7 +20,7 @@ const SECTIONS_DEF = [
   { code: "3.1", aspect: "ด้านที่ 3", title: "3.1 การพัฒนาตนเองอย่างเป็นระบบและต่อเนื่อง", desc: "เข้ารับการอบรม สัมมนาเชิงปฏิบัติการ พัฒนาทักษะด้านภาษาไทยและเทคโนโลยีดิจิทัลทางการศึกษา" },
   { code: "3.2", aspect: "ด้านที่ 3", title: "3.2 การมีส่วนร่วมในการแลกเปลี่ยนเรียนรู้ทางวิชาชีพ (PLC)", desc: "เป็นผู้นำกลุ่ม PLC ขับเคลื่อนกระบวนการแก้ปัญหาการอ่านไม่ออกเขียนไม่ได้ในสถานศึกษา" },
   { code: "3.3", aspect: "ด้านที่ 3", title: "3.3 การนำความรู้ทักษะมาใช้พัฒนาการจัดการเรียนรู้", desc: "นำผลจากการอบรมและ PLC มาสร้างสรรค์นวัตกรรมและเผยแพร่ขยายผลสู่เพื่อนครูในระดับเขตพื้นที่" },
-  { code: "CHALLENGE", aspect: "ส่วนที่ 2", title: "ประเด็นท้าทายในการพัฒนาผลลัพธ์การเรียนรู้", desc: "การพัฒนาผลสัมฤทธิ์ทางการเรียนภาษาไทย เรื่อง การอ่านและการเขียนสะกดคำ โดยใช้รูปแบบการจัดการเรียนรู้แบบร่วมมือ STAD ร่วมกับสื่อนวัตกรรมเกมการศึกษา" }
+  { code: "CHALLENGE", aspect: "ส่วนที่ 2", title: "ประเด็นท้าทายในการพัฒนาผลลัพธ์การเรียนรู้", desc: "การพัฒนาผลสัมฤทธิ์ทางการเรียนรู้ของผู้เรียนตามประเด็นท้าทายในการพัฒนางานตามข้อตกลง" }
 ];
 
 export const INITIAL_PA_SECTIONS = [
@@ -50,216 +50,5 @@ export const INITIAL_PA_SECTIONS = [
   }))
 ];
 
-export const INITIAL_PA_ITEMS = [
-  // Year 2567 Items
-  {
-    id: "pa-2567-01",
-    year: "2567",
-    section_code: "1.1",
-    title: "หลักสูตรกลุ่มสาระการเรียนรู้ภาษาไทย ชั้น ป.1 และโครงสร้างรายวิชา",
-    description: "การวิเคราะห์หลักสูตร มาตรฐานการเรียนรู้ ตัวชี้วัด และสาระการเรียนรู้แกนกลาง โรงเรียนชุมชนแม่ลาศึกษา",
-    type: "pdf",
-    drive_file_id: "drive_mock_curriculum_2567",
-    external_url: "https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/view",
-    mime_type: "application/pdf",
-    file_size: 2450000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2023-10-10T10:00:00.000Z"
-  },
-  {
-    id: "pa-2567-02",
-    year: "2567",
-    section_code: "1.2",
-    title: "แผนการจัดการเรียนรู้ Active Learning ภาษาไทย (การอ่านสะกดคำแจกลูก)",
-    description: "ออกแบบการจัดกิจกรรมเชิงรุก เน้นผู้เรียนมีส่วนร่วมผ่านกระบวนการกลุ่มและเกมการศึกษา",
-    type: "pdf",
-    drive_file_id: "drive_mock_plan_2567",
-    external_url: "./assets/showcase/cover-lessonplan.svg",
-    mime_type: "application/pdf",
-    file_size: 3100000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2023-10-20T11:00:00.000Z"
-  },
-  {
-    id: "pa-2567-03",
-    year: "2567",
-    section_code: "1.3",
-    title: "ภาพถ่ายและร่องรอยกิจกรรมการเรียนรู้ Active Learning ในชั้นเรียน",
-    description: "บันทึกภาพบรรยากาศการจัดกิจกรรมการเรียนรู้แบบร่วมมือ STAD และการมีส่วนร่วมของนักเรียน ป.1",
-    type: "image",
-    drive_file_id: "drive_mock_active_photo_2567",
-    external_url: "./assets/fallback/classroom-cover.svg",
-    mime_type: "image/svg+xml",
-    file_size: 890000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2023-11-05T09:30:00.000Z"
-  },
-  {
-    id: "pa-2567-04",
-    year: "2567",
-    section_code: "1.4",
-    title: "สื่อนวัตกรรมเกมการศึกษาภาษาไทย 4 ชุด (Word Games Innovation)",
-    description: "เกมวงล้อคำหรรษา, เกมตีตัวตุ่นสระไทย, เกมเครื่องบินเหินเวหาล่าคำศัพท์, เกมจับคู่ต่อภาพผสมคำ",
-    type: "link",
-    drive_file_id: "drive_mock_games_2567",
-    external_url: "./assets/games/game-wheel.svg",
-    mime_type: "text/html",
-    file_size: 0,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2023-11-15T14:00:00.000Z"
-  },
-  {
-    id: "pa-2567-05",
-    year: "2567",
-    section_code: "1.6",
-    title: "รายงานวิจัยในชั้นเรียน เรื่อง การพัฒนาทักษะการอ่านและการเขียนสะกดคำ (STAD)",
-    description: "งานวิจัยปฏิบัติการในชั้นเรียนเพื่อยกระดับผลสัมฤทธิ์ทางการอ่านภาษาไทยสำหรับนักเรียนชั้น ป.1",
-    type: "pdf",
-    drive_file_id: "drive_mock_research_2567",
-    external_url: "./assets/showcase/cover-research.svg",
-    mime_type: "application/pdf",
-    file_size: 4200000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2024-01-15T10:00:00.000Z"
-  },
-  {
-    id: "pa-2567-06",
-    year: "2567",
-    section_code: "3.2",
-    title: "บันทึกชุมชนแห่งการเรียนรู้ทางวิชาชีพ (PLC) แก้ปัญหาการอ่านไม่ออกเขียนไม่ได้",
-    description: "การรวมกลุ่มแลกเปลี่ยนเรียนรู้ PLC ภาษาไทยก้าวไกล โรงเรียนชุมชนแม่ลาศึกษา",
-    type: "pdf",
-    drive_file_id: "drive_mock_plc_2567",
-    external_url: "./assets/showcase/cover-plc.svg",
-    mime_type: "application/pdf",
-    file_size: 2800000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2024-02-10T15:00:00.000Z"
-  },
-  {
-    id: "pa-2567-07",
-    year: "2567",
-    section_code: "CHALLENGE",
-    title: "รายงานผลการพัฒนางานตามข้อตกลงที่เป็นประเด็นท้าทาย (STAD Challenge Report)",
-    description: "สรุปผลการวิจัยและพัฒนาผลลัพธ์การเรียนรู้ของผู้เรียนผ่านรูปแบบ STAD บรรลุเป้าหมายตามเกณฑ์ 100%",
-    type: "pdf",
-    drive_file_id: "drive_mock_challenge_2567",
-    external_url: "https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/view",
-    mime_type: "application/pdf",
-    file_size: 5800000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2024-03-20T10:00:00.000Z"
-  },
-
-  // Year 2569 Items
-  {
-    id: "pa-2569-01",
-    year: "2569",
-    section_code: "1.1",
-    title: "เอกสารหลักสูตรกลุ่มสาระการเรียนรู้ภาษาไทยและโครงสร้างรายวิชา (2569)",
-    description: "วิเคราะห์มาตรฐานการเรียนรู้ ตัวชี้วัด และสาระการเรียนรู้แกนกลาง",
-    type: "pdf",
-    drive_file_id: "drive_mock_curriculum_2569",
-    external_url: "https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/view",
-    mime_type: "application/pdf",
-    file_size: 2450000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2025-10-10T10:00:00.000Z"
-  },
-  {
-    id: "pa-2569-02",
-    year: "2569",
-    section_code: "1.2",
-    title: "แผนการจัดการเรียนรู้เชิงรุก (Active Learning) หน่วยคำควบกล้ำ",
-    description: "การออกแบบกิจกรรมการเรียนรู้แบบเกมมิฟิเคชัน เสริมสร้างการมีส่วนร่วม",
-    type: "pdf",
-    drive_file_id: "drive_mock_active_plan_2569",
-    external_url: "./assets/showcase/cover-lessonplan.svg",
-    mime_type: "application/pdf",
-    file_size: 1850000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2025-10-15T11:00:00.000Z"
-  },
-  {
-    id: "pa-2569-03",
-    year: "2569",
-    section_code: "1.3",
-    title: "ภาพถ่ายและวิดีทัศน์การจัดกิจกรรมการเรียนรู้ในชั้นเรียน",
-    description: "บรรยากาศการเรียนรู้ของผู้เรียนร่วมกับชุดกิจกรรมการเรียนรู้",
-    type: "image",
-    drive_file_id: "drive_mock_classroom_act_photo",
-    external_url: "./assets/fallback/classroom-cover.svg",
-    mime_type: "image/svg+xml",
-    file_size: 890000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2025-11-05T09:30:00.000Z"
-  },
-  {
-    id: "pa-2569-04",
-    year: "2569",
-    section_code: "1.4",
-    title: "สื่อนวัตกรรมดิจิทัล บัตรคำหรรษา และสื่อการสอน Interactive",
-    description: "สื่อการสอนช่วยจำคำควบกล้ำและสระประสมสำหรับนักเรียนชั้นประถม",
-    type: "link",
-    drive_file_id: "drive_mock_digital_media",
-    external_url: "./assets/games/game-wheel.svg",
-    mime_type: "text/html",
-    file_size: 0,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2025-11-12T14:00:00.000Z"
-  },
-  {
-    id: "pa-2569-05",
-    year: "2569",
-    section_code: "3.2",
-    title: "รายงานการประชุมชุมชนแห่งการเรียนรู้ทางวิชาชีพ (PLC) ภาคเรียนที่ 1",
-    description: "บันทึกการแลกเปลี่ยนเรียนรู้ประเด็นการแก้ปัญหาการอ่านไม่ออกเขียนไม่ได้",
-    type: "pdf",
-    drive_file_id: "drive_mock_plc_report_2569",
-    external_url: "./assets/showcase/cover-plc.svg",
-    mime_type: "application/pdf",
-    file_size: 3200000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2025-11-25T16:00:00.000Z"
-  },
-  {
-    id: "pa-2569-06",
-    year: "2569",
-    section_code: "CHALLENGE",
-    title: "รายงานผลการดำเนินงานประเด็นท้าทาย (แบบสมบูรณ์)",
-    description: "สรุปผลสัมฤทธิ์ทางการเรียนเปรียบเทียบก่อนเรียนและหลังเรียน พร้อมผลงานนักเรียน",
-    type: "pdf",
-    drive_file_id: "drive_mock_challenge_final",
-    external_url: "https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/view",
-    mime_type: "application/pdf",
-    file_size: 4500000,
-    sort_order: 1,
-    published: true,
-    archived: false,
-    created_at: "2026-02-20T10:00:00.000Z"
-  }
-];
+// Clean Slate: Empty initial items, ready for fresh user entries
+export const INITIAL_PA_ITEMS = [];

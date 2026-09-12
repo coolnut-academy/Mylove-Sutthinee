@@ -1,21 +1,25 @@
 /**
- * Classroom Module Controller
+ * Classroom Page Controller — Google Sites+ Menu-First & One Page = One Job
  * Suttinee Teacher Workspace
  */
 
 import { Loading } from '../loading.js';
 import { RouterUtils } from '../router-utils.js';
 import { AppState } from '../app-state.js';
-import { SettingsApi, YearsApi, ClassroomApi } from '../api.js';
+import { SettingsApi, YearsApi, ClassroomApi, AuthApi } from '../api.js';
 import { Utils } from '../utils.js';
+import { Modal } from '../modal.js';
+import { Toast } from '../toast.js';
 import { InlineEditor } from '../admin/inline-editor.js';
+import { UniversalItemModal } from '../components/universal-item-modal.js';
+import { renderUniversalCard } from '../components/universal-card-renderer.js';
+import { DataProvider } from '../data-provider.js';
 
 class ClassroomPageController {
   constructor() {
     this.currentYear = RouterUtils.resolveYear();
+    this.currentView = null; // null = menu-first view
     this.classroomData = null;
-    this.allStudents = [];
-    this.allDocuments = [];
     this.init();
   }
 
@@ -23,22 +27,25 @@ class ClassroomPageController {
     Loading.start();
     this._bindMobileNav();
     this._bindYearChange();
-    this._bindTabs();
-    this._bindSearch();
-    this._bindDocumentFilters();
+    this._bindAdminButton();
+    this._parseUrlView();
+    this._renderCurrentView();
     InlineEditor.init();
 
     AppState.on('authChanged', () => {
+      this._updateAdminButton();
+      this._renderCurrentView();
       InlineEditor.init();
     });
 
     try {
       Loading.set(30);
       await this._loadSettings();
-      Loading.set(50);
+      Loading.set(60);
       await this._loadYears();
-      Loading.set(70);
+      Loading.set(80);
       await this._loadClassroomData(this.currentYear);
+      this._updateAdminButton();
       Loading.done();
       InlineEditor.init();
     } catch (err) {
@@ -76,6 +83,7 @@ class ClassroomPageController {
       if (newYear) {
         AppState.setYear(newYear);
         this.currentYear = newYear;
+        this._updateYearDisplay(newYear);
         this._loadClassroomData(newYear);
       }
     });
@@ -83,77 +91,179 @@ class ClassroomPageController {
     AppState.on('yearChanged', (year) => {
       if (select && select.value !== year) select.value = year;
       this.currentYear = year;
+      this._updateYearDisplay(year);
       this._loadClassroomData(year);
     });
   }
 
-  _bindTabs() {
-    const tabs = document.querySelectorAll('.tab-btn');
-    tabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        this._switchTab(tab.dataset.tab);
-      });
-    });
-
-    // Handle hash in URL (e.g. #tab-routines or #health)
-    const handleHash = () => {
-      let hash = (window.location.hash || '').replace('#', '');
-      if (!hash) return;
-      if (hash.startsWith('tab-')) hash = hash.replace('tab-', '');
-      if (hash === 'sdq') hash = 'health';
-      if (hash === 'overview') hash = 'members';
-      this._switchTab(hash);
-    };
-
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
+  _updateYearDisplay(year) {
+    const pill = document.getElementById('classroom-year-pill');
+    if (pill) pill.textContent = `ปีการศึกษา ${year}`;
   }
 
-  _switchTab(tabName) {
-    const tabs = document.querySelectorAll('.tab-btn');
-    const targetTabBtn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
-    if (!targetTabBtn) return;
-
-    tabs.forEach(t => t.classList.remove('active'));
-    targetTabBtn.classList.add('active');
-
-    document.querySelectorAll('.tab-content').forEach(section => {
-      section.classList.add('d-none');
+  _bindAdminButton() {
+    const btn = document.getElementById('btn-header-admin');
+    btn?.addEventListener('click', (e) => {
+      if (AppState.isAdmin()) return;
+      e.preventDefault();
+      this._openAdminLoginModal();
     });
+  }
 
-    const activeSection = document.getElementById(`tab-${tabName}`);
-    if (activeSection) {
-      activeSection.classList.remove('d-none');
-      activeSection.classList.add('animate-fade-in');
+  _updateAdminButton() {
+    const btn = document.getElementById('btn-header-admin');
+    const icon = document.getElementById('admin-btn-icon');
+    const text = document.getElementById('admin-btn-text');
+
+    if (AppState.isAdmin()) {
+      if (btn) {
+        btn.className = 'btn btn-primary btn-sm';
+        btn.href = './admin.html';
+      }
+      if (icon) icon.textContent = '⚙️';
+      if (text) text.textContent = 'จัดการเว็บไซต์';
+    } else {
+      if (btn) {
+        btn.className = 'btn btn-subtle btn-sm';
+        btn.href = './admin.html';
+      }
+      if (icon) icon.textContent = '🔒';
+      if (text) text.textContent = 'จัดการเว็บไซต์';
     }
   }
 
-  _bindSearch() {
-    const input = document.getElementById('search-students');
-    input?.addEventListener('input', Utils.debounce((e) => {
-      const query = e.target.value.trim().toLowerCase();
-      this._filterStudents(query);
-    }, 200));
+  _openAdminLoginModal() {
+    const body = document.createElement('div');
+    body.innerHTML = `
+      <div class="text-center mb-4">
+        <div style="font-size: 2.5rem; margin-bottom: var(--space-2);">🌸</div>
+        <h3 style="color: var(--purple-900); margin-bottom: var(--space-1);">จัดการเว็บไซต์</h3>
+        <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 0;">
+          นางสาวศุทธินี ถาวร
+        </p>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="cls-admin-password">รหัสผ่าน</label>
+        <input type="password" id="cls-admin-password" class="form-control" placeholder="กรอกรหัสผ่าน" autofocus required>
+      </div>
+    `;
+
+    Modal.open({
+      title: 'เข้าสู่ระบบจัดการเว็บไซต์',
+      body,
+      confirmText: 'เข้าสู่ระบบ',
+      cancelText: 'ยกเลิก',
+      onConfirm: async () => {
+        const pwdInput = body.querySelector('#cls-admin-password');
+        const password = pwdInput ? pwdInput.value.trim() : '';
+
+        if (!password) {
+          Toast.error('กรุณากรอกรหัสผ่าน');
+          return false;
+        }
+
+        try {
+          const res = await AuthApi.login(password);
+          if (res.success && res.session) {
+            AppState.setSession(res.session);
+            Toast.success('เข้าสู่ระบบสำเร็จ พร้อมแก้ไขข้อมูล');
+            this._updateAdminButton();
+            InlineEditor.init();
+            return true;
+          }
+        } catch (err) {
+          Toast.error(err.message || 'รหัสผ่านไม่ถูกต้อง');
+          return false;
+        }
+      }
+    });
+
+    setTimeout(() => {
+      const input = document.getElementById('cls-admin-password');
+      input?.focus();
+      input?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const confirmBtn = document.querySelector('.modal-confirm-btn');
+          confirmBtn?.click();
+        }
+      });
+    }, 100);
   }
 
-  _bindDocumentFilters() {
-    const btns = document.querySelectorAll('[data-doc-filter]');
-    btns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        btns.forEach(b => b.classList.remove('active', 'btn-primary'));
-        btn.classList.add('active', 'btn-primary');
-        const filter = btn.dataset.docFilter;
-        this._renderDocuments(filter);
+  _parseUrlView() {
+    const params = new URLSearchParams(window.location.search);
+    const viewParam = params.get('view');
+    const hash = (window.location.hash || '').replace('#', '');
+
+    if (viewParam) {
+      this.currentView = viewParam;
+    } else if (hash) {
+      // Compatibility with previous hashes
+      const mapping = {
+        'members': 'students',
+        'routines': 'attendance',
+        'health': 'health',
+        'documents': 'pp'
+      };
+      this.currentView = mapping[hash] || hash;
+    } else {
+      this.currentView = null;
+    }
+
+    // Handle back button
+    window.addEventListener('popstate', () => {
+      const p = new URLSearchParams(window.location.search);
+      this.currentView = p.get('view');
+      this._renderCurrentView();
+    });
+
+    const backBtn = document.getElementById('btn-back-to-menu');
+    backBtn?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this._navigateToJob(null);
+    });
+
+    // Intercept menu card clicks for fast, smooth in-page transitions
+    document.querySelectorAll('.cls-menu-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        const job = card.getAttribute('data-job');
+        if (job) {
+          e.preventDefault();
+          this._navigateToJob(job);
+        }
       });
     });
+  }
+
+  _navigateToJob(job) {
+    this.currentView = job;
+    const url = new URL(window.location.href);
+    if (job) {
+      url.searchParams.set('view', job);
+    } else {
+      url.searchParams.delete('view');
+    }
+    window.history.pushState({}, '', url.toString());
+    this._renderCurrentView();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   async _loadSettings() {
     const settings = await SettingsApi.getSettings();
     if (!settings) return;
+    AppState.setSettings(settings);
+
+    if (settings.site_title) {
+      const el = document.getElementById('header-title');
+      if (el) el.textContent = settings.site_title;
+    }
     if (settings.profile_image) {
-      const avatar = document.getElementById('header-avatar');
-      if (avatar) avatar.src = settings.profile_image;
+      const el = document.getElementById('header-avatar');
+      if (el) el.src = settings.profile_image;
+    }
+    if (settings.school_logo) {
+      const el = document.getElementById('cls-school-logo');
+      if (el) el.src = settings.school_logo;
     }
   }
 
@@ -167,213 +277,166 @@ class ClassroomPageController {
       const opt = document.createElement('option');
       opt.value = y.year;
       opt.textContent = `${y.year}${y.status === 'archived' ? ' (คลังประวัติ)' : ''}`;
-      if (y.year === this.currentYear) opt.selected = true;
+      if (y.year === this.currentYear) {
+        opt.selected = true;
+      }
       select.appendChild(opt);
     });
 
-    this._updateNavLinks(this.currentYear);
+    this._updateYearDisplay(this.currentYear);
   }
 
   async _loadClassroomData(year) {
-    Loading.start();
-    const yearPill = document.getElementById('classroom-year-pill');
-    if (yearPill) yearPill.textContent = `ปีการศึกษา ${year}`;
-
-    this._updateNavLinks(year);
-
     try {
       this.classroomData = await ClassroomApi.getClassroomData(year);
-      this.allStudents = this.classroomData?.students || [];
-      this.allDocuments = this.classroomData?.documents || [];
-
-      // Update stats
-      const totalStudents = this.allStudents.length;
-      document.getElementById('cls-stat-total').textContent = totalStudents;
-      document.getElementById('cls-stat-docs').textContent = this.allDocuments.length;
-
-      // Calculate attendance
-      const attendance = this.classroomData?.attendance || [];
-      const presentCount = attendance.filter(a => a.status === 'present').length;
-      const rate = attendance.length ? Math.round((presentCount / attendance.length) * 100) : 100;
-      document.getElementById('cls-stat-attendance').textContent = `${rate}%`;
-
-      // Render tab tables
-      this._renderStudents(this.allStudents);
-      this._renderRoutines(this.allStudents, this.classroomData?.routines || [], attendance);
-      this._renderHealth(this.allStudents, this.classroomData?.health || [], this.classroomData?.sdq || []);
-      this._renderDocuments('all');
-
-      Loading.done();
+      this._renderCurrentView();
     } catch (err) {
-      console.error("Error loading classroom data for year:", year, err);
-      Loading.fail();
+      console.error("Error fetching classroom data:", err);
+      Toast.error("ไม่สามารถโหลดข้อมูลธุรการในชั้นเรียนได้");
     }
   }
 
-  _renderStudents(students) {
-    const tbody = document.getElementById('students-table-body');
-    const countLabel = document.getElementById('students-count-label');
-    if (!tbody) return;
+  _renderCurrentView() {
+    const menuSection = document.getElementById('classroom-menu-view');
+    const jobSection = document.getElementById('classroom-job-view');
+    const bcSep = document.getElementById('bc-job-sep');
+    const bcCurrent = document.getElementById('bc-job-current');
 
-    if (countLabel) countLabel.textContent = `แสดง ${students.length} คน`;
+    if (!this.currentView) {
+      // Show menu-first landing
+      menuSection?.classList.remove('d-none');
+      jobSection?.classList.add('d-none');
+      bcSep?.classList.add('d-none');
+      bcCurrent?.classList.add('d-none');
+      document.title = `ธุรการในชั้นเรียน (ปี ${this.currentYear}) — Suttinee Teacher Workspace`;
+      return;
+    }
 
-    if (students.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="6" class="text-center" style="padding: 3rem;">
-            <div class="empty-state-icon">📋</div>
-            <div class="empty-state-title">ไม่พบข้อมูลนักเรียนในปีการศึกษานี้</div>
-            <p class="empty-state-text">ยังไม่มีการเพิ่มรายชื่อนักเรียนสำหรับปีการศึกษานี้</p>
-          </td>
-        </tr>
+    // Show single job view
+    menuSection?.classList.add('d-none');
+    jobSection?.classList.remove('d-none');
+    bcSep?.classList.remove('d-none');
+    bcCurrent?.classList.remove('d-none');
+
+    const jobMeta = this._getJobMeta(this.currentView);
+    if (bcCurrent) bcCurrent.textContent = jobMeta.title;
+
+    const titleEl = document.getElementById('job-view-title');
+    const subtitleEl = document.getElementById('job-view-subtitle');
+    if (titleEl) titleEl.innerHTML = `${jobMeta.icon} ${jobMeta.title}`;
+    if (subtitleEl) subtitleEl.textContent = `ปีการศึกษา ${this.currentYear} · ${jobMeta.desc}`;
+
+    document.title = `${jobMeta.title} (ปี ${this.currentYear}) — ธุรการในชั้นเรียน`;
+
+    // Render job content
+    const container = document.getElementById('job-view-content');
+    if (!container) return;
+
+    // Always display Add Entry button in the job view header
+    const adminActions = document.getElementById('job-admin-actions');
+    if (adminActions) {
+      adminActions.innerHTML = `
+        <button type="button" class="btn btn-primary btn-sm" id="btn-job-admin-add">
+          <span>➕</span> เพิ่มข้อมูล (${jobMeta.title})
+        </button>
       `;
+      document.getElementById('btn-job-admin-add')?.addEventListener('click', () => {
+        UniversalItemModal.open({
+          module: 'classroom',
+          year: this.currentYear,
+          category: this.currentView,
+          sectionTitle: jobMeta.title,
+          onSaveSuccess: () => this._loadClassroomData(this.currentYear)
+        });
+      });
+    }
+
+
+    this._renderJobContent(this.currentView, container);
+  }
+
+  _getJobMeta(job) {
+    const catalog = {
+      'students': { title: 'สมาชิกในห้องเรียน', icon: '👥', desc: 'ข้อมูลทะเบียนประวัตินักเรียนชั้น ป.1' },
+      'attendance': { title: 'เช็กชื่อมาเรียน', icon: '📅', desc: 'สถิติและการเข้าแถวมาเรียนประจำวัน' },
+      'teeth': { title: 'เช็กชื่อแปรงฟัน', icon: '🪥', desc: 'การบันทึกการแปรงฟันหลังอาหารกลางวัน' },
+      'milk': { title: 'เช็กชื่อดื่มนม', icon: '🥛', desc: 'การบันทึกการดื่มนมโรงเรียนเพื่อสุขภาพ' },
+      'growth': { title: 'น้ำหนัก / ส่วนสูง', icon: '⚖️', desc: 'การเจริญเติบโตทางกายภาพและดัชนีมวลกาย (BMI)' },
+      'health': { title: 'บันทึกการตรวจสุขภาพ', icon: '🩺', desc: 'การตรวจสุขภาพร่างกาย เล็บ ผม และช่องปาก' },
+      'sdq': { title: 'แบบประเมิน SDQ', icon: '📝', desc: 'การคัดกรองพฤติกรรมผู้เรียนและระบบดูแลช่วยเหลือนักเรียน' },
+      'pp': { title: 'บันทึก ปพ.', icon: '📁', desc: 'สมุด ปพ.5 (ผลการเรียน) และ ปพ.6 (รายงานประจำตัว)' },
+      'media': { title: 'ทะเบียนสื่อ / แหล่งเรียนรู้', icon: '🎮', desc: 'คลังสื่อการสอน สื่อนวัตกรรม และเกมการศึกษา (รองรับลิงก์ภายนอก)' },
+      'plc': { title: 'บันทึก PLC', icon: '💬', desc: 'ชุมชนแห่งการเรียนรู้ทางวิชาชีพและแลกเปลี่ยนประสบการณ์' },
+      'research': { title: 'วิจัยในชั้นเรียน', icon: '🔬', desc: 'วิจัยพัฒนาทักษะการอ่านสะกดคำภาษาไทย (STAD)' },
+      'plan': { title: 'แผนการสอน', icon: '📖', desc: 'แผนการจัดการเรียนรู้บูรณาการ Active Learning' },
+      'awards': { title: 'ผลงานครู / เกียรติบัตร', icon: '🏆', desc: 'เกียรติบัตรการอบรม รางวัลครูดีเด่น และผลงานวิชาชีพ' },
+      'sar': { title: 'รายงาน SAR', icon: '📘', desc: 'รายงานประเมินตนเองของสถานศึกษาและครูผู้สอนรายบุคคล' },
+      'other': { title: 'เอกสารอื่น ๆ', icon: '📎', desc: 'เอกสารการเลื่อนขั้นเงินเดือน และแบบฟอร์มประจำชั้น' }
+    };
+    return catalog[job] || { title: 'งานธุรการชั้นเรียน', icon: '🏫', desc: 'รายละเอียดงาน' };
+  }
+
+  _renderJobContent(job, container) {
+    if (!this.classroomData) {
+      container.innerHTML = `<div class="text-center py-6 text-muted">กำลังโหลดข้อมูล...</div>`;
       return;
     }
 
-    tbody.innerHTML = students.map(s => `
-      <tr>
-        <td style="text-align: center; font-weight: 600; color: var(--color-primary-strong);">${s.student_no}</td>
-        <td><code>${Utils.escapeHtml(s.student_id)}</code></td>
-        <td class="font-medium">${Utils.escapeHtml(s.prefix)}${Utils.escapeHtml(s.first_name)} ${Utils.escapeHtml(s.last_name)}</td>
-        <td>${Utils.escapeHtml(s.class || '-')}</td>
-        <td><span class="badge ${s.status === 'active' ? 'badge-sage' : 'badge-muted'}">${s.status === 'active' ? 'กำลังศึกษา' : s.status}</span></td>
-        <td class="text-muted" style="font-size: var(--font-size-xs);">${Utils.escapeHtml(s.note || '-')}</td>
-      </tr>
-    `).join('');
-  }
+    const { documents = [] } = this.classroomData;
+    const jobMeta = this._getJobMeta(job);
 
-  _filterStudents(query) {
-    if (!query) {
-      this._renderStudents(this.allStudents);
-      return;
-    }
-    const filtered = this.allStudents.filter(s => {
-      const fullName = `${s.prefix || ''}${s.first_name || ''} ${s.last_name || ''}`.toLowerCase();
-      const id = String(s.student_id || '');
-      const no = String(s.student_no || '');
-      return fullName.includes(query) || id.includes(query) || no === query;
-    });
-    this._renderStudents(filtered);
-  }
+    // Filter documents for this specific job
+    const jobItems = documents.filter(d => d.category === job || d.job === job);
 
-  _renderRoutines(students, routines, attendance) {
-    const tbody = document.getElementById('routines-table-body');
-    if (!tbody) return;
-
-    if (students.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="padding: 2rem;">ไม่มีข้อมูล</td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = students.map(s => {
-      const att = attendance.find(a => a.student_id === s.student_id);
-      const isPresent = !att || att.status === 'present';
-      const attLabel = isPresent ? 'มาเรียน' : (att.note || 'ขาด/ลา');
-      const attBadge = isPresent ? 'badge-sage' : 'badge-rose';
-
-      return `
-        <tr>
-          <td style="text-align: center; font-weight: 600;">${s.student_no}</td>
-          <td>${Utils.escapeHtml(s.prefix)}${Utils.escapeHtml(s.first_name)} ${Utils.escapeHtml(s.last_name)}</td>
-          <td style="text-align: center;"><span class="badge ${attBadge}">${attLabel}</span></td>
-          <td style="text-align: center;"><span class="badge badge-sage">✓ เรียบร้อย</span></td>
-          <td style="text-align: center;"><span class="badge badge-sage">✓ เรียบร้อย</span></td>
-          <td class="text-muted" style="font-size: var(--font-size-xs);">${Utils.escapeHtml(att?.note || '-')}</td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  _renderHealth(students, healthList, sdqList) {
-    const tbody = document.getElementById('health-table-body');
-    if (!tbody) return;
-
-    if (students.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding: 2rem;">ไม่มีข้อมูล</td></tr>`;
-      return;
-    }
-
-    tbody.innerHTML = students.map(s => {
-      const h = healthList.find(x => x.student_id === s.student_id) || {};
-      const q = sdqList.find(x => x.student_id === s.student_id) || {};
-
-      const weight = h.weight ? h.weight.toFixed(1) : '-';
-      const height = h.height || '-';
-      const bmi = h.bmi ? h.bmi.toFixed(1) : '-';
-      const nutrition = h.health_result || 'สมส่วน';
-      const sdqResult = q.result || 'ปกติ';
-      const isSdqRisk = sdqResult.includes('เสี่ยง') || sdqResult.includes('มีปัญหา');
-
-      return `
-        <tr>
-          <td style="text-align: center; font-weight: 600;">${s.student_no}</td>
-          <td>${Utils.escapeHtml(s.prefix)}${Utils.escapeHtml(s.first_name)} ${Utils.escapeHtml(s.last_name)}</td>
-          <td style="text-align: right;">${weight}</td>
-          <td style="text-align: right;">${height}</td>
-          <td style="text-align: right;">${bmi}</td>
-          <td style="text-align: center;"><span class="badge badge-sage">${nutrition}</span></td>
-          <td style="text-align: center;"><span class="badge ${isSdqRisk ? 'badge-rose' : 'badge-purple'}">${sdqResult}</span></td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  _renderDocuments(filterCategory = 'all') {
-    const grid = document.getElementById('classroom-docs-grid');
-    if (!grid) return;
-
-    let docs = this.allDocuments;
-    if (filterCategory !== 'all') {
-      docs = docs.filter(d => d.category === filterCategory);
-    }
-
-    if (docs.length === 0) {
-      grid.innerHTML = `
-        <div class="empty-state" style="grid-column: 1 / -1;">
-          <div class="empty-state-icon">📁</div>
-          <div class="empty-state-title">ไม่พบเอกสารในหมวดหมู่นี้</div>
-          <p class="empty-state-text">เลือกหมวดหมู่อื่น หรือเข้าสู่ระบบ Admin เพื่ออัปโหลดเอกสาร</p>
+    if (jobItems.length === 0) {
+      // Clean Empty state with Add Entry CTA
+      container.innerHTML = `
+        <div class="u-empty-state">
+          <div class="u-empty-icon">${jobMeta.icon}</div>
+          <h3 class="u-empty-title">ยังไม่มีข้อมูลในหัวข้อ "${jobMeta.title}"</h3>
+          <p class="u-empty-desc">
+            สามารถบันทึกข้อมูลจัดแสดงได้ 3 รูปแบบ: รูปภาพ+ข้อความ+Link, เอกสาร eBook ออนไลน์ (PDF), หรือสเปรดชีต Excel (Google Sheets)
+          </p>
+          <button type="button" class="btn btn-primary btn-empty-add-first">
+            ➕ เพิ่มข้อมูลชิ้นแรก
+          </button>
         </div>
       `;
+      container.querySelector('.btn-empty-add-first')?.addEventListener('click', () => {
+        UniversalItemModal.open({
+          module: 'classroom',
+          year: this.currentYear,
+          category: job,
+          sectionTitle: jobMeta.title,
+          onSaveSuccess: () => this._loadClassroomData(this.currentYear)
+        });
+      });
       return;
     }
 
-    grid.innerHTML = docs.map(doc => {
-      const typeInfo = Utils.getFileTypeInfo(doc.title, doc.type);
-      const viewerUrl = RouterUtils.buildUrl('./viewer.html', { id: doc.id, year: this.currentYear });
-      return `
-        <a href="${viewerUrl}" class="evidence-card card-interactive" title="${Utils.escapeHtml(doc.title)}">
-          <div class="evidence-thumb">
-            <span>${typeInfo.icon}</span>
-          </div>
-          <div class="badge ${typeInfo.badgeClass}" style="margin-top: 4px;">${typeInfo.label}</div>
-          <div class="evidence-name">${Utils.escapeHtml(doc.title)}</div>
-          <p class="text-muted text-truncate" style="font-size: var(--font-size-xs);">${Utils.escapeHtml(doc.description || '')}</p>
-          <div class="evidence-meta">
-            <span>หมวด: ${Utils.escapeHtml(doc.category)}</span>
-            <span>เปิดดู &rarr;</span>
-          </div>
-        </a>
-      `;
-    }).join('');
+    // Render items in a responsive grid
+    container.innerHTML = `
+      <div class="d-flex align-center justify-between mb-4">
+        <span class="badge badge-purple">${jobItems.length} รายการ</span>
+      </div>
+      <div class="universal-showcase-grid" id="job-items-grid"></div>
+    `;
+
+    const grid = container.querySelector('#job-items-grid');
+    jobItems.forEach(item => {
+      grid.appendChild(renderUniversalCard(item, {
+        onDelete: async (id) => {
+          await DataProvider.classroom.deleteDocument(id, this.currentYear);
+          Toast.success('ลบรายการเรียบร้อย');
+          this._loadClassroomData(this.currentYear);
+        }
+      }));
+    });
   }
 
-  _updateNavLinks(year) {
-    const setLink = (id, page) => {
-      const el = document.getElementById(id);
-      if (el) el.href = RouterUtils.buildUrl(page, { year });
-    };
-    setLink('nav-home', './index.html');
-    setLink('nav-pa', './pa.html');
-    setLink('mob-nav-home', './index.html');
-    setLink('mob-nav-pa', './pa.html');
-    setLink('breadcrumb-home', './index.html');
-    setLink('footer-link-pa', './pa.html');
-  }
+
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => new ClassroomPageController());
-} else {
+document.addEventListener('DOMContentLoaded', () => {
   new ClassroomPageController();
-}
+});

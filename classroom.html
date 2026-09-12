@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="ธุรการในชั้นเรียน — Suttinee Teacher Workspace ข้อมูลนักเรียน เช็กชื่อ สุขภาพ และงานทะเบียน ปพ.">
+  <meta name="description" content="ธุรการในชั้นเรียน — Suttinee Teacher Workspace เมนูงานประจำชั้น ข้อมูลนักเรียน เช็กชื่อ สุขภาพ และงานทะเบียน ปพ.">
   <meta name="theme-color" content="#A986DE">
-  <title>ธุรการในชั้นเรียน — Suttinee Teacher Workspace</title>
+  <title id="page-title">ธุรการในชั้นเรียน — Suttinee Teacher Workspace</title>
   <link rel="icon" type="image/png" href="./assets/school_logo.png">
 
   <!-- CSS Design System -->
@@ -34,23 +34,22 @@
 
       <!-- Desktop Navigation -->
       <nav class="header-nav" aria-label="Main Navigation">
-        <a href="./index.html" class="nav-link" id="nav-home"><span>🏠</span> หน้าหลัก</a>
-        <a href="./classroom.html" class="nav-link active" id="nav-classroom"><span>🏫</span> ธุรการชั้นเรียน</a>
-        <a href="./pa.html" class="nav-link" id="nav-pa"><span>📋</span> ประเมิน ว.PA</a>
+        <a href="./index.html" class="nav-link" id="nav-home"><span>🏠</span> หน้าแรก</a>
+        <a href="./classroom.html" class="nav-link active" id="nav-classroom"><span>🏫</span> ธุรการในชั้นเรียน</a>
+        <a href="./pa.html" class="nav-link" id="nav-pa"><span>📋</span> รายงาน PA</a>
       </nav>
 
-      <!-- Actions: Year Selector & Top-Right Admin Entry & Mobile Drawer Toggle -->
+      <!-- Actions: Year Selector & Admin Entry -->
       <div class="header-actions">
-        <div class="year-pill-wrapper">
+        <div class="year-pill-wrapper" title="เลือกปีการศึกษา">
           <span class="year-pill-label">ปีการศึกษา</span>
           <select id="header-year-select" class="year-pill-select" aria-label="เลือกปีการศึกษา">
             <!-- Populated dynamically -->
           </select>
         </div>
 
-        <!-- Top-Right Admin Button -->
         <a href="./admin.html" class="btn btn-subtle btn-sm" id="btn-header-admin" title="ส่วนจัดการระบบสำหรับครูผู้สอน">
-          <span>🔒</span> Admin
+          <span id="admin-btn-icon">🔒</span> <span id="admin-btn-text">จัดการเว็บไซต์</span>
         </a>
 
         <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" aria-label="Open menu">
@@ -68,11 +67,11 @@
       <button type="button" class="btn-icon" id="mobile-drawer-close" aria-label="Close menu">&times;</button>
     </div>
     <div class="mobile-nav-links">
-      <a href="./index.html" class="mobile-nav-link" id="mob-nav-home"><span>🏠</span> หน้าหลัก</a>
-      <a href="./classroom.html" class="mobile-nav-link active"><span>🏫</span> ธุรการชั้นเรียน</a>
-      <a href="./pa.html" class="mobile-nav-link" id="mob-nav-pa"><span>📋</span> ประเมิน ว.PA</a>
+      <a href="./index.html" class="mobile-nav-link" id="mob-nav-home"><span>🏠</span> หน้าแรก</a>
+      <a href="./classroom.html" class="mobile-nav-link active" id="mob-nav-classroom"><span>🏫</span> ธุรการในชั้นเรียน</a>
+      <a href="./pa.html" class="mobile-nav-link" id="mob-nav-pa"><span>📋</span> รายงานผลการพัฒนางาน (PA)</a>
       <a href="./admin.html" class="mobile-nav-link" style="margin-top: 2rem; border-top: 1px solid var(--border-light); padding-top: 1rem;">
-        <span>⚙️</span> จัดการระบบ (Admin)
+        <span>🔒</span> จัดการเว็บไซต์ (Admin)
       </a>
     </div>
   </aside>
@@ -81,202 +80,217 @@
   <main class="main-wrapper" id="main-content">
     <div class="container">
 
-      <!-- Classroom Header Banner -->
-      <div class="card mb-6 animate-fade-in" style="background: var(--grad-glass); border: 1px solid var(--purple-200); box-shadow: var(--shadow-sm);">
-        <div class="d-flex align-center gap-4 flex-wrap flex-md-nowrap">
-          <div style="width: 72px; height: 72px; border-radius: 50%; background: #FFF; padding: 4px; border: 2px solid #FFE082; box-shadow: var(--shadow-sm); flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
-            <img src="./assets/school_logo.png" alt="ตราโรงเรียนชุมชนแม่ลาศึกษา" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-          </div>
-          <div class="flex-1">
-            <div class="d-flex align-center gap-2 mb-1 flex-wrap">
-              <span class="badge badge-purple">ธุรการในชั้นเรียน</span>
-              <span class="badge badge-sage" id="classroom-year-pill">ปีการศึกษา 2567</span>
-              <span class="badge badge-gold">ชั้นประถมศึกษาปีที่ ๑</span>
-            </div>
-            <h1 style="font-size: var(--font-size-xl); color: var(--purple-900); margin-bottom: 2px;">
-              งานธุรการในชั้นเรียนและระบบดูแลช่วยเหลือนักเรียน
-            </h1>
-            <p class="text-secondary" style="font-size: var(--font-size-sm); margin-bottom: 0;" id="classroom-subheading">
-              ครูประจำชั้น: นางสาวศุทธินี ถาวร (ครูนิว) · โรงเรียนชุมชนแม่ลาศึกษา สพป.แม่ฮ่องสอน เขต ๒
-            </p>
-          </div>
-        </div>
-
-        <!-- Quick Summary Cards -->
-        <div class="stats-strip mt-6">
-          <div class="stat-card">
-            <span class="stat-value" id="cls-stat-total">0</span>
-            <span class="stat-label">นักเรียนทั้งหมด (คน)</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value" id="cls-stat-attendance">0%</span>
-            <span class="stat-label">อัตราการมาเรียนเฉลี่ย</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value" id="cls-stat-health">100%</span>
-            <span class="stat-label">การตรวจสุขภาพ</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-value" id="cls-stat-docs">0</span>
-            <span class="stat-label">เอกสาร ปพ./ประจำชั้น</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tab Navigation -->
-      <nav class="tabs-container mt-6" aria-label="Classroom Sections">
-        <button type="button" class="tab-btn active" data-tab="members">
-          <span>👥</span> ข้อมูลนักเรียน
-        </button>
-        <button type="button" class="tab-btn" data-tab="routines">
-          <span>🥛</span> เช็กชื่อและกิจวัตร
-        </button>
-        <button type="button" class="tab-btn" data-tab="health">
-          <span>🩺</span> สุขภาพและ SDQ
-        </button>
-        <button type="button" class="tab-btn" data-tab="documents">
-          <span>📁</span> งานทะเบียน / ปพ.
-        </button>
+      <!-- Breadcrumbs -->
+      <nav class="classroom-breadcrumb" id="classroom-breadcrumb" aria-label="Breadcrumb">
+        <a href="./index.html">หน้าแรก</a>
+        <span class="breadcrumb-separator">›</span>
+        <a href="./classroom.html" id="bc-classroom-root">ธุรการในชั้นเรียน</a>
+        <span class="breadcrumb-separator d-none" id="bc-job-sep">›</span>
+        <span class="breadcrumb-current d-none" id="bc-job-current">ชื่องาน</span>
       </nav>
 
-      <!-- Tab 1: Students Roster -->
-      <section id="tab-members" class="tab-content mt-6">
+      <!-- VIEW 1: MENU-FIRST LANDING (Default when no job selected) -->
+      <section id="classroom-menu-view" class="animate-fade-in">
+        <div class="classroom-menu-header card mb-6">
+          <div class="d-flex align-center gap-4 flex-wrap flex-md-nowrap">
+            <div class="classroom-header-icon-box">
+              <img src="./assets/school_logo.png" alt="ตราโรงเรียนชุมชนแม่ลาศึกษา" class="classroom-header-logo" id="cls-school-logo">
+            </div>
+            <div class="flex-1">
+              <div class="d-flex align-center gap-2 mb-1 flex-wrap">
+                <span class="badge badge-purple">ธุรการในชั้นเรียน</span>
+                <span class="badge badge-sage" id="classroom-year-pill">ปีการศึกษา 2569</span>
+                <span class="badge badge-gold">ชั้นประถมศึกษาปีที่ ๑</span>
+              </div>
+              <h1 class="classroom-main-title">
+                งานธุรการในชั้นเรียน
+              </h1>
+              <p class="classroom-sub-title text-secondary">
+                เลือกงานที่ต้องการดูข้อมูลหรือจัดการเอกสารประจำชั้นเรียน
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="classroom-menu-grid" id="classroom-menu-grid">
+          <!-- 1. สมาชิกในห้องเรียน -->
+          <a href="./classroom.html?view=students" class="cls-menu-card card-interactive" data-job="students">
+            <div class="cls-menu-icon-wrap" style="background: #F2ECFF;">👥</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">สมาชิกในห้องเรียน</h3>
+              <p class="cls-menu-desc">รายชื่อ เลขประจำตัว และข้อมูลประจำชั้น ป.1</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 2. เช็กชื่อมาเรียน -->
+          <a href="./classroom.html?view=attendance" class="cls-menu-card card-interactive" data-job="attendance">
+            <div class="cls-menu-icon-wrap" style="background: #EAF5EE;">📅</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">เช็กชื่อมาเรียน</h3>
+              <p class="cls-menu-desc">บันทึกสถิติและการเข้าแถวมาเรียนประจำวัน</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 3. เช็กชื่อแปรงฟัน -->
+          <a href="./classroom.html?view=teeth" class="cls-menu-card card-interactive" data-job="teeth">
+            <div class="cls-menu-icon-wrap" style="background: #EBF8FF;">🪥</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">เช็กชื่อแปรงฟัน</h3>
+              <p class="cls-menu-desc">กิจวัตรการแปรงฟันหลังอาหารกลางวัน</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 4. เช็กชื่อดื่มนม -->
+          <a href="./classroom.html?view=milk" class="cls-menu-card card-interactive" data-job="milk">
+            <div class="cls-menu-icon-wrap" style="background: #FFF9F5;">🥛</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">เช็กชื่อดื่มนม</h3>
+              <p class="cls-menu-desc">การดื่มนมโรงเรียนเสริมสร้างสุขภาพผู้เรียน</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 5. น้ำหนัก / ส่วนสูง -->
+          <a href="./classroom.html?view=growth" class="cls-menu-card card-interactive" data-job="growth">
+            <div class="cls-menu-icon-wrap" style="background: #FEF3C7;">⚖️</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">น้ำหนัก / ส่วนสูง</h3>
+              <p class="cls-menu-desc">การเจริญเติบโตทางร่างกายและดัชนีมวลกาย BMI</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 6. บันทึกการตรวจสุขภาพ -->
+          <a href="./classroom.html?view=health" class="cls-menu-card card-interactive" data-job="health">
+            <div class="cls-menu-icon-wrap" style="background: #FDF2F7;">🩺</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">บันทึกการตรวจสุขภาพ</h3>
+              <p class="cls-menu-desc">การตรวจสุขภาพร่างกาย สุขอนามัย และช่องปาก</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 7. แบบประเมิน SDQ -->
+          <a href="./classroom.html?view=sdq" class="cls-menu-card card-interactive" data-job="sdq">
+            <div class="cls-menu-icon-wrap" style="background: #F3E8FF;">📝</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">แบบประเมิน SDQ</h3>
+              <p class="cls-menu-desc">การคัดกรองพฤติกรรมผู้เรียนและระบบดูแลช่วยเหลือ</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 8. บันทึก ปพ. -->
+          <a href="./classroom.html?view=pp" class="cls-menu-card card-interactive" data-job="pp">
+            <div class="cls-menu-icon-wrap" style="background: #EDE9FE;">📁</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">บันทึก ปพ.</h3>
+              <p class="cls-menu-desc">สมุด ปพ.5 (ผลการเรียน) และ ปพ.6 (รายงานประจำตัว)</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 9. ทะเบียนสื่อ / แหล่งเรียนรู้ -->
+          <a href="./classroom.html?view=media" class="cls-menu-card card-interactive" data-job="media">
+            <div class="cls-menu-icon-wrap" style="background: #FDF8ED;">🎮</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">ทะเบียนสื่อ / แหล่งเรียนรู้</h3>
+              <p class="cls-menu-desc">คลังสื่อการสอน สื่อนวัตกรรม และเกมการศึกษา (รองรับลิงก์ภายนอก)</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 10. บันทึก PLC -->
+          <a href="./classroom.html?view=plc" class="cls-menu-card card-interactive" data-job="plc">
+            <div class="cls-menu-icon-wrap" style="background: #F0FDF4;">💬</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">บันทึก PLC</h3>
+              <p class="cls-menu-desc">ชุมชนแห่งการเรียนรู้ทางวิชาชีพและแลกเปลี่ยนประสบการณ์</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 11. วิจัยในชั้นเรียน -->
+          <a href="./classroom.html?view=research" class="cls-menu-card card-interactive" data-job="research">
+            <div class="cls-menu-icon-wrap" style="background: #EFF6FF;">🔬</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">วิจัยในชั้นเรียน</h3>
+              <p class="cls-menu-desc">วิจัยพัฒนาทักษะการอ่านสะกดคำภาษาไทย (STAD)</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 12. แผนการสอน -->
+          <a href="./classroom.html?view=plan" class="cls-menu-card card-interactive" data-job="plan">
+            <div class="cls-menu-icon-wrap" style="background: #FFF1F2;">📖</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">แผนการสอน</h3>
+              <p class="cls-menu-desc">แผนการจัดการเรียนรู้บูรณาการ Active Learning</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 13. ผลงานครู / เกียรติบัตร -->
+          <a href="./classroom.html?view=awards" class="cls-menu-card card-interactive" data-job="awards">
+            <div class="cls-menu-icon-wrap" style="background: #FEF9C3;">🏆</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">ผลงานครู / เกียรติบัตร</h3>
+              <p class="cls-menu-desc">เกียรติบัตรการอบรม รางวัลครูดีเด่น และผลงานวิชาชีพ</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 14. รายงาน SAR -->
+          <a href="./classroom.html?view=sar" class="cls-menu-card card-interactive" data-job="sar">
+            <div class="cls-menu-icon-wrap" style="background: #F5F3FF;">📘</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">รายงาน SAR</h3>
+              <p class="cls-menu-desc">รายงานประเมินตนเองของสถานศึกษาและครูผู้สอนรายบุคคล</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+
+          <!-- 15. เอกสารอื่น ๆ -->
+          <a href="./classroom.html?view=other" class="cls-menu-card card-interactive" data-job="other">
+            <div class="cls-menu-icon-wrap" style="background: #F1F5F9;">📎</div>
+            <div class="cls-menu-content">
+              <h3 class="cls-menu-title">เอกสารอื่น ๆ</h3>
+              <p class="cls-menu-desc">เอกสารการเลื่อนขั้นเงินเดือน และแบบฟอร์มประจำชั้น</p>
+            </div>
+            <span class="cls-menu-arrow">&rarr;</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- VIEW 2: SINGLE-JOB VIEW (One Page = One Job) -->
+      <section id="classroom-job-view" class="d-none animate-fade-in">
+        <!-- Job Top Bar -->
         <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
-          <div class="search-box" style="max-width: 360px;">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search-students" class="form-control" placeholder="ค้นหาชื่อ, เลขที่ หรือรหัสนักเรียน...">
-          </div>
-          <div class="text-muted" style="font-size: var(--font-size-sm);" id="students-count-label">
-            แสดง 0 คน
-          </div>
-        </div>
-
-        <div class="table-responsive">
-          <table class="app-table" id="students-table">
-            <thead>
-              <tr>
-                <th style="width: 80px; text-align: center;">เลขที่</th>
-                <th style="width: 120px;">รหัสประจำตัว</th>
-                <th>ชื่อ - นามสกุล</th>
-                <th>ระดับชั้น</th>
-                <th>สถานะ</th>
-                <th>หมายเหตุ</th>
-              </tr>
-            </thead>
-            <tbody id="students-table-body">
-              <tr>
-                <td colspan="6" class="text-center" style="padding: 2rem;">กำลังโหลดข้อมูลนักเรียน...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Tab 2: Attendance & Routines -->
-      <section id="tab-routines" class="tab-content mt-6 d-none">
-        <div class="mb-4">
-          <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-2);">กิจวัตรและการมาเรียนประจำวัน</h3>
-          <p class="text-muted" style="font-size: var(--font-size-sm);">
-            การบันทึกการดื่มนม แปรงฟันหลังอาหารกลางวัน และการเข้าแถวเคารพธงชาติ
-          </p>
-        </div>
-
-        <div class="routine-grid mb-6">
-          <div class="routine-card">
-            <div class="routine-icon">🥛</div>
+          <div class="d-flex align-center gap-3">
+            <a href="./classroom.html" class="btn btn-secondary btn-sm" id="btn-back-to-menu">
+              &larr; กลับไปเมนูธุรการ
+            </a>
             <div>
-              <div class="font-semibold text-primary">การดื่มนมโรงเรียน</div>
-              <div class="text-muted" style="font-size: var(--font-size-xs);">ดำเนินการครบถ้วน 100%</div>
+              <h2 class="font-bold text-purple" id="job-view-title" style="font-size: var(--font-size-xl); margin-bottom: 2px;">
+                ชื่องาน
+              </h2>
+              <div class="text-muted" style="font-size: var(--font-size-xs);" id="job-view-subtitle">
+                ปีการศึกษา 2569
+              </div>
             </div>
-            <span class="badge badge-sage" style="margin-left: auto;">เรียบร้อย</span>
           </div>
 
-          <div class="routine-card">
-            <div class="routine-icon">🪥</div>
-            <div>
-              <div class="font-semibold text-primary">การแปรงฟันหลังอาหาร</div>
-              <div class="text-muted" style="font-size: var(--font-size-xs);">ตรวจสุขภาพฟันและฝึกวินัย</div>
-            </div>
-            <span class="badge badge-sage" style="margin-left: auto;">เรียบร้อย</span>
-          </div>
-
-          <div class="routine-card">
-            <div class="routine-icon">☀️</div>
-            <div>
-              <div class="font-semibold text-primary">กิจกรรมโฮมรูม</div>
-              <div class="text-muted" style="font-size: var(--font-size-xs);">อบรมคุณธรรมจริยธรรมยามเช้า</div>
-            </div>
-            <span class="badge badge-purple" style="margin-left: auto;">ประจำวัน</span>
+          <div class="d-flex align-center gap-2 flex-wrap" id="job-admin-actions">
+            <!-- Contextual admin actions injected if admin logged in -->
           </div>
         </div>
 
-        <div class="table-responsive">
-          <table class="app-table">
-            <thead>
-              <tr>
-                <th style="width: 80px; text-align: center;">เลขที่</th>
-                <th>ชื่อ - นามสกุล</th>
-                <th style="text-align: center;">การมาเรียน</th>
-                <th style="text-align: center;">ดื่มนม</th>
-                <th style="text-align: center;">แปรงฟัน</th>
-                <th>หมายเหตุ</th>
-              </tr>
-            </thead>
-            <tbody id="routines-table-body">
-              <!-- Populated by JS -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Tab 3: Health & SDQ -->
-      <section id="tab-health" class="tab-content mt-6 d-none">
-        <div class="mb-4">
-          <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-2);">ข้อมูลสุขภาพและระบบดูแลช่วยเหลือนักเรียน</h3>
-          <p class="text-muted" style="font-size: var(--font-size-sm);">
-            การประเมินการเจริญเติบโตทางกายภาพ (น้ำหนัก-ส่วนสูง) และผลการคัดกรองพฤติกรรม (SDQ)
-          </p>
-        </div>
-
-        <div class="table-responsive">
-          <table class="app-table">
-            <thead>
-              <tr>
-                <th style="width: 80px; text-align: center;">เลขที่</th>
-                <th>ชื่อ - นามสกุล</th>
-                <th style="text-align: right;">น้ำหนัก (กก.)</th>
-                <th style="text-align: right;">ส่วนสูง (ซม.)</th>
-                <th style="text-align: right;">BMI</th>
-                <th style="text-align: center;">ภาวะโภชนาการ</th>
-                <th style="text-align: center;">ผลประเมิน SDQ</th>
-              </tr>
-            </thead>
-            <tbody id="health-table-body">
-              <!-- Populated by JS -->
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- Tab 4: Classroom Documents (ปพ.) -->
-      <section id="tab-documents" class="tab-content mt-6 d-none">
-        <div class="d-flex align-center justify-between flex-wrap gap-4 mb-4">
-          <div>
-            <h3 style="font-size: var(--font-size-lg); margin-bottom: var(--space-1);">งานเอกสารประจำชั้นเรียนและ ปพ.</h3>
-            <p class="text-muted" style="font-size: var(--font-size-sm);">
-              เอกสารวัดผลการเรียน ปพ.5, ปพ.6, แผนการสอน และรายงานการเยี่ยมบ้าน
-            </p>
-          </div>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-subtle btn-sm active" data-doc-filter="all">ทั้งหมด</button>
-            <button type="button" class="btn btn-subtle btn-sm" data-doc-filter="register">ปพ./ทะเบียน</button>
-            <button type="button" class="btn btn-subtle btn-sm" data-doc-filter="plan">แผนการสอน</button>
-            <button type="button" class="btn btn-subtle btn-sm" data-doc-filter="routine">งานประจำชั้น</button>
-          </div>
-        </div>
-
-        <div id="classroom-docs-grid" class="evidence-grid">
-          <!-- Populated by JS -->
+        <!-- Job Container for Dynamic Content -->
+        <div id="job-view-content" class="card">
+          <!-- Populated dynamically by classroom.js based on current view -->
         </div>
       </section>
 
@@ -291,20 +305,27 @@
         <div class="footer-desc">พื้นที่บันทึกผลงานวิชาชีพและงานธุรการชั้นเรียน · นางสาวศุทธินี ถาวร</div>
       </div>
       <div class="footer-links">
-        <a href="./index.html" class="footer-link">หน้าหลัก</a>
-        <a href="./classroom.html" class="footer-link">ธุรการชั้นเรียน</a>
-        <a href="./pa.html" class="footer-link" id="footer-link-pa">ว.PA</a>
-        <a href="./admin.html" class="footer-admin-entry" title="เข้าสู่ส่วนจัดการระบบ">
-          <span>🔒</span> Admin
+        <a href="./index.html" class="footer-link">หน้าแรก</a>
+        <a href="./classroom.html" class="footer-link">ธุรการในชั้นเรียน</a>
+        <a href="./pa.html" class="footer-link" id="footer-link-pa">รายงาน PA</a>
+        <a href="./admin.html" class="footer-admin-entry" title="เข้าสู่ส่วนจัดการเว็บไซต์">
+          <span>🔒</span> จัดการเว็บไซต์
         </a>
       </div>
     </div>
   </footer>
 
-  <!-- Toast Container -->
-  <div id="toast-container" aria-live="polite"></div>
+  <!-- Free Libraries: SheetJS (Excel) & PDF.js (eBook) -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (window.pdfjsLib) {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+  </script>
 
   <!-- Page Logic Script -->
   <script type="module" src="./js/pages/classroom.js"></script>
 </body>
 </html>
+
