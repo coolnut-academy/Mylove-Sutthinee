@@ -187,8 +187,8 @@ export class AppsScriptDataProvider extends BaseDataProvider {
     return { sections: sections || [], items: items || [] };
   }
 
-  async getItem(id) {
-    return this._request('getItem', { id });
+  async getItem(id, options = {}) {
+    return this._request('getItem', { id }, { timeoutMs: options.timeoutMs });
   }
 
   async login(password) {

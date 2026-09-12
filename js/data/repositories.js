@@ -9,7 +9,7 @@ import { Cache } from '../cache.js';
 async function verifySavedItem(provider, result, payload) {
   if (!result?.id) throw new Error('เซิร์ฟเวอร์ไม่ส่งรหัสรายการที่บันทึก กรุณาตรวจสอบเวอร์ชัน Apps Script');
   try {
-    const item = await provider.getItem(result.id);
+    const item = await provider.getItem(result.id, { timeoutMs: 75000 });
     if (!item || String(item.year) !== String(payload.year) ||
         item.title !== payload.title ||
         (payload.category && item.category !== payload.category) ||
