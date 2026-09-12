@@ -1,0 +1,4 @@
+.clasp.json
+.clasprc.json
+.apps-script-backup/
+node_modules/

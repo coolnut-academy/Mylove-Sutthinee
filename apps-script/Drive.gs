@@ -6,14 +6,8 @@
 const Drive = {
   getRootFolder: function() {
     const folderId = CONFIG.getRootDriveFolderId();
-    if (folderId) {
-      try {
-        return DriveApp.getFolderById(folderId);
-      } catch (e) {
-        console.warn('Could not open folder by ID, falling back to root folder:', e);
-      }
-    }
-    return DriveApp.getRootFolder();
+    if (!folderId) throw new Error('ROOT_DRIVE_FOLDER_ID is not configured');
+    return DriveApp.getFolderById(folderId);
   },
 
   getOrCreateFolder: function(parentFolder, folderName) {
@@ -25,12 +19,23 @@ const Drive = {
   },
 
   getYearFolder: function(year, subfolderName) {
+    if (!/^25\d{2}$/.test(String(year))) throw new Error('กรุณาระบุปี พ.ศ. 4 หลัก');
     const root = this.getRootFolder();
     const yearFolder = this.getOrCreateFolder(root, String(year));
     if (subfolderName) {
-      return this.getOrCreateFolder(yearFolder, subfolderName);
+      return String(subfolderName).split('/').filter(Boolean).reduce(
+        (parent, name) => this.getOrCreateFolder(parent, name), yearFolder);
     }
     return yearFolder;
+  },
+
+  getFeaturePath: function(payload) {
+    const module = payload.module || (payload.category ? 'classroom' : 'pa');
+    const feature = module === 'classroom' ? payload.category : (payload.sectionCode || payload.section_code || '1.1');
+    if (!['classroom', 'pa'].includes(module) || !/^[a-zA-Z0-9_.-]+$/.test(feature || '')) {
+      throw new Error('กรุณาระบุหมวดจัดเก็บไฟล์ให้ถูกต้อง');
+    }
+    return (module === 'classroom' ? 'CLASSROOM/' : 'PA/') + feature;
   },
 
   saveFile: function({ name, mimeType, base64Data, year, subfolder }) {

@@ -6,6 +6,25 @@
 
 import { Cache } from '../cache.js';
 
+async function verifySavedItem(provider, result, payload) {
+  if (!result?.id) throw new Error('เซิร์ฟเวอร์ไม่ส่งรหัสรายการที่บันทึก กรุณาตรวจสอบเวอร์ชัน Apps Script');
+  try {
+    const item = await provider.getItem(result.id);
+    if (!item || String(item.year) !== String(payload.year) ||
+        item.title !== payload.title ||
+        (payload.category && item.category !== payload.category) ||
+        (payload.section_code && String(item.section_code) !== String(payload.section_code)) ||
+        (payload.cover_url && item.cover_url !== payload.cover_url) ||
+        (payload.drive_file_id && item.drive_file_id !== payload.drive_file_id)) {
+      throw new Error('ข้อมูลที่อ่านกลับไม่ตรงกับรายการที่บันทึก');
+    }
+    return item;
+  } catch (error) {
+    error.savedItem = result;
+    throw error;
+  }
+}
+
 export class SettingsRepository {
   constructor(provider) {
     this.provider = provider;
@@ -59,7 +78,7 @@ export class ClassroomRepository {
   async saveDocument(payload) {
     const res = await this.provider.saveClassroomDocument(payload);
     Cache.invalidate('classroom');
-    return res;
+    return verifySavedItem(this.provider, res, payload);
   }
 
   async deleteDocument(id, year) {
@@ -95,7 +114,7 @@ export class PaRepository {
   async saveItem(payload) {
     const res = await this.provider.savePaItem(payload);
     Cache.invalidate(`pa_items`);
-    return res;
+    return verifySavedItem(this.provider, res, payload);
   }
 
   async deleteItem(id) {
@@ -116,4 +135,3 @@ export class PaRepository {
     return res;
   }
 }
-

@@ -21,6 +21,21 @@ const Sheets = {
     return sheet;
   },
 
+  ensureHeaders: function(sheetName, required) {
+    const sheet = this.getSheet(sheetName);
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(required);
+      return;
+    }
+    const headers = sheet.getDataRange().getValues()[0].map(h => String(h).trim());
+    const missing = required.filter(h => headers.indexOf(h) === -1);
+    if (missing.length) {
+      const needed = headers.length + missing.length;
+      if (needed > sheet.getMaxColumns()) sheet.insertColumnsAfter(sheet.getMaxColumns(), needed - sheet.getMaxColumns());
+      sheet.getRange(1, headers.length + 1, 1, missing.length).setValues([missing]);
+    }
+  },
+
   getTable: function(sheetName) {
     const sheet = this.getSheet(sheetName);
     const data = sheet.getDataRange().getValues();
@@ -34,7 +49,8 @@ const Sheets = {
       let hasData = false;
       for (let c = 0; c < headers.length; c++) {
         const val = data[r][c];
-        rowObj[headers[c]] = val;
+        rowObj[headers[c]] = ['archived', 'published', 'is_default'].includes(headers[c])
+          ? Utils.toBoolean(val) : val;
         if (val !== '' && val !== null && val !== undefined) hasData = true;
       }
       if (hasData) {
@@ -61,6 +77,7 @@ const Sheets = {
       const missingKeys = objKeys.filter(k => headers.indexOf(k) === -1);
       if (missingKeys.length > 0) {
         const startCol = headers.length + 1;
+        if (headers.length + missingKeys.length > sheet.getMaxColumns()) sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length + missingKeys.length - sheet.getMaxColumns());
         sheet.getRange(1, startCol, 1, missingKeys.length).setValues([missingKeys]);
         headers = headers.concat(missingKeys);
       }
@@ -89,6 +106,7 @@ const Sheets = {
     const missingKeys = updateKeys.filter(k => headers.indexOf(k) === -1);
     if (missingKeys.length > 0) {
       const startCol = headers.length + 1;
+      if (headers.length + missingKeys.length > sheet.getMaxColumns()) sheet.insertColumnsAfter(sheet.getMaxColumns(), headers.length + missingKeys.length - sheet.getMaxColumns());
       sheet.getRange(1, startCol, 1, missingKeys.length).setValues([missingKeys]);
       headers = headers.concat(missingKeys);
     }

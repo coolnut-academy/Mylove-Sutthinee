@@ -211,6 +211,8 @@ export class UniversalItemModal {
       return;
     }
 
+    this.state.coverPending = true;
+    this.state.coverBase64 = null;
     const progressBox = document.getElementById('u-cover-progress-box');
     const progressBar = document.getElementById('u-cover-progress-bar');
     const progressPercent = document.getElementById('u-cover-progress-percent');
@@ -248,6 +250,7 @@ export class UniversalItemModal {
         preview.classList.remove('empty');
       }
     } finally {
+      this.state.coverPending = false;
       setTimeout(() => {
         if (progressBox) progressBox.classList.add('d-none');
       }, 600);
@@ -269,6 +272,10 @@ export class UniversalItemModal {
   }
 
   static async _handleSave() {
+    if (this.state.coverPending) {
+      Toast.error('กรุณารอเตรียมภาพหน้าปกให้เสร็จก่อนบันทึก');
+      return;
+    }
     if (!AppState.isAdmin()) {
       Toast.error('เฉพาะผู้ดูแลระบบเท่านั้นที่สามารถบันทึกข้อมูลได้ กรุณาเข้าสู่ระบบก่อน');
       return;
@@ -326,16 +333,21 @@ export class UniversalItemModal {
             sectionCode: this.currentContext.sectionCode || this.currentContext.category || '1.1',
             type: mimeType,
             base64Data: rawBase64,
+            module: this.currentContext.module,
+            category: this.currentContext.category,
             skipSheetInsert: true
           });
 
           const coverItem = coverRes?.item || coverRes;
+          if (!coverItem?.drive_file_id || !(coverItem.thumbnail_url || coverItem.external_url)) {
+            throw new Error('???????????????????????????????? Google Drive');
+          }
           if (coverItem) {
             coverUrl = coverItem.thumbnail_url || coverItem.external_url || coverItem.drive_url || coverUrl;
+            this.state.coverBase64 = coverUrl;
           }
         } catch (coverErr) {
-          console.warn('Cover upload to Drive failed, fallback to default:', coverErr);
-          coverUrl = './assets/fallback/classroom-cover.svg';
+          throw new Error('?????????????????????????: ' + coverErr.message);
         }
       } else if (!coverUrl) {
         coverUrl = './assets/fallback/classroom-cover.svg';
@@ -360,10 +372,15 @@ export class UniversalItemModal {
           sectionCode: this.currentContext.sectionCode || this.currentContext.category || '1.1',
           type: docMime,
           base64Data: rawDocB64,
-          skipSheetInsert: true
+          module: this.currentContext.module,
+            category: this.currentContext.category,
+            skipSheetInsert: true
         });
 
         const docItem = docRes?.item || docRes;
+        if (!docItem?.drive_file_id || !(docItem.external_url || docItem.drive_url || docItem.preview_url)) {
+          throw new Error('??????????????????????????????????? Google Drive');
+        }
         if (docItem) {
           driveFileId = docItem.drive_file_id || '';
           itemUrl = docItem.external_url || docItem.drive_url || docItem.preview_url || itemUrl;
@@ -410,14 +427,15 @@ export class UniversalItemModal {
       Cache.invalidate('classroom');
       Cache.invalidate('pa');
 
+      this.currentContext.editingItem = savedResult;
+      if (typeof this.currentContext.onSaveSuccess === 'function') {
+        await this.currentContext.onSaveSuccess(savedResult || newItem);
+      }
       Toast.success('บันทึกข้อมูลและนำส่ง Google Cloud เรียบร้อยแล้ว');
       this.close();
-
-      if (typeof this.currentContext.onSaveSuccess === 'function') {
-        this.currentContext.onSaveSuccess(savedResult || newItem);
-      }
     } catch (err) {
       console.error('Error saving universal item:', err);
+      if (err.savedItem) this.currentContext.editingItem = err.savedItem;
       Toast.error('เกิดข้อผิดพลาดในการบันทึก: ' + err.message);
     } finally {
       if (saveBtn) {

@@ -24,7 +24,7 @@ export const CONFIG = {
   FALLBACK_YEAR: "2566",
 
   // Cache configuration
-  CACHE_VERSION: "v2",
+  CACHE_VERSION: "v3",
   CACHE_TTL_MS: 15 * 60 * 1000, // 15 minutes
 
   // File upload thresholds

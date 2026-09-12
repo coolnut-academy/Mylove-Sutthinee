@@ -7,7 +7,7 @@
 const Upload = {
   handleUpload: function(payload) {
     const name = payload.name;
-    const year = payload.year || '2567';
+    const year = payload.year;
     const sectionCode = payload.sectionCode || '1.1';
     const mimeType = payload.mimeType || payload.type || 'application/octet-stream';
     const base64Data = payload.base64Data;
@@ -27,7 +27,7 @@ const Upload = {
         mimeType: mimeType,
         base64Data: base64Data,
         year: year,
-        subfolder: 'PA'
+        subfolder: Drive.getFeaturePath(payload)
       });
       uploadedFileId = driveRes.fileId;
 
@@ -70,7 +70,8 @@ const Upload = {
         }
 
         try {
-          const targetTable = payload.targetTable || 'PA_ITEMS';
+          const targetTable = payload.module === 'classroom' ? 'CLASSROOM_DOCUMENTS' : 'PA_ITEMS';
+          if (payload.module === 'classroom') newItem.category = payload.category;
           Sheets.appendRow(targetTable, newItem);
 
           // 💡 บังคับให้ Google Sheets บันทึกข้อมูลลงดิสก์ทันทีก่อนปลดล็อก (ป้องกัน Race Condition)

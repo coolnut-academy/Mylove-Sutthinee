@@ -16,7 +16,8 @@ const Router = {
           data = {
             settings: Admin.getSettings(),
             years: Years.getAll(),
-            defaultYear: CONFIG.getDefaultYear()
+            defaultYear: CONFIG.getDefaultYear(),
+            storageVersion: '2026-09-12-feature-folders-v1'
           };
           break;
 
@@ -89,15 +90,23 @@ const Router = {
 
       // 2. Protected actions (Require valid admin token)
       // If deployed in development, we can check token if provided
-      if (payload.token && !Auth.validateToken(payload.token)) {
+      if (!payload.token || !Auth.validateToken(payload.token)) {
         return Utils.jsonError('Unauthorized: Invalid or expired session token', 401);
       }
 
       let result = null;
+      // Transport metadata must never become spreadsheet columns or public data.
+      delete payload.token;
+      delete payload.action;
 
       switch (action) {
         case 'saveSettings':
           result = Admin.saveSettings(payload.settings || {});
+          break;
+
+        case 'migrateFeatureStorage':
+          migrateFeatureStorage();
+          result = { migrated: true, storageVersion: '2026-09-12-feature-folders-v1' };
           break;
 
         case 'createYear':

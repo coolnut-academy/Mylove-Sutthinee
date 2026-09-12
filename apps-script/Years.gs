@@ -10,7 +10,7 @@ const Years = {
 
   createYear: function(payload) {
     const year = String(payload.year);
-    if (!year) throw new Error('Year is required');
+    if (!/^25\d{2}$/.test(year)) throw new Error('กรุณาระบุปี พ.ศ. 4 หลัก');
 
     const existing = this.getAll();
     if (existing.some(y => String(y.year) === year)) {
@@ -31,7 +31,7 @@ const Years = {
       const folder = Drive.getYearFolder(year);
       rootFolderId = folder.getId();
     } catch (e) {
-      console.warn('Could not create Drive folder for year:', e);
+      throw new Error('สร้างโฟลเดอร์ปีการศึกษาไม่สำเร็จ: ' + e.message);
     }
 
     const newYear = {

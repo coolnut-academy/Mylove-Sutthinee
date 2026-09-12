@@ -4,6 +4,9 @@
  */
 
 const Utils = {
+  toBoolean: function(value) {
+    return value === true || value === 1 || /^(true|1)$/i.test(String(value).trim());
+  },
   jsonSuccess: function(data) {
     const output = JSON.stringify({
       success: true,

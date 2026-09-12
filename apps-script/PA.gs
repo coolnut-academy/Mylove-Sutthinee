@@ -39,13 +39,12 @@ const PA = {
           name: ((item.title || 'pa_cover') + '_cover_' + Date.now()).replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_') + (mimeType.indexOf('png') !== -1 ? '.png' : '.jpg'),
           mimeType: mimeType,
           base64Data: base64Data,
-          year: item.year || '2567',
-          subfolder: 'COVERS'
+          year: item.year,
+          subfolder: Drive.getFeaturePath(Object.assign({}, item, { module: 'pa' }))
         });
         item.cover_url = driveRes.thumbnailUrl || driveRes.url;
       } catch (e) {
-        console.warn('Drive save cover failed, fallback to default:', e);
-        item.cover_url = './assets/fallback/classroom-cover.svg';
+        throw new Error('?????????????????????????: ' + e.message);
       }
     }
 
@@ -64,15 +63,15 @@ const PA = {
           name: item.file_name || (((item.title || 'pa_doc') + (item.type === 'ebook' ? '.pdf' : '.xlsx')).replace(/[^a-zA-Z0-9_\u0E00-\u0E7F.]/g, '_')),
           mimeType: mime,
           base64Data: rawB64,
-          year: item.year || '2567',
-          subfolder: 'PA_DOCUMENTS'
+          year: item.year,
+          subfolder: Drive.getFeaturePath(Object.assign({}, item, { module: 'pa' }))
         });
         item.drive_file_id = driveRes.fileId;
         item.external_url = driveRes.previewUrl || driveRes.url;
         item.item_url = driveRes.previewUrl || driveRes.url;
         item.thumbnail_url = driveRes.thumbnailUrl;
       } catch (e) {
-        console.warn('Drive save file failed:', e);
+        throw new Error('??????????????????????: ' + e.message);
       }
       // 💡 ลบ base64 ขนาดใหญ่ทิ้ง ป้องกันไม่ให้เกินโควตา 50,000 ตัวอักษรต่อเซลล์ใน Google Sheets
       delete item.file_data;

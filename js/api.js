@@ -14,7 +14,7 @@ import {
 } from './data/repositories.js';
 
 // Instantiate appropriate provider
-export const provider = (CONFIG.DATA_MODE === 'live' && CONFIG.API_URL)
+export const provider = (CONFIG.DATA_MODE === 'live')
   ? new AppsScriptDataProvider(CONFIG.API_URL)
   : new MockDataProvider();
 

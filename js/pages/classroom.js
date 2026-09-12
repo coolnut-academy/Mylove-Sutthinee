@@ -281,7 +281,7 @@ class ClassroomPageController {
       const opt = document.createElement('option');
       opt.value = y.year;
       opt.textContent = `${y.year}${y.status === 'archived' ? ' (คลังประวัติ)' : ''}`;
-      if (y.year === this.currentYear) {
+      if (String(y.year) === String(this.currentYear)) {
         opt.selected = true;
       }
       select.appendChild(opt);
