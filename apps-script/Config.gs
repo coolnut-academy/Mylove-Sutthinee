@@ -41,13 +41,13 @@ const CONFIG = {
     try {
       const years = Sheets.getTable('YEARS');
       if (years && years.length > 0) {
-        const def = years.find(y => y.is_default === true || String(y.is_default).toLowerCase() === 'true');
-        if (def && def.year) return String(def.year);
         const sorted = years
           .map(y => Number(y.year))
           .filter(n => !isNaN(n) && n > 2500)
           .sort((a, b) => b - a);
         if (sorted.length > 0) return String(sorted[0]);
+        const def = years.find(y => y.is_default === true || String(y.is_default).toLowerCase() === 'true');
+        if (def && def.year) return String(def.year);
       }
     } catch (e) {}
     return '2569';

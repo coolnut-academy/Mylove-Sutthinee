@@ -101,16 +101,11 @@ export class AppsScriptDataProvider extends BaseDataProvider {
       'archiveItem',
       'setPublished'
     ];
-    // 💡 คำขอประเภทเขียนข้อมูลหรืออัปโหลดไฟล์ให้เวลา 75 วินาที (ป้องกัน Timeout บน Google Apps Script)
-    const timeoutMs = customTimeout || (writeActions.includes(action) ? 75000 : 25000);
-    const timerId = setTimeout(() => abortController.abort(), timeoutMs);
+    // 💡 คำขอประเภทเขียนข้อมูลหรืออัปโหลดไฟล์ให้เวลา 75 วินาที, คำขออ่านให้เวลา 60 วินาที (รองรับ Cold Start ของ Google Apps Script)
+    const timeoutMs = customTimeout || (writeActions.includes(action) ? 75000 : 60000);
 
-    const options = {
-      method,
-      headers,
-      redirect: 'follow', // 💡 บังคับตาม Google 302 Redirect
-      signal: abortController.signal
-    };
+    const baseHeaders = { 'Accept': 'application/json' };
+    let postBody = null;
 
     if (method === 'POST') {
       // ส่ง Session Token ใน JSON Body ปลอดภัยและไม่ติด CORS
@@ -122,40 +117,58 @@ export class AppsScriptDataProvider extends BaseDataProvider {
       if (session && session.token && !postPayload.token) {
         postPayload.token = session.token;
       }
-
-      options.body = JSON.stringify(postPayload);
-      // 💡 Simple Request Header
-      headers['Content-Type'] = 'text/plain;charset=utf-8';
+      postBody = JSON.stringify(postPayload);
+      baseHeaders['Content-Type'] = 'text/plain;charset=utf-8';
     }
 
-    // 💡 Loading ถูกจัดการโดย page controller แล้ว — ไม่ต้อง start/done/fail ที่นี่
-    //    ป้องกัน Loading ซ้ำซ้อน (activeCount สูงเกินจริง) และ Loading ค้าง
+    const maxAttempts = method === 'GET' ? 2 : 1;
+    let lastError = null;
 
-    try {
-      const resp = await fetch(url.toString(), options);
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const abortController = new AbortController();
+      const timerId = setTimeout(() => abortController.abort(), timeoutMs);
 
-      const text = await resp.text();
-      clearTimeout(timerId);
-      let data;
+      const options = {
+        method,
+        headers: baseHeaders,
+        redirect: 'follow', // 💡 บังคับตาม Google 302 Redirect
+        signal: abortController.signal
+      };
+      if (postBody) options.body = postBody;
+
       try {
-        data = JSON.parse(text);
-      } catch (parseErr) {
-        throw new Error(`Google Apps Script ส่งข้อมูลไม่ถูกต้อง (ตรวจสอบสิทธิ์หรือ URL Web App)`);
-      }
-      if (!data.success) {
-        throw new Error(data.error || 'Server request failed');
-      }
+        const resp = await fetch(url.toString(), options);
+        const text = await resp.text();
+        clearTimeout(timerId);
 
-      return data.data;
-    } catch (err) {
-      clearTimeout(timerId);
-      if (err.name === 'AbortError') {
-        const timeoutMsg = `การเชื่อมต่อไปยัง Google Apps Script หมดเวลา (${timeoutMs / 1000} วินาที) กรุณาลองใหม่อีกครั้ง`;
-        console.error(`[${action}] Timeout:`, timeoutMsg);
-        throw new Error(timeoutMsg);
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (parseErr) {
+          throw new Error('Google Apps Script ส่งข้อมูลไม่ถูกต้อง (ตรวจสอบสิทธิ์หรือ URL Web App)');
+        }
+        if (!data.success) {
+          throw new Error(data.error || 'Server request failed');
+        }
+
+        return data.data;
+      } catch (err) {
+        clearTimeout(timerId);
+        const isAbort = err.name === 'AbortError';
+        lastError = isAbort
+          ? new Error(`การเชื่อมต่อไปยัง Google Apps Script หมดเวลา (${timeoutMs / 1000} วินาที) กรุณาลองใหม่อีกครั้ง`)
+          : err;
+
+        if (attempt < maxAttempts) {
+          console.warn(`[${action}] Attempt ${attempt} failed (${lastError.message}), retrying in 1.2s...`);
+          await new Promise(r => setTimeout(r, 1200));
+          url.searchParams.set('_t', String(Date.now()));
+          continue;
+        }
+
+        console.error(`AppsScript Provider error [${action}]:`, lastError);
+        throw lastError;
       }
-      console.error(`AppsScript Provider error [${action}]:`, err);
-      throw err;
     }
   }
 

@@ -54,6 +54,23 @@ class ClassroomPageController {
       InlineEditor.init();
     } catch (err) {
       console.error("Failed to load classroom module:", err);
+      try {
+        const { Cache } = await import('../cache.js');
+        const stale = Cache.get(Cache.buildKey('cls_bootstrap_' + this.currentYear), true);
+        if (stale) {
+          this._applySettings(stale.settings);
+          this._applyYears(stale.years);
+          if (stale.classroomData) {
+            this.classroomData = stale.classroomData;
+            this._renderCurrentView();
+          }
+          this._updateAdminButton();
+          InlineEditor.init();
+          Loading.done('พร้อมใช้งาน (แคช)');
+          Toast.info('แสดงข้อมูลที่บันทึกไว้ล่าสุด');
+          return;
+        }
+      } catch (cacheErr) {}
       Loading.fail('โหลดข้อมูลไม่สำเร็จ');
     }
   }

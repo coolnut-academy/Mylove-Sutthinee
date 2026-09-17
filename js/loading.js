@@ -37,6 +37,7 @@ export class LoadingManager {
   start(message = 'กำลังโหลดข้อมูล...') {
     this._ensureDOM();
     clearTimeout(this.hideTimer);
+    this.hideTimer = null;
     if (this.activeCount === 0) {
       this.startedAt = Date.now();
       this.progress = 5;
@@ -54,15 +55,6 @@ export class LoadingManager {
     this.indicatorEl?.classList.add('show');
     if (this.iconEl) this.iconEl.textContent = '☁️';
     this._update();
-
-    // 💡 Safety timeout: ถ้า Loading ค้างนานกว่า 30 วินาที ให้ force reset
-    clearTimeout(this.safetyTimer);
-    this.safetyTimer = setTimeout(() => {
-      if (this.activeCount > 0) {
-        console.warn(`[Loading] Safety timeout fired after 30s, activeCount was ${this.activeCount}`);
-        this.forceReset();
-      }
-    }, 30000);
   }
 
   set(percent, message) {

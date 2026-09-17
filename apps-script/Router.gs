@@ -34,7 +34,7 @@ const Router = {
           } else if (bootstrapModule === 'pa') {
             data.paData = { sections: PA.getSections(bootstrapYear), items: PA.getItems(bootstrapYear) };
           }
-          ServerCache.put(cacheKey, data, 300); // cache 5 นาที
+          ServerCache.put(cacheKey, data, 1800); // cache 30 นาที (ความเร็วสูงระดับ 0.5s สำหรับการเปิดหน้าเว็บครั้งถัดไป)
           break;
 
         case 'getYears':

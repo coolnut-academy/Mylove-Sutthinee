@@ -18,11 +18,10 @@ const PA = {
       section = { id: 'sec_' + payload.year + '_' + payload.section_code, year: String(payload.year), section_code: payload.section_code, published: true, archived: false };
     }
     if (!section.id) throw new Error('หัวข้อ ว.PA ไม่มีรหัสรายการ');
-    return Sheets.saveVerified('PA_SECTIONS', {
-      id: section.id, year: section.year, section_code: section.section_code,
-      title: String(payload.title).trim(), description: String(payload.description || ''),
-      published: section.published, archived: section.archived
-    }, 'sec');
+    return Sheets.saveVerified('PA_SECTIONS', Object.assign({}, section, {
+      title: String(payload.title).trim(),
+      description: String(payload.description || '')
+    }), 'sec');
   },
   getSections: function(year) {
     const y = String(year);

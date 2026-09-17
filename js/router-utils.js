@@ -35,13 +35,14 @@ export const RouterUtils = {
    */
   findLatestYear(years) {
     if (!years || !years.length) return CONFIG.DEFAULT_YEAR;
-    const def = years.find(y => y.is_default === true || String(y.is_default).toLowerCase() === 'true');
-    if (def && def.year) return String(def.year);
+    // 💡 หาปี พ.ศ. ที่มากที่สุด (ปีล่าสุด) ก่อนเสมอ เช่น 2569 > 2568 > 2567 ให้ตรงกับ CONFIG.DEFAULT_YEAR
     const validYears = years
       .map(y => Number(y.year))
       .filter(n => !isNaN(n) && n > 2500)
       .sort((a, b) => b - a);
     if (validYears.length > 0) return String(validYears[0]);
+    const def = years.find(y => y.is_default === true || String(y.is_default).toLowerCase() === 'true');
+    if (def && def.year) return String(def.year);
     return String(years[0].year || CONFIG.DEFAULT_YEAR);
   },
 

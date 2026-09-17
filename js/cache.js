@@ -15,16 +15,17 @@ export const Cache = {
   },
 
   /**
-   * Get cached data if valid
+   * Get cached data if valid (or allow stale for instant rendering)
    */
-  get(key) {
+  get(key, allowStale = false) {
     if (typeof window === 'undefined' || !window.localStorage) return null;
     try {
       const raw = window.localStorage.getItem(key);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      if (parsed.expiresAt && Date.now() > parsed.expiresAt) {
-        window.localStorage.removeItem(key);
+      if (!parsed || parsed.data === undefined) return null;
+      const isExpired = parsed.expiresAt && Date.now() > parsed.expiresAt;
+      if (isExpired && !allowStale) {
         return null;
       }
       return parsed.data;
@@ -70,17 +71,17 @@ export const Cache = {
 
   /**
    * Stale-While-Revalidate pattern:
-   * หากมีข้อมูลแคชอยู่แล้ว:
-   *   - แข่งขันเน็ตเวิร์กด้วยเพดาน 1.5 วินาที
-   *   - หาก Cloud เร็วกว่า 1.5 วิ จะได้ข้อมูลสดใหม่ล่าสุดเสมอ
-   *   - หาก Cloud ช้ากว่า 1.5 วิ (เช่น โหลดครั้งแรกหลังตื่น) จะนำข้อมูลแคชมาแสดงผลทันที
-   *     ทำให้หน้าเว็บเปิดเร็ว ไม่ค้าง และอัปเดตแคชในพื้นหลังอย่างต่อเนื่อง
+   * หากมีข้อมูลแคชอยู่แล้ว (แม้หมดอายุ):
+   *   - นำข้อมูลแคชมาแสดงผลทันทีแบบ 0 วินาที
+   *   - แข่งขันเน็ตเวิร์กด้วยเพดาน 400ms
+   *   - ดึงข้อมูลสดใหม่ล่าสุดในพื้นหลังและอัปเดตหน้าจอโดยไม่ขัดจังหวะผู้ใช้
    */
   async swr(key, fetcher, onFreshData) {
     const revision = this._revision;
-    const cached = this.get(key);
+    // 💡 ยินยอมให้ใช้ Stale Cache เพื่อให้หน้าเว็บเรนเดอร์ได้ทันทีใน 0 วินาที
+    const cached = this.get(key, true);
     if (cached && onFreshData) {
-      onFreshData(cached, true /* isFromCache */);
+      try { onFreshData(cached, true /* isFromCache */); } catch (e) { console.warn(e); }
     }
 
     if (cached) {
@@ -99,11 +100,11 @@ export const Cache = {
         }
       })();
 
-      // 💡 ลด timeout จาก 1500ms → 500ms เพื่อแสดง cached data เร็วขึ้น
+      // 💡 เพดานรอเน็ตเวิร์ก 400ms
       const timeoutPromise = new Promise(resolve => setTimeout(() => {
         isSettled = true;
         resolve(cached);
-      }, 500));
+      }, 400));
 
       return Promise.race([networkPromise, timeoutPromise]);
     }
