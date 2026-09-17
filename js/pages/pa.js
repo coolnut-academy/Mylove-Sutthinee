@@ -62,8 +62,8 @@ class PaPageController {
         this._applySettings(bootstrap.settings);
         this._applyYears(bootstrap.years);
         if (bootstrap.paData) {
-          this.paSections = bootstrap.paData.sections || [];
-          this.paItems = bootstrap.paData.items || [];
+          this.paSections = this._normalizeSections(bootstrap.paData.sections);
+          this.paItems = this._normalizeItems(bootstrap.paData.items);
           this._renderCurrentView();
         }
       }
@@ -79,8 +79,8 @@ class PaPageController {
           this._applySettings(stale.settings);
           this._applyYears(stale.years);
           if (stale.paData) {
-            this.paSections = stale.paData.sections || [];
-            this.paItems = stale.paData.items || [];
+            this.paSections = this._normalizeSections(stale.paData.sections);
+            this.paItems = this._normalizeItems(stale.paData.items);
             this._renderCurrentView();
           }
           this._updateAdminButton();
@@ -360,6 +360,31 @@ class PaPageController {
     }
   }
 
+  _normalizeItems(items) {
+    return (items || []).map(i => ({
+      ...i,
+      section_code: String(i.section_code ?? '').trim(),
+      year: String(i.year ?? '').trim()
+    }));
+  }
+
+  _normalizeSections(sections) {
+    return (sections || []).map(s => ({
+      ...s,
+      section_code: String(s.section_code ?? '').trim(),
+      year: String(s.year ?? '').trim()
+    }));
+  }
+
+  _filterItemsForSection() {
+    const curSec = String(this.currentSec ?? '').trim();
+    const isChallenge = curSec.toLowerCase().startsWith('challenge');
+    return this.paItems.filter(item => {
+      const secCode = String(item.section_code ?? '').trim();
+      return secCode === curSec || (isChallenge && secCode.toUpperCase() === 'CHALLENGE');
+    });
+  }
+
   async _loadBootstrap() {
     const { Cache } = await import('../cache.js');
     const key = Cache.buildKey('pa_bootstrap_' + this.currentYear);
@@ -368,8 +393,8 @@ class PaPageController {
         this._applySettings(data.settings);
         this._applyYears(data.years);
         if (data.paData) {
-          this.paSections = data.paData.sections || [];
-          this.paItems = data.paData.items || [];
+          this.paSections = this._normalizeSections(data.paData.sections);
+          this.paItems = this._normalizeItems(data.paData.items);
           this._renderCurrentView();
         }
       }
@@ -426,7 +451,12 @@ class PaPageController {
   _showSavedItem(item) {
     this._dataRevision = (this._dataRevision || 0) + 1;
     if (String(item.year) !== String(this.currentYear)) return;
-    this.paItems = [...(this.paItems || []).filter(d => d.id !== item.id), item];
+    const normalized = {
+      ...item,
+      section_code: String(item.section_code ?? '').trim(),
+      year: String(item.year ?? '').trim()
+    };
+    this.paItems = [...(this.paItems || []).filter(d => d.id !== normalized.id), normalized];
     this._renderCurrentView();
   }
 
@@ -435,8 +465,8 @@ class PaPageController {
     try {
       const data = await PaApi.getPaData(year);
       if (revision !== (this._dataRevision || 0) || String(year) !== String(this.currentYear)) return;
-      this.paSections = data.sections || [];
-      this.paItems = data.items || [];
+      this.paSections = this._normalizeSections(data.sections);
+      this.paItems = this._normalizeItems(data.items);
       this._renderCurrentView();
     } catch (err) {
       console.error("Error fetching PA data:", err);
@@ -482,10 +512,7 @@ class PaPageController {
     document.title = `${meta.title} (ปี ${this.currentYear}) — รายงาน PA`;
 
     // Filter evidence items for this section and active year
-    const items = this.paItems.filter(item => {
-      return item.section_code === this.currentSec || 
-             (this.currentSec.startsWith('challenge') && item.section_code === 'CHALLENGE');
-    });
+    const items = this._filterItemsForSection();
 
     if (evidenceCountEl) evidenceCountEl.textContent = `🚀 ${items.length} ผลงาน`;
 
@@ -500,10 +527,7 @@ class PaPageController {
       searchInput._bound = true;
       searchInput.addEventListener('input', (e) => {
         this._paSearchQuery = e.target.value.trim().toLowerCase();
-        const currentItems = this.paItems.filter(item => {
-          return item.section_code === this.currentSec || 
-                 (this.currentSec.startsWith('challenge') && item.section_code === 'CHALLENGE');
-        });
+        const currentItems = this._filterItemsForSection();
         this._renderPaItemsGrid(currentItems, meta);
       });
     }
@@ -512,10 +536,7 @@ class PaPageController {
       sortSelect._bound = true;
       sortSelect.addEventListener('change', (e) => {
         this._paSortKey = e.target.value;
-        const currentItems = this.paItems.filter(item => {
-          return item.section_code === this.currentSec || 
-                 (this.currentSec.startsWith('challenge') && item.section_code === 'CHALLENGE');
-        });
+        const currentItems = this._filterItemsForSection();
         this._renderPaItemsGrid(currentItems, meta);
       });
     }
@@ -662,9 +683,10 @@ class PaPageController {
   }
 
   _getSectionMeta(code) {
+    const targetCode = String(code ?? '').trim();
     // Check if section exists in loaded paSections or fallback to INITIAL_PA_SECTIONS
-    const existing = (this.paSections && this.paSections.find(s => s.section_code === code)) ||
-                     INITIAL_PA_SECTIONS.find(s => s.section_code === code);
+    const existing = (this.paSections && this.paSections.find(s => String(s.section_code ?? '').trim() === targetCode)) ||
+                     INITIAL_PA_SECTIONS.find(s => String(s.section_code ?? '').trim() === targetCode);
     if (existing) {
       return {
         aspect: existing.parent_code || 'ส่วนที่ 1 ข้อตกลงตามมาตรฐานตำแหน่ง',

@@ -206,6 +206,11 @@ const inlineEditorJs = fs.readFileSync('js/admin/inline-editor.js', 'utf8');
 assert(!inlineEditorJs.match(/if\s*\(!isAdmin\)\s*\{[^}]*this\._injectEditButtons\(\)/), 'inline-editor.js does not inject edit buttons when !isAdmin');
 assert(inlineEditorJs.includes('this._removeEditButtons()'), 'inline-editor.js cleans up edit buttons when !isAdmin');
 
+const paJs = fs.readFileSync('js/pages/pa.js', 'utf8');
+assert(!paJs.includes('item.section_code === this.currentSec'), 'pa.js does not use strict equality without String casting for section_code');
+assert(paJs.includes('_normalizeItems'), 'pa.js normalizes items with string section_code and year');
+assert(paJs.includes('_filterItemsForSection'), 'pa.js uses _filterItemsForSection helper with String comparison');
+
 console.log('\n--- Summary ---');
 console.log(`Passed: ${passed}, Failed: ${failed}`);
 

@@ -45,7 +45,7 @@ export class AdminPaManagerController {
     }
 
     this.container.innerHTML = this.sections.map(sec => {
-      const secItems = this.items.filter(i => i.section_code === sec.section_code);
+      const secItems = this.items.filter(i => String(i.section_code ?? '').trim() === String(sec.section_code ?? '').trim());
 
       return `
         <div class="card" style="padding: var(--space-4);">

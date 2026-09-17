@@ -31,14 +31,17 @@ const PA = {
   },
 
   getItems: function(year, sectionCode) {
-    const y = String(year);
+    const y = String(year).trim();
+    const secStr = sectionCode ? String(sectionCode).trim() : null;
     let items = Sheets.getTable('PA_ITEMS')
-      .filter(i => String(i.year) === y && !i.archived && i.published);
+      .filter(i => String(i.year).trim() === y && !i.archived && i.published);
 
-    if (sectionCode) {
-      items = items.filter(i => String(i.section_code) === String(sectionCode));
+    if (secStr) {
+      items = items.filter(i => String(i.section_code).trim() === secStr);
     }
     return items.map(function(item) {
+      item.year = String(item.year || '').trim();
+      item.section_code = String(item.section_code || '').trim();
       if (typeof item.fields === 'string' && item.fields.indexOf('[') === 0) {
         try { item.fields = JSON.parse(item.fields); } catch(e) {}
       }

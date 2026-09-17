@@ -173,7 +173,26 @@ export class AppsScriptDataProvider extends BaseDataProvider {
   }
 
   async getBootstrap({ module, year }) {
-    return this._request('getBootstrap', { module, year });
+    const data = await this._request('getBootstrap', { module, year });
+    if (data && data.paData) {
+      if (Array.isArray(data.paData.items)) {
+        data.paData.items.forEach(i => {
+          if (i && typeof i === 'object') {
+            if (i.year !== undefined) i.year = String(i.year).trim();
+            if (i.section_code !== undefined) i.section_code = String(i.section_code).trim();
+          }
+        });
+      }
+      if (Array.isArray(data.paData.sections)) {
+        data.paData.sections.forEach(s => {
+          if (s && typeof s === 'object') {
+            if (s.year !== undefined) s.year = String(s.year).trim();
+            if (s.section_code !== undefined) s.section_code = String(s.section_code).trim();
+          }
+        });
+      }
+    }
+    return data;
   }
 
   async getYears() {
@@ -193,15 +212,52 @@ export class AppsScriptDataProvider extends BaseDataProvider {
   }
 
   async getPaSections(year) {
-    return this._request('getPaSections', { year });
+    const sections = await this._request('getPaSections', { year });
+    if (Array.isArray(sections)) {
+      sections.forEach(s => {
+        if (s && typeof s === 'object') {
+          if (s.year !== undefined) s.year = String(s.year).trim();
+          if (s.section_code !== undefined) s.section_code = String(s.section_code).trim();
+        }
+      });
+    }
+    return sections;
   }
 
   async getPaItems({ year, sectionCode }) {
-    return this._request('getPaItems', { year, sectionCode });
+    const items = await this._request('getPaItems', { year, sectionCode });
+    if (Array.isArray(items)) {
+      items.forEach(i => {
+        if (i && typeof i === 'object') {
+          if (i.year !== undefined) i.year = String(i.year).trim();
+          if (i.section_code !== undefined) i.section_code = String(i.section_code).trim();
+        }
+      });
+    }
+    return items;
   }
 
   async getPaData(year) {
-    return this._request('getPaData', { year }, { timeoutMs: 75000 });
+    const data = await this._request('getPaData', { year }, { timeoutMs: 75000 });
+    if (data) {
+      if (Array.isArray(data.items)) {
+        data.items.forEach(i => {
+          if (i && typeof i === 'object') {
+            if (i.year !== undefined) i.year = String(i.year).trim();
+            if (i.section_code !== undefined) i.section_code = String(i.section_code).trim();
+          }
+        });
+      }
+      if (Array.isArray(data.sections)) {
+        data.sections.forEach(s => {
+          if (s && typeof s === 'object') {
+            if (s.year !== undefined) s.year = String(s.year).trim();
+            if (s.section_code !== undefined) s.section_code = String(s.section_code).trim();
+          }
+        });
+      }
+    }
+    return data;
   }
 
   async getItem(id, options = {}) {

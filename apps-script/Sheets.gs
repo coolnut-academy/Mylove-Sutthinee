@@ -67,8 +67,12 @@ const Sheets = {
       let hasData = false;
       for (let c = 0; c < headers.length; c++) {
         const val = data[r][c];
-        rowObj[headers[c]] = ['archived', 'published', 'is_default'].includes(headers[c])
-          ? Utils.toBoolean(val) : val;
+        if (['section_code', 'year'].includes(headers[c]) && val !== '' && val !== null && val !== undefined) {
+          rowObj[headers[c]] = String(val).trim();
+        } else {
+          rowObj[headers[c]] = ['archived', 'published', 'is_default'].includes(headers[c])
+            ? Utils.toBoolean(val) : val;
+        }
         if (val !== '' && val !== null && val !== undefined) hasData = true;
       }
       if (hasData) {
