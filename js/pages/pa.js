@@ -340,14 +340,25 @@ class PaPageController {
 
   _applyYears(years) {
     const select = document.getElementById('header-year-select');
-    if (!select || !years) return;
+    if (!select || !years || !years.length) return;
+
+    // หาก URL ไม่ได้ระบุปีมา ให้แสดงผลปี พ.ศ. ล่าสุดเสมอ
+    const urlYear = RouterUtils.getParam('year');
+    if (!urlYear) {
+      const latestYear = RouterUtils.findLatestYear(years);
+      if (this.currentYear !== latestYear) {
+        this.currentYear = latestYear;
+        AppState.setYear(latestYear);
+        this._loadPaData(latestYear);
+      }
+    }
 
     select.innerHTML = '';
     years.forEach(y => {
       const opt = document.createElement('option');
       opt.value = y.year;
       opt.textContent = `${y.year}${y.status === 'archived' ? ' (คลังประวัติ)' : ''}`;
-      if (y.year === this.currentYear) {
+      if (String(y.year) === String(this.currentYear)) {
         opt.selected = true;
       }
       select.appendChild(opt);

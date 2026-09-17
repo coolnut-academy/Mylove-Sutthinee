@@ -291,7 +291,18 @@ class ClassroomPageController {
 
   _applyYears(years) {
     const select = document.getElementById('header-year-select');
-    if (!select || !years) return;
+    if (!select || !years || !years.length) return;
+
+    // หาก URL ไม่ได้ระบุปีมา ให้แสดงผลปี พ.ศ. ล่าสุดเสมอ
+    const urlYear = RouterUtils.getParam('year');
+    if (!urlYear) {
+      const latestYear = RouterUtils.findLatestYear(years);
+      if (this.currentYear !== latestYear) {
+        this.currentYear = latestYear;
+        AppState.setYear(latestYear);
+        this._loadClassroomData(latestYear);
+      }
+    }
 
     select.innerHTML = '';
     years.forEach(y => {

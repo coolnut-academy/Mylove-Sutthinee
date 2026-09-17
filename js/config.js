@@ -20,8 +20,8 @@ export const CONFIG = {
   CONTACT_PHONE: "064-618-0472 / 053-6850149",
 
   // Academic year settings
-  DEFAULT_YEAR: "2567",
-  FALLBACK_YEAR: "2566",
+  DEFAULT_YEAR: "2569",
+  FALLBACK_YEAR: "2568",
 
   // Cache configuration
   CACHE_VERSION: "v4",

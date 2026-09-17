@@ -172,9 +172,12 @@ const Router = {
       // 💡 Invalidate server-side bootstrap cache หลัง write เพื่อให้ read ถัดไปได้ข้อมูลใหม่
       try {
         var cache = CacheService.getScriptCache();
-        cache.removeAll(['bootstrap__2567', 'bootstrap__2568', 'bootstrap__2569',
-          'bootstrap_classroom_2567', 'bootstrap_classroom_2568', 'bootstrap_classroom_2569',
-          'bootstrap_pa_2567', 'bootstrap_pa_2568', 'bootstrap_pa_2569']);
+        var yearsToClear = ['2567', '2568', '2569', '2570', '2571'];
+        var keys = [];
+        yearsToClear.forEach(function(y) {
+          keys.push('bootstrap__' + y, 'bootstrap_classroom_' + y, 'bootstrap_pa_' + y);
+        });
+        cache.removeAll(keys);
       } catch (cacheErr) { /* ignore */ }
 
       return Utils.jsonSuccess(result);

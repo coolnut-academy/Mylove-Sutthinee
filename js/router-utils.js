@@ -30,21 +30,30 @@ export const RouterUtils = {
   },
 
   /**
+   * Find the latest academic year from an array of year objects
+   * Looks for year with is_default: true, or the highest numeric year (พ.ศ. ล่าสุด)
+   */
+  findLatestYear(years) {
+    if (!years || !years.length) return CONFIG.DEFAULT_YEAR;
+    const def = years.find(y => y.is_default === true || String(y.is_default).toLowerCase() === 'true');
+    if (def && def.year) return String(def.year);
+    const validYears = years
+      .map(y => Number(y.year))
+      .filter(n => !isNaN(n) && n > 2500)
+      .sort((a, b) => b - a);
+    if (validYears.length > 0) return String(validYears[0]);
+    return String(years[0].year || CONFIG.DEFAULT_YEAR);
+  },
+
+  /**
    * Resolve current academic year based on priority:
-   * 1. URL `year` query parameter
-   * 2. localStorage `stw:selected_year`
-   * 3. CONFIG.DEFAULT_YEAR
+   * 1. URL `year` query parameter (user explicitly chose this year)
+   * 2. CONFIG.DEFAULT_YEAR (latest active academic year)
    */
   resolveYear() {
     const urlYear = this.getParam('year');
     if (urlYear && /^\d{4}$/.test(urlYear)) {
       return urlYear;
-    }
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const stored = window.localStorage.getItem('stw:selected_year');
-      if (stored && /^\d{4}$/.test(stored)) {
-        return stored;
-      }
     }
     return CONFIG.DEFAULT_YEAR;
   },

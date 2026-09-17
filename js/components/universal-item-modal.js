@@ -14,6 +14,7 @@ import { Toast } from '../toast.js';
 import { AppState } from '../app-state.js';
 import { Cache } from '../cache.js';
 import { Loading } from '../loading.js';
+import { CONFIG } from '../config.js';
 
 export class UniversalItemModal {
   static saving = false;
@@ -344,7 +345,7 @@ export class UniversalItemModal {
 
           const coverRes = await DataProvider.file.uploadFile({
             name: `${primaryTitle.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_')}_cover_${Date.now()}.jpg`,
-            year: String(this.currentContext.year || '2567'),
+            year: String(this.currentContext.year || CONFIG.DEFAULT_YEAR || '2569'),
             sectionCode: this.currentContext.sectionCode || this.currentContext.category || '1.1',
             type: mimeType,
             base64Data: rawBase64,
@@ -384,7 +385,7 @@ export class UniversalItemModal {
 
         const docRes = await DataProvider.file.uploadFile({
           name: this.state.fileName || `${primaryTitle.replace(/[^a-zA-Z0-9_\u0E00-\u0E7F]/g, '_')}.${type === 'ebook' ? 'pdf' : 'xlsx'}`,
-          year: String(this.currentContext.year || '2567'),
+          year: String(this.currentContext.year || CONFIG.DEFAULT_YEAR || '2569'),
           sectionCode: this.currentContext.sectionCode || this.currentContext.category || '1.1',
           type: docMime,
           base64Data: rawDocB64,
@@ -408,7 +409,7 @@ export class UniversalItemModal {
       Loading.set(70, 'กำลังบันทึกและยืนยันข้อมูลใน Google Sheets...');
       const newItem = {
         id: this.state.submissionId,
-        year: String(this.currentContext.year || '2567'),
+        year: String(this.currentContext.year || CONFIG.DEFAULT_YEAR || '2569'),
         category: this.currentContext.category || '',
         section_code: this.currentContext.sectionCode || '',
         title: primaryTitle,

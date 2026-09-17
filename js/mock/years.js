@@ -12,7 +12,7 @@ export const INITIAL_YEARS = [
     root_folder_id: "drive_mock_folder_2567",
     pa_period_start: "2023-10-01",
     pa_period_end: "2024-09-30",
-    is_default: true,
+    is_default: false,
     created_at: "2023-10-01T00:00:00.000Z",
     updated_at: "2024-09-30T23:59:59.000Z"
   },
@@ -36,7 +36,7 @@ export const INITIAL_YEARS = [
     root_folder_id: "drive_mock_folder_2569",
     pa_period_start: "2025-10-01",
     pa_period_end: "2026-09-30",
-    is_default: false,
+    is_default: true,
     created_at: "2025-10-01T00:00:00.000Z",
     updated_at: "2026-03-15T00:00:00.000Z"
   }
