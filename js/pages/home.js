@@ -78,13 +78,40 @@ class HomePageController {
 
   _bindYearChange() {
     const select = document.getElementById('header-year-select');
+    const loadBtn = document.getElementById('btn-load-year');
+
+    const triggerLoad = (yearToLoad) => {
+      const targetYear = yearToLoad || select?.value || this.currentYear;
+      if (!targetYear) return;
+
+      loadBtn?.classList.remove('highlight');
+      AppState.setYear(targetYear);
+      this.currentYear = targetYear;
+
+      const url = new URL(window.location.href);
+      url.searchParams.set('year', targetYear);
+      window.history.pushState({}, '', url.toString());
+
+      this._updateDynamicLinks(targetYear);
+      this._updateYearDisplay(targetYear);
+      Toast.success(`สลับไปยังปีการศึกษา ${targetYear} เรียบร้อย`);
+    };
+
+    loadBtn?.addEventListener('click', () => triggerLoad());
+
     select?.addEventListener('change', (e) => {
       const newYear = e.target.value;
-      if (newYear) {
-        AppState.setYear(newYear);
-        this.currentYear = newYear;
-        this._updateDynamicLinks(newYear);
-        this._updateYearDisplay(newYear);
+      if (newYear && String(newYear) !== String(this.currentYear)) {
+        loadBtn?.classList.add('highlight');
+      } else {
+        loadBtn?.classList.remove('highlight');
+      }
+    });
+
+    select?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        triggerLoad();
       }
     });
 

@@ -160,6 +160,49 @@
   padding: 2px 4px;
 }
 
+/* Load Data Button inside Year Pill */
+.btn-load-year {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 4px 10px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  box-shadow: 0 1px 2px rgba(107, 33, 168, 0.2);
+}
+
+.btn-load-year:hover {
+  background: var(--purple-700);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 6px rgba(107, 33, 168, 0.35);
+}
+
+.btn-load-year:active {
+  transform: translateY(0);
+}
+
+.btn-load-year.loading {
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.btn-load-year.highlight {
+  animation: pulse-load 1.2s infinite ease-in-out;
+}
+
+@keyframes pulse-load {
+  0% { transform: scale(1); box-shadow: 0 1px 2px rgba(107, 33, 168, 0.2); }
+  50% { transform: scale(1.05); box-shadow: 0 0 10px rgba(107, 33, 168, 0.5); }
+  100% { transform: scale(1); box-shadow: 0 1px 2px rgba(107, 33, 168, 0.2); }
+}
+
 /* Mobile Nav Toggle */
 .mobile-nav-toggle {
   display: inline-flex;

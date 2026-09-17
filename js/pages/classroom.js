@@ -99,13 +99,52 @@ class ClassroomPageController {
 
   _bindYearChange() {
     const select = document.getElementById('header-year-select');
+    const loadBtn = document.getElementById('btn-load-year');
+
+    const triggerLoad = async (yearToLoad) => {
+      const targetYear = yearToLoad || select?.value || this.currentYear;
+      if (!targetYear) return;
+
+      loadBtn?.classList.remove('highlight');
+      loadBtn?.classList.add('loading');
+
+      AppState.setYear(targetYear);
+      this.currentYear = targetYear;
+      this._updateYearDisplay(targetYear);
+
+      // Update URL without full reload
+      const url = new URL(window.location.href);
+      url.searchParams.set('year', targetYear);
+      window.history.pushState({}, '', url.toString());
+
+      Loading.start(`กำลังโหลดข้อมูลธุรการในชั้นเรียน ปี ${targetYear}...`);
+      try {
+        await this._loadClassroomData(targetYear);
+        Loading.done(`โหลดข้อมูลปี ${targetYear} สำเร็จ`);
+        Toast.success(`โหลดข้อมูลปีการศึกษา ${targetYear} เรียบร้อย`);
+      } catch (err) {
+        console.error("Failed to load classroom year data:", err);
+        Loading.fail('โหลดข้อมูลไม่สำเร็จ');
+      } finally {
+        loadBtn?.classList.remove('loading');
+      }
+    };
+
+    loadBtn?.addEventListener('click', () => triggerLoad());
+
     select?.addEventListener('change', (e) => {
       const newYear = e.target.value;
-      if (newYear) {
-        AppState.setYear(newYear);
-        this.currentYear = newYear;
-        this._updateYearDisplay(newYear);
-        this._loadClassroomData(newYear);
+      if (newYear && String(newYear) !== String(this.currentYear)) {
+        loadBtn?.classList.add('highlight');
+      } else {
+        loadBtn?.classList.remove('highlight');
+      }
+    });
+
+    select?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        triggerLoad();
       }
     });
 
@@ -113,7 +152,6 @@ class ClassroomPageController {
       if (select && select.value !== year) select.value = year;
       this.currentYear = year;
       this._updateYearDisplay(year);
-      this._loadClassroomData(year);
     });
   }
 
