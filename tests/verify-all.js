@@ -191,6 +191,21 @@ assert(indexHtml.includes('id="icon-pa"'), 'index.html contains #icon-pa');
 assert(indexHtml.includes('id="title-pa"'), 'index.html contains #title-pa');
 assert(indexHtml.includes('id="desc-pa"'), 'index.html contains #desc-pa');
 
+console.log('\n--- 8. Testing Academic Year Load Button & Admin Pencil Isolation ---');
+// 1. Dedicated Load Data button in headers
+assert(indexHtml.includes('id="btn-load-year"') && indexHtml.includes('โหลดข้อมูล'), 'index.html contains #btn-load-year with text โหลดข้อมูล');
+assert(classroomHtml.includes('id="btn-load-year"') && classroomHtml.includes('โหลดข้อมูล'), 'classroom.html contains #btn-load-year with text โหลดข้อมูล');
+assert(paHtml.includes('id="btn-load-year"') && paHtml.includes('โหลดข้อมูล'), 'pa.html contains #btn-load-year with text โหลดข้อมูล');
+
+// 2. Pencil buttons hidden from public
+const componentsCss = fs.readFileSync('css/components.css', 'utf8');
+assert(componentsCss.includes('.btn-inline-edit') && componentsCss.includes('display: none !important;'), '.btn-inline-edit has display: none !important by default');
+assert(componentsCss.includes('body.admin-mode .btn-inline-edit') && componentsCss.includes('display: inline-flex !important;'), 'body.admin-mode .btn-inline-edit has display: inline-flex !important');
+
+const inlineEditorJs = fs.readFileSync('js/admin/inline-editor.js', 'utf8');
+assert(!inlineEditorJs.match(/if\s*\(!isAdmin\)\s*\{[^}]*this\._injectEditButtons\(\)/), 'inline-editor.js does not inject edit buttons when !isAdmin');
+assert(inlineEditorJs.includes('this._removeEditButtons()'), 'inline-editor.js cleans up edit buttons when !isAdmin');
+
 console.log('\n--- Summary ---');
 console.log(`Passed: ${passed}, Failed: ${failed}`);
 

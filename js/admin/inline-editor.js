@@ -25,7 +25,7 @@ export const InlineEditor = {
       document.body.classList.remove('admin-mode');
       this._removeFloatingBar();
       this._updateHeaderControls(false);
-      this._injectEditButtons();
+      this._removeEditButtons();
       this.initialized = true;
       return;
     }
@@ -119,20 +119,27 @@ export const InlineEditor = {
     const adminBtn = document.getElementById('btn-header-admin') || document.getElementById('header-admin-btn');
     if (!adminBtn) return;
 
-    const text = adminBtn.querySelector('.btn-text');
+    const icon = adminBtn.querySelector('#admin-btn-icon') || adminBtn.querySelector('.admin-btn-icon');
+    const text = adminBtn.querySelector('#admin-btn-text') || adminBtn.querySelector('.admin-btn-text') || adminBtn.querySelector('.btn-text');
 
     if (isAdmin) {
       adminBtn.className = 'btn btn-primary btn-sm';
       adminBtn.href = './admin.html';
       adminBtn.title = 'ไปที่หน้าจัดการเว็บไซต์';
+      if (icon) icon.textContent = '⚙️';
       if (text) text.textContent = 'จัดการเว็บไซต์';
-      else adminBtn.innerHTML = '⚙️ <span class="d-none d-sm-inline">จัดการเว็บไซต์</span>';
+      if (!icon && !text) {
+        adminBtn.innerHTML = '<span id="admin-btn-icon">⚙️</span> <span id="admin-btn-text">จัดการเว็บไซต์</span>';
+      }
     } else {
       adminBtn.className = 'btn btn-subtle btn-sm';
       adminBtn.href = '#';
       adminBtn.title = 'เข้าสู่ระบบจัดการเว็บไซต์';
+      if (icon) icon.textContent = '🔒';
       if (text) text.textContent = 'จัดการเว็บไซต์';
-      else adminBtn.innerHTML = '🔒 <span class="d-none d-sm-inline">จัดการเว็บไซต์</span>';
+      if (!icon && !text) {
+        adminBtn.innerHTML = '<span id="admin-btn-icon">🔒</span> <span id="admin-btn-text">จัดการเว็บไซต์</span>';
+      }
     }
   },
 
