@@ -211,6 +211,32 @@ assert(!paJs.includes('item.section_code === this.currentSec'), 'pa.js does not 
 assert(paJs.includes('_normalizeItems'), 'pa.js normalizes items with string section_code and year');
 assert(paJs.includes('_filterItemsForSection'), 'pa.js uses _filterItemsForSection helper with String comparison');
 
+console.log('\n--- 9. Testing eBook & Excel Google Drive Embed & Zero-CORS Fallback ---');
+// 1. Google Drive ID extraction tests for eBook Viewer
+assert(EbookViewerModal.extractDriveFileId('https://drive.google.com/file/d/1a76HVdewHplhchU-4FknKupmR_NTygVB/preview') === '1a76HVdewHplhchU-4FknKupmR_NTygVB', 'EbookViewerModal extracts ID from /preview URL');
+assert(EbookViewerModal.extractDriveFileId('https://drive.google.com/file/d/1a76HVdewHplhchU-4FknKupmR_NTygVB/view?usp=sharing') === '1a76HVdewHplhchU-4FknKupmR_NTygVB', 'EbookViewerModal extracts ID from /view sharing URL');
+assert(EbookViewerModal.extractDriveFileId('https://drive.google.com/open?id=1a76HVdewHplhchU-4FknKupmR_NTygVB') === '1a76HVdewHplhchU-4FknKupmR_NTygVB', 'EbookViewerModal extracts ID from open?id URL');
+assert(EbookViewerModal.extractDriveFileId('', '1a76HVdewHplhchU-4FknKupmR_NTygVB') === '1a76HVdewHplhchU-4FknKupmR_NTygVB', 'EbookViewerModal extracts direct driveFileId parameter');
+assert(EbookViewerModal.extractDriveFileId('data:application/pdf;base64,ABCDEF') === null, 'EbookViewerModal returns null for Base64 PDF data');
+
+// 2. Google Drive/Sheets ID extraction tests for Excel Viewer
+assert(ExcelViewerModal.extractDriveFileId('https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit') === '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms', 'ExcelViewerModal extracts ID from Google Sheets URL');
+assert(ExcelViewerModal.extractDriveFileId('https://drive.google.com/file/d/1a76HVdewHplhchU-4FknKupmR_NTygVB/preview') === '1a76HVdewHplhchU-4FknKupmR_NTygVB', 'ExcelViewerModal extracts ID from Drive /preview URL');
+
+// 3. Template and error visibility checks
+const ebookModalJs = fs.readFileSync('js/components/ebook-viewer-modal.js', 'utf8');
+const excelModalJs = fs.readFileSync('js/components/excel-viewer-modal.js', 'utf8');
+const cardRendererJs = fs.readFileSync('js/components/universal-card-renderer.js', 'utf8');
+const pagesCss = fs.readFileSync('css/pages.css', 'utf8');
+
+assert(ebookModalJs.includes('id="ebook-drive-iframe"'), 'ebook-viewer-modal.js contains #ebook-drive-iframe');
+assert(ebookModalJs.includes('id="ebook-external-btn"'), 'ebook-viewer-modal.js contains #ebook-external-btn');
+assert(ebookModalJs.includes("errorEl.classList.remove('d-none')"), 'ebook-viewer-modal.js unblocks error with classList.remove("d-none")');
+assert(excelModalJs.includes('id="excel-drive-iframe"'), 'excel-viewer-modal.js contains #excel-drive-iframe');
+assert(excelModalJs.includes("errorEl.classList.remove('d-none')"), 'excel-viewer-modal.js unblocks error with classList.remove("d-none")');
+assert(cardRendererJs.includes("driveFileId: item.drive_file_id || ''"), 'universal-card-renderer.js passes driveFileId to modal');
+assert(pagesCss.includes('.ebook-drive-frame'), 'pages.css defines styles for .ebook-drive-frame');
+
 console.log('\n--- Summary ---');
 console.log(`Passed: ${passed}, Failed: ${failed}`);
 
@@ -219,6 +245,7 @@ if (failed > 0) {
 } else {
   console.log('ALL VERIFICATIONS PASSED SUCCESSFULLY!');
 }
+
 
 
 

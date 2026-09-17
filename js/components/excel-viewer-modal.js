@@ -17,10 +17,32 @@ export class ExcelViewerModal {
    * Open the Excel viewer
    * @param {Object} options
    * @param {string} options.title - Spreadsheet title
+  /**
+   * Extract Google Drive file ID from URL or explicit parameter
+   */
+  static extractDriveFileId(url, directId = '') {
+    if (directId && typeof directId === 'string' && /^[a-zA-Z0-9_-]{15,}$/.test(directId)) {
+      return directId;
+    }
+    if (!url || typeof url !== 'string') return null;
+    const m1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (m1) return m1[1];
+    const m2 = url.match(/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+    if (m2) return m2[1];
+    const m3 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if (m3) return m3[1];
+    return null;
+  }
+
+  /**
+   * Open the Excel viewer
+   * @param {Object} options
+   * @param {string} options.title - Spreadsheet title
    * @param {string} options.fileData - Base64 Data URL, ArrayBuffer, or public URL
    * @param {string} [options.downloadUrl] - Optional direct download link
+   * @param {string} [options.driveFileId] - Optional Google Drive file ID
    */
-  static async open({ title = 'สเปรดชีต Excel ออนไลน์', fileData, downloadUrl = '' }) {
+  static async open({ title = 'สเปรดชีต Excel ออนไลน์', fileData, downloadUrl = '', driveFileId = '' }) {
     this._ensureModal();
     this.modalEl.classList.remove('d-none');
     document.body.classList.add('modal-open');
@@ -29,8 +51,36 @@ export class ExcelViewerModal {
     if (titleEl) titleEl.textContent = title;
 
     const downloadBtn = document.getElementById('excel-download-btn');
+    const tableContainer = document.getElementById('excel-sheet-table-wrap');
+    const tabsContainer = document.getElementById('excel-sheet-tabs');
+    const footerEl = document.querySelector('.excel-modal-footer');
+    const searchEl = document.querySelector('.excel-header-search');
+    const iframe = document.getElementById('excel-drive-iframe');
+    const loadingEl = document.getElementById('excel-loading');
+    const errorEl = document.getElementById('excel-error');
+
+    if (tableContainer) tableContainer.innerHTML = '';
+    if (tabsContainer) tabsContainer.innerHTML = '';
+    if (iframe) {
+      iframe.classList.add('d-none');
+      iframe.src = 'about:blank';
+    }
+    if (loadingEl) loadingEl.style.display = 'flex';
+    if (errorEl) {
+      errorEl.classList.add('d-none');
+      errorEl.style.display = 'none';
+      errorEl.innerHTML = '';
+    }
+
+    const resolvedDriveId = this.extractDriveFileId(fileData, driveFileId) || this.extractDriveFileId(downloadUrl);
+
+    // Setup download button
     if (downloadBtn) {
-      if (downloadUrl || (fileData && typeof fileData === 'string' && fileData.startsWith('data:'))) {
+      if (resolvedDriveId) {
+        downloadBtn.href = downloadUrl || `https://drive.google.com/uc?export=download&id=${resolvedDriveId}`;
+        downloadBtn.removeAttribute('download');
+        downloadBtn.classList.remove('d-none');
+      } else if (downloadUrl || (fileData && typeof fileData === 'string' && fileData.startsWith('data:'))) {
         downloadBtn.href = downloadUrl || fileData;
         downloadBtn.classList.remove('d-none');
       } else {
@@ -38,15 +88,42 @@ export class ExcelViewerModal {
       }
     }
 
-    const tableContainer = document.getElementById('excel-sheet-table-wrap');
-    const tabsContainer = document.getElementById('excel-sheet-tabs');
-    const loadingEl = document.getElementById('excel-loading');
-    const errorEl = document.getElementById('excel-error');
+    // Engine A: Google Drive / Sheets Cloud Viewer
+    if (resolvedDriveId) {
+      if (footerEl) footerEl.classList.add('d-none');
+      if (searchEl) searchEl.classList.add('d-none');
+      Loading.start('กำลังเปิดสเปรดชีตจาก Google Drive...');
 
-    if (tableContainer) tableContainer.innerHTML = '';
-    if (tabsContainer) tabsContainer.innerHTML = '';
-    if (loadingEl) loadingEl.style.display = 'flex';
-    if (errorEl) errorEl.style.display = 'none';
+      let previewUrl = `https://drive.google.com/file/d/${resolvedDriveId}/preview`;
+      if (typeof fileData === 'string' && fileData.includes('spreadsheets/d/')) {
+        previewUrl = `https://docs.google.com/spreadsheets/d/${resolvedDriveId}/preview`;
+      }
+
+      let loadDone = false;
+      const completeIframeDisplay = () => {
+        if (loadDone) return;
+        loadDone = true;
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (iframe) iframe.classList.remove('d-none');
+        Loading.done('เปิดตารางเรียบร้อย');
+      };
+
+      if (iframe) {
+        iframe.onload = completeIframeDisplay;
+        iframe.onerror = () => {
+          if (loadDone) return;
+          loadDone = true;
+          this._showError(title, `https://drive.google.com/file/d/${resolvedDriveId}/view`, downloadUrl);
+        };
+        iframe.src = previewUrl;
+        setTimeout(completeIframeDisplay, 3500);
+      }
+      return;
+    }
+
+    // Engine B: SheetJS Client-side Parser
+    if (footerEl) footerEl.classList.remove('d-none');
+    if (searchEl) searchEl.classList.remove('d-none');
 
     Loading.start('กำลังเปิดไฟล์ตาราง...');
     try {
@@ -84,19 +161,30 @@ export class ExcelViewerModal {
       Loading.done('เปิดตารางเรียบร้อย');
     } catch (err) {
       console.error('Error loading Excel in Viewer:', err);
-      Loading.fail('เปิดตารางไม่สำเร็จ');
-      if (loadingEl) loadingEl.style.display = 'none';
-      if (errorEl) {
-        errorEl.style.display = 'block';
-        errorEl.innerHTML = `
-          <div class="text-center p-6">
-            <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
-            <p class="font-bold mb-2">ไม่สามารถประมวลผลไฟล์ Excel นี้ได้</p>
-            <p class="text-muted text-sm mb-4">ไฟล์อาจมีรูปแบบพิเศษ หรือต้องการการเปิดผ่านแอปพลิเคชัน</p>
-            ${downloadUrl ? `<a href="${downloadUrl}" download class="btn btn-primary btn-sm">📥 ดาวน์โหลดไฟล์ต้นฉบับ</a>` : ''}
+      this._showError(title, fileData, downloadUrl);
+    }
+  }
+
+  static _showError(title, targetUrl = '', downloadUrl = '') {
+    Loading.fail('เปิดตารางไม่สำเร็จ');
+    const loadingEl = document.getElementById('excel-loading');
+    const errorEl = document.getElementById('excel-error');
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) {
+      errorEl.classList.remove('d-none');
+      errorEl.style.display = 'block';
+      const openUrl = targetUrl || downloadUrl;
+      errorEl.innerHTML = `
+        <div class="text-center p-6">
+          <div style="font-size: 3.5rem; margin-bottom: 1rem;">📊</div>
+          <h4 class="font-bold mb-2 text-lg">ไม่สามารถประมวลผลไฟล์ Excel ในระบบได้โดยตรง</h4>
+          <p class="text-muted text-sm mb-4">ไฟล์อาจมีรูปแบบพิเศษ หรืออยู่บน Google Drive ที่จำกัดสิทธิ์</p>
+          <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            ${openUrl && typeof openUrl === 'string' && openUrl.startsWith('http') ? `<a href="${openUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm">🔗 เปิดในแท็บใหม่</a>` : ''}
+            ${downloadUrl ? `<a href="${downloadUrl}" download class="btn btn-outline btn-sm">📥 ดาวน์โหลดไฟล์ต้นฉบับ</a>` : ''}
           </div>
-        `;
-      }
+        </div>
+      `;
     }
   }
 
@@ -105,6 +193,11 @@ export class ExcelViewerModal {
     this.modalEl.classList.add('d-none');
     document.body.classList.remove('modal-open');
     this.currentWorkbook = null;
+    const iframe = document.getElementById('excel-drive-iframe');
+    if (iframe) {
+      iframe.src = 'about:blank';
+      iframe.classList.add('d-none');
+    }
   }
 
   static switchSheet(sheetName) {
@@ -278,6 +371,7 @@ export class ExcelViewerModal {
           </div>
           <div id="excel-error" class="d-none"></div>
           <div id="excel-sheet-table-wrap" class="excel-table-scroll-wrap"></div>
+          <iframe id="excel-drive-iframe" class="ebook-drive-frame d-none" allow="autoplay" allowfullscreen></iframe>
         </div>
 
         <!-- Bottom Sheet Tabs Bar (Like Google Sheets) -->

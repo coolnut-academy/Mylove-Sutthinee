@@ -2316,6 +2316,17 @@ body.modal-open #admin-floating-status-bar { display: none; }
   max-width: 100%;
 }
 
+.ebook-drive-frame {
+  width: 100%;
+  height: 100%;
+  align-self: stretch;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  background: #FFF;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  display: block;
+}
+
 .ebook-modal-footer {
   padding: 16px;
   background: #110E1A;

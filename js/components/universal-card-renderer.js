@@ -139,9 +139,10 @@ export function renderUniversalCard(item, { index = 0, onDelete = null } = {}) {
       e.stopPropagation();
       const pdfData = item.file_data || item.external_url || item.item_url;
       EbookViewerModal.open({
-        title: item.title || 'หนังสือ eBook ออนไลน์',
+        title: item.title || item.file_name || 'หนังสือ eBook ออนไลน์',
         pdfUrl: pdfData,
-        downloadUrl: item.item_url || ''
+        downloadUrl: item.item_url || item.external_url || '',
+        driveFileId: item.drive_file_id || ''
       });
     });
   }
@@ -152,9 +153,10 @@ export function renderUniversalCard(item, { index = 0, onDelete = null } = {}) {
       e.stopPropagation();
       const fileData = item.file_data || item.external_url || item.item_url;
       ExcelViewerModal.open({
-        title: item.title || 'สเปรดชีต Excel ออนไลน์',
+        title: item.title || item.file_name || 'สเปรดชีต Excel ออนไลน์',
         fileData: fileData,
-        downloadUrl: item.item_url || ''
+        downloadUrl: item.item_url || item.external_url || '',
+        driveFileId: item.drive_file_id || ''
       });
     });
   }
