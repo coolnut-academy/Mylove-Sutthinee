@@ -7,7 +7,6 @@
 import { BaseDataProvider } from './provider.js';
 import { CONFIG } from '../config.js';
 import { AppState } from '../app-state.js';
-import { Loading } from '../loading.js';
 
 const ACTION_MESSAGES = {
   getBootstrap: 'กำลังโหลดข้อมูลระบบและปีการศึกษา...',
@@ -129,8 +128,8 @@ export class AppsScriptDataProvider extends BaseDataProvider {
       headers['Content-Type'] = 'text/plain;charset=utf-8';
     }
 
-    const friendlyMsg = ACTION_MESSAGES[action] || `กำลังเชื่อมต่อ Google Apps Script (${action})...`;
-    Loading.start(friendlyMsg);
+    // 💡 Loading ถูกจัดการโดย page controller แล้ว — ไม่ต้อง start/done/fail ที่นี่
+    //    ป้องกัน Loading ซ้ำซ้อน (activeCount สูงเกินจริง) และ Loading ค้าง
 
     try {
       const resp = await fetch(url.toString(), options);
@@ -147,19 +146,15 @@ export class AppsScriptDataProvider extends BaseDataProvider {
         throw new Error(data.error || 'Server request failed');
       }
 
-      // หากหน้านั้นจัดการ Loading เองอยู่แล้ว จะไม่แย่งปิด Loading
-      Loading.done('ดำเนินการสำเร็จ');
       return data.data;
     } catch (err) {
       clearTimeout(timerId);
       if (err.name === 'AbortError') {
         const timeoutMsg = `การเชื่อมต่อไปยัง Google Apps Script หมดเวลา (${timeoutMs / 1000} วินาที) กรุณาลองใหม่อีกครั้ง`;
         console.error(`[${action}] Timeout:`, timeoutMsg);
-        Loading.fail(timeoutMsg);
         throw new Error(timeoutMsg);
       }
       console.error(`AppsScript Provider error [${action}]:`, err);
-      Loading.fail(err.message || 'การเชื่อมต่อคลาวด์ขัดข้อง');
       throw err;
     }
   }

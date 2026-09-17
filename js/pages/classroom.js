@@ -6,7 +6,7 @@
 import { Loading } from '../loading.js';
 import { RouterUtils } from '../router-utils.js';
 import { AppState } from '../app-state.js';
-import { SettingsApi, YearsApi, ClassroomApi, AuthApi } from '../api.js';
+import { SettingsApi, YearsApi, ClassroomApi, AuthApi, provider } from '../api.js';
 import { Utils } from '../utils.js';
 import { Modal } from '../modal.js';
 import { Toast } from '../toast.js';
@@ -24,7 +24,7 @@ class ClassroomPageController {
   }
 
   async init() {
-    Loading.start();
+    Loading.start('กำลังโหลดข้อมูลธุรการในชั้นเรียน...');
     this._bindMobileNav();
     this._bindYearChange();
     this._bindAdminButton();
@@ -39,18 +39,22 @@ class ClassroomPageController {
     });
 
     try {
-      Loading.set(30, 'กำลังโหลดข้อมูลธุรการในชั้นเรียน...');
-      await Promise.all([
-        this._loadSettings(),
-        this._loadYears(),
-        this._loadClassroomData(this.currentYear)
-      ]);
+      // 💡 Single bootstrap call แทน 3 calls แยก (settings + years + classroomData)
+      const bootstrap = await this._loadBootstrap();
+      if (bootstrap) {
+        this._applySettings(bootstrap.settings);
+        this._applyYears(bootstrap.years);
+        if (bootstrap.classroomData) {
+          this.classroomData = bootstrap.classroomData;
+          this._renderCurrentView();
+        }
+      }
       this._updateAdminButton();
       Loading.done('โหลดข้อมูลห้องเรียนเรียบร้อย');
       InlineEditor.init();
     } catch (err) {
       console.error("Failed to load classroom module:", err);
-      Loading.done('พร้อมใช้งาน');
+      Loading.fail('โหลดข้อมูลไม่สำเร็จ');
     }
   }
 
@@ -252,8 +256,22 @@ class ClassroomPageController {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  async _loadSettings() {
-    const settings = await SettingsApi.getSettings();
+  async _loadBootstrap() {
+    const { Cache } = await import('../cache.js');
+    const key = Cache.buildKey('cls_bootstrap_' + this.currentYear);
+    return Cache.swr(key, () => provider.getBootstrap({ module: 'classroom', year: this.currentYear }), (data) => {
+      if (data) {
+        this._applySettings(data.settings);
+        this._applyYears(data.years);
+        if (data.classroomData) {
+          this.classroomData = data.classroomData;
+          this._renderCurrentView();
+        }
+      }
+    });
+  }
+
+  _applySettings(settings) {
     if (!settings) return;
     AppState.setSettings(settings);
 
@@ -271,8 +289,7 @@ class ClassroomPageController {
     }
   }
 
-  async _loadYears() {
-    const years = await YearsApi.getYears();
+  _applyYears(years) {
     const select = document.getElementById('header-year-select');
     if (!select || !years) return;
 

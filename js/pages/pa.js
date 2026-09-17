@@ -6,7 +6,7 @@
 import { Loading } from '../loading.js';
 import { RouterUtils } from '../router-utils.js';
 import { AppState } from '../app-state.js';
-import { SettingsApi, YearsApi, PaApi, AuthApi } from '../api.js';
+import { SettingsApi, YearsApi, PaApi, AuthApi, provider } from '../api.js';
 import { Utils } from '../utils.js';
 import { Modal } from '../modal.js';
 import { Toast } from '../toast.js';
@@ -40,7 +40,7 @@ class PaPageController {
   }
 
   async init() {
-    Loading.start();
+    Loading.start('กำลังโหลดข้อมูลรายงาน ว.PA...');
     this._bindMobileNav();
     this._bindYearChange();
     this._bindAdminButton();
@@ -56,18 +56,23 @@ class PaPageController {
     });
 
     try {
-      Loading.set(30, 'กำลังโหลดข้อมูลรายงาน ว.PA...');
-      await Promise.all([
-        this._loadSettings(),
-        this._loadYears(),
-        this._loadPaData(this.currentYear)
-      ]);
+      // 💡 Single bootstrap call แทน 3 calls แยก (settings + years + paData)
+      const bootstrap = await this._loadBootstrap();
+      if (bootstrap) {
+        this._applySettings(bootstrap.settings);
+        this._applyYears(bootstrap.years);
+        if (bootstrap.paData) {
+          this.paSections = bootstrap.paData.sections || [];
+          this.paItems = bootstrap.paData.items || [];
+          this._renderCurrentView();
+        }
+      }
       this._updateAdminButton();
       Loading.done('โหลดข้อมูล ว.PA เรียบร้อย');
       InlineEditor.init();
     } catch (err) {
       console.error("Failed to load PA module:", err);
-      Loading.done('พร้อมใช้งาน');
+      Loading.fail('โหลดข้อมูลไม่สำเร็จ');
     }
   }
 
@@ -299,8 +304,23 @@ class PaPageController {
     }
   }
 
-  async _loadSettings() {
-    const settings = await SettingsApi.getSettings();
+  async _loadBootstrap() {
+    const { Cache } = await import('../cache.js');
+    const key = Cache.buildKey('pa_bootstrap_' + this.currentYear);
+    return Cache.swr(key, () => provider.getBootstrap({ module: 'pa', year: this.currentYear }), (data) => {
+      if (data) {
+        this._applySettings(data.settings);
+        this._applyYears(data.years);
+        if (data.paData) {
+          this.paSections = data.paData.sections || [];
+          this.paItems = data.paData.items || [];
+          this._renderCurrentView();
+        }
+      }
+    });
+  }
+
+  _applySettings(settings) {
     if (!settings) return;
     AppState.setSettings(settings);
 
@@ -318,8 +338,7 @@ class PaPageController {
     }
   }
 
-  async _loadYears() {
-    const years = await YearsApi.getYears();
+  _applyYears(years) {
     const select = document.getElementById('header-year-select');
     if (!select || !years) return;
 

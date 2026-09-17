@@ -6,6 +6,7 @@ export class LoadingManager {
     this.isShowing = false;
     this.timer = null;
     this.hideTimer = null;
+    this.safetyTimer = null;
     this.message = '';
     this.failure = null;
   }
@@ -53,6 +54,15 @@ export class LoadingManager {
     this.indicatorEl?.classList.add('show');
     if (this.iconEl) this.iconEl.textContent = '☁️';
     this._update();
+
+    // 💡 Safety timeout: ถ้า Loading ค้างนานกว่า 30 วินาที ให้ force reset
+    clearTimeout(this.safetyTimer);
+    this.safetyTimer = setTimeout(() => {
+      if (this.activeCount > 0) {
+        console.warn(`[Loading] Safety timeout fired after 30s, activeCount was ${this.activeCount}`);
+        this.forceReset();
+      }
+    }, 30000);
   }
 
   set(percent, message) {
@@ -74,6 +84,7 @@ export class LoadingManager {
     this.activeCount--;
     if (this.activeCount > 0) { this._update(); return; }
     clearInterval(this.timer);
+    clearTimeout(this.safetyTimer);
     this.timer = null;
     this.message = this.failure || message;
     if (!this.failure) this.progress = 100;
@@ -85,6 +96,20 @@ export class LoadingManager {
       this.indicatorEl?.classList.add('hidden');
       this.isShowing = false;
     }, this.failure ? 7000 : 1100);
+  }
+
+  /** Force-reset all state — use when loading gets stuck */
+  forceReset() {
+    this.activeCount = 0;
+    this.progress = 0;
+    this.failure = null;
+    clearInterval(this.timer);
+    clearTimeout(this.hideTimer);
+    clearTimeout(this.safetyTimer);
+    this.timer = null;
+    this.indicatorEl?.classList.remove('show', 'success', 'failed');
+    this.indicatorEl?.classList.add('hidden');
+    this.isShowing = false;
   }
 
   _update() {
@@ -105,3 +130,4 @@ export class LoadingManager {
 }
 
 export const Loading = new LoadingManager();
+

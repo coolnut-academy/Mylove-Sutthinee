@@ -6,7 +6,7 @@
 import { Loading } from '../loading.js';
 import { RouterUtils } from '../router-utils.js';
 import { AppState } from '../app-state.js';
-import { SettingsApi, YearsApi, AuthApi } from '../api.js';
+import { SettingsApi, YearsApi, AuthApi, provider } from '../api.js';
 import { Modal } from '../modal.js';
 import { Toast } from '../toast.js';
 import { InlineEditor } from '../admin/inline-editor.js';
@@ -18,25 +18,26 @@ class HomePageController {
   }
 
   async init() {
-    Loading.start();
+    Loading.start('กำลังโหลดหน้าแรก...');
     this._bindMobileNav();
     this._bindYearChange();
     this._bindAdminButtons();
     InlineEditor.init();
 
     try {
-      Loading.set(30, 'กำลังโหลดข้อมูลหน้าแรก...');
-      await Promise.all([
-        this._loadSettings(),
-        this._loadYears()
-      ]);
+      // 💡 Single bootstrap call แทน 2 calls แยก (settings + years)
+      const bootstrap = await this._loadBootstrap();
+      if (bootstrap) {
+        this._applySettings(bootstrap.settings);
+        this._applyYears(bootstrap.years);
+      }
       this._updateDynamicLinks(this.currentYear);
       this._updateAdminButton();
       Loading.done('พร้อมใช้งาน');
       InlineEditor.init();
     } catch (err) {
       console.error("Failed to initialize home page:", err);
-      Loading.done('พร้อมใช้งาน');
+      Loading.fail('โหลดข้อมูลไม่สำเร็จ');
     }
   }
 
@@ -201,8 +202,18 @@ class HomePageController {
     }, 100);
   }
 
-  async _loadSettings() {
-    const settings = await SettingsApi.getSettings();
+  async _loadBootstrap() {
+    const { Cache } = await import('../cache.js');
+    const key = Cache.buildKey('home_bootstrap');
+    return Cache.swr(key, () => provider.getBootstrap({ module: '', year: this.currentYear }), (data) => {
+      if (data) {
+        this._applySettings(data.settings);
+        this._applyYears(data.years);
+      }
+    });
+  }
+
+  _applySettings(settings) {
     if (!settings) return;
 
     AppState.setSettings(settings);
@@ -314,8 +325,7 @@ class HomePageController {
     }
   }
 
-  async _loadYears() {
-    const years = await YearsApi.getYears();
+  _applyYears(years) {
     const select = document.getElementById('header-year-select');
     if (!select || !years) return;
 

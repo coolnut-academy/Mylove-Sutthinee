@@ -13,14 +13,28 @@ const Router = {
 
       switch (action) {
         case 'getBootstrap':
+          // 💡 Single request gateway: ส่งทุกข้อมูลที่หน้าต้องการในครั้งเดียว
+          //    ลดจาก 3-4 HTTP requests เหลือ 1 request ต่อ page load
+          var bootstrapModule = params.module || '';
+          var bootstrapYear = params.year || CONFIG.getDefaultYear();
+          var cacheKey = 'bootstrap_' + bootstrapModule + '_' + bootstrapYear;
+          var cached = ServerCache.get(cacheKey);
+          if (cached) {
+            data = cached;
+            break;
+          }
           data = {
             settings: Admin.getSettings(),
             years: Years.getAll(),
-            defaultYear: CONFIG.getDefaultYear(),
-            storageVersion: '2026-09-12-confirmed-save-v2',
-            performanceVersion: '2026-09-12-targeted-reads-v1',
-            settingsStorageVersion: '2026-09-12-drive-images-v1'
+            defaultYear: CONFIG.getDefaultYear()
           };
+          // เพิ่มข้อมูลเฉพาะ module
+          if (bootstrapModule === 'classroom') {
+            data.classroomData = Classroom.getData(bootstrapYear, true);
+          } else if (bootstrapModule === 'pa') {
+            data.paData = { sections: PA.getSections(bootstrapYear), items: PA.getItems(bootstrapYear) };
+          }
+          ServerCache.put(cacheKey, data, 300); // cache 5 นาที
           break;
 
         case 'getYears':
@@ -155,6 +169,13 @@ const Router = {
         default:
           return Utils.jsonError('Unknown POST action: ' + action, 400);
       }
+      // 💡 Invalidate server-side bootstrap cache หลัง write เพื่อให้ read ถัดไปได้ข้อมูลใหม่
+      try {
+        var cache = CacheService.getScriptCache();
+        cache.removeAll(['bootstrap__2567', 'bootstrap__2568', 'bootstrap__2569',
+          'bootstrap_classroom_2567', 'bootstrap_classroom_2568', 'bootstrap_classroom_2569',
+          'bootstrap_pa_2567', 'bootstrap_pa_2568', 'bootstrap_pa_2569']);
+      } catch (cacheErr) { /* ignore */ }
 
       return Utils.jsonSuccess(result);
     } catch (err) {

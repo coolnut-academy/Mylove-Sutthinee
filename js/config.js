@@ -25,7 +25,7 @@ export const CONFIG = {
 
   // Cache configuration
   CACHE_VERSION: "v4",
-  CACHE_TTL_MS: 15 * 60 * 1000, // 15 minutes
+  CACHE_TTL_MS: 30 * 60 * 1000, // 💡 30 minutes (ลดจำนวน network calls)
 
   // File upload thresholds
   MAX_UPLOAD_SIZE_MB: 10,

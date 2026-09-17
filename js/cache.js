@@ -36,7 +36,7 @@ export const Cache = {
   /**
    * Store data in cache
    */
-  set(key, data, ttlMs = CONFIG.CACHE_TTL_MS) {
+  set(key, data, ttlMs = CONFIG.CACHE_TTL_MS || 30 * 60 * 1000) { // 💡 30 minutes (ลดจำนวน network calls)
     if (typeof window === 'undefined' || !window.localStorage) return;
     try {
       const record = {
@@ -99,10 +99,11 @@ export const Cache = {
         }
       })();
 
+      // 💡 ลด timeout จาก 1500ms → 500ms เพื่อแสดง cached data เร็วขึ้น
       const timeoutPromise = new Promise(resolve => setTimeout(() => {
         isSettled = true;
         resolve(cached);
-      }, 1500));
+      }, 500));
 
       return Promise.race([networkPromise, timeoutPromise]);
     }
