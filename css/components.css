@@ -762,6 +762,7 @@ body.admin-mode .btn-inline-edit:hover {
   line-height: 1;
   background: linear-gradient(135deg, var(--purple-600, #8C6CC4) 0%, var(--purple-400, #C2A4EF) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
